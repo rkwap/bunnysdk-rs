@@ -22,6 +22,7 @@ default = [
     "containers",
     "database",
     "origin-errors",
+    "partner",
     "storage",
     "logging",
 ]
@@ -32,6 +33,7 @@ stream = []
 containers = []
 database = []
 origin-errors = []
+partner = []
 storage = []
 logging = []
 

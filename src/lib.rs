@@ -11,7 +11,8 @@
 //! | [`database`] | Managed libSQL databases | account API key |
 //! | [`logging`] | CDN request logs | account API key |
 //! | [`origin_errors`] | CDN origin error logs | account API key |
-//! | [`stream`] | Videos, collections, resumable uploads | video library API key |
+//! | [`partner`] | Reseller customers, pricing, billing | partner account API key |
+//! | [`stream`] | Videos, collections, live streams, resumable uploads | video library API key |
 //! | [`storage`] | Edge Storage files | storage zone password |
 //!
 //! Every module is behind a Cargo feature of the same name (`origin-errors`
@@ -75,6 +76,9 @@ pub mod logging;
 #[cfg(feature = "origin-errors")]
 #[path = "generated/origin_errors.rs"]
 pub mod origin_errors;
+#[cfg(feature = "partner")]
+#[path = "generated/partner.rs"]
+pub mod partner;
 #[cfg(feature = "shield")]
 #[path = "generated/shield.rs"]
 pub mod shield;

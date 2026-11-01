@@ -235,6 +235,49 @@ async fn containers_rfc7807_errors() {
     assert_eq!(api.validation_errors[0].field.as_deref(), Some("limit"));
 }
 
+#[tokio::test]
+async fn stream_live_streams() {
+    let server = MockServer::start().await;
+    Mock::given(method("POST"))
+        .and(path("/library/9/live"))
+        .and(body_json(json!({ "title": "Launch", "dvrEnabled": true })))
+        .respond_with(
+            ResponseTemplate::new(200)
+                .set_body_json(json!({ "guid": "live-1", "title": "Launch" })),
+        )
+        .expect(1)
+        .mount(&server)
+        .await;
+
+    let stream =
+        StreamClient::with_config("library-key", Config::new().base_url(server.uri())).unwrap();
+    let body = bunnysdk::stream::CreateLiveStreamModel {
+        title: Some("Launch".into()),
+        dvr_enabled: Some(true),
+        ..Default::default()
+    };
+    let live = stream.create_live_stream(9, &body).await.unwrap();
+    assert_eq!(live.guid, "live-1");
+}
+
+#[tokio::test]
+async fn partner_list_customers() {
+    let server = MockServer::start().await;
+    Mock::given(method("GET"))
+        .and(path("/partner/customers"))
+        .and(header("AccessKey", "partner-key"))
+        .respond_with(ResponseTemplate::new(200).set_body_json(json!([{}])))
+        .expect(1)
+        .mount(&server)
+        .await;
+    let partner = bunnysdk::partner::PartnerClient::with_config(
+        "partner-key",
+        Config::new().base_url(server.uri()),
+    )
+    .unwrap();
+    assert_eq!(partner.list_customers().await.unwrap().len(), 1);
+}
+
 #[test]
 fn every_client_has_a_default_base_url() {
     assert_eq!(bunnysdk::core::BASE_URL, "https://api.bunny.net");
@@ -247,5 +290,6 @@ fn every_client_has_a_default_base_url() {
     assert!(bunnysdk::shield::ShieldClient::new("key").is_ok());
     assert!(bunnysdk::compute::ComputeClient::new("key").is_ok());
     assert!(bunnysdk::origin_errors::OriginErrorsClient::new("key").is_ok());
+    assert_eq!(bunnysdk::partner::BASE_URL, "https://api.bunny.net");
     assert!(bunnysdk::database::DatabaseClient::new("").is_err());
 }

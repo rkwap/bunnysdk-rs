@@ -722,6 +722,274 @@ impl StreamClient {
             .request_with_query(reqwest::Method::GET, "/OEmbed", query)?;
         self.transport.json(request).await
     }
+
+    /// Get live stream by ID
+    ///
+    /// Gets details of a live stream contained in library by its ID.
+    ///
+    /// Returns: The details of the requested live stream
+    ///
+    /// `GET /library/{libraryId}/live/{streamId}`
+    pub async fn get_live_stream(
+        &self,
+        library_id: i64,
+        stream_id: &str,
+    ) -> crate::Result<LiveStreamModel> {
+        let request = self.transport.request(
+            reqwest::Method::GET,
+            &format!(
+                "/library/{}/live/{}",
+                crate::transport::segment(library_id),
+                crate::transport::segment(stream_id)
+            ),
+        );
+        self.transport.json(request).await
+    }
+
+    /// Update live stream
+    ///
+    /// Updates the live stream object with the specified parameters and returns it
+    ///
+    /// Returns: The live stream was successfully updated
+    ///
+    /// `PUT /library/{libraryId}/live/{streamId}`
+    pub async fn update_live_stream(
+        &self,
+        library_id: i64,
+        stream_id: &str,
+        body: &UpdateLiveStreamModel,
+    ) -> crate::Result<LiveStreamModel> {
+        let request = self
+            .transport
+            .request(
+                reqwest::Method::PUT,
+                &format!(
+                    "/library/{}/live/{}",
+                    crate::transport::segment(library_id),
+                    crate::transport::segment(stream_id)
+                ),
+            )
+            .json(body);
+        self.transport.json(request).await
+    }
+
+    /// Delete live stream
+    ///
+    /// Deletes the live stream object and all resources associated with it. This operation cannot be undone.
+    ///
+    /// Returns: The details of the requested live stream
+    ///
+    /// `DELETE /library/{libraryId}/live/{streamId}`
+    pub async fn delete_live_stream(
+        &self,
+        library_id: i64,
+        stream_id: &str,
+    ) -> crate::Result<LiveStreamModel> {
+        let request = self.transport.request(
+            reqwest::Method::DELETE,
+            &format!(
+                "/library/{}/live/{}",
+                crate::transport::segment(library_id),
+                crate::transport::segment(stream_id)
+            ),
+        );
+        self.transport.json(request).await
+    }
+
+    /// Get live stream play data
+    ///
+    /// Returns: The play data of the requested live stream
+    ///
+    /// `GET /library/{libraryId}/live/{streamId}/play`
+    pub async fn get_live_stream_play_data(
+        &self,
+        library_id: i64,
+        stream_id: &str,
+        query: &GetLiveStreamPlayDataQuery,
+    ) -> crate::Result<LiveStreamPlayDataModel> {
+        let request = self.transport.request_with_query(
+            reqwest::Method::GET,
+            &format!(
+                "/library/{}/live/{}/play",
+                crate::transport::segment(library_id),
+                crate::transport::segment(stream_id)
+            ),
+            query,
+        )?;
+        self.transport.json(request).await
+    }
+
+    /// List streams
+    ///
+    /// Returns a list of streams associated with this library and collection, if passed
+    ///
+    /// Returns: The list of live streams associated with this library
+    ///
+    /// `GET /library/{libraryId}/live`
+    pub async fn list_live_streams(
+        &self,
+        library_id: i64,
+        query: &ListLiveStreamsQuery,
+    ) -> crate::Result<PaginationListOfLiveStreamModel> {
+        let request = self.transport.request_with_query(
+            reqwest::Method::GET,
+            &format!("/library/{}/live", crate::transport::segment(library_id)),
+            query,
+        )?;
+        self.transport.json(request).await
+    }
+
+    /// Create new live stream
+    ///
+    /// Creates a new live stream object with the specified parameters and returns it
+    ///
+    /// Returns: The live stream was successfully created and returned as the response.
+    ///
+    /// `POST /library/{libraryId}/live`
+    pub async fn create_live_stream(
+        &self,
+        library_id: i64,
+        body: &CreateLiveStreamModel,
+    ) -> crate::Result<LiveStreamModel> {
+        let request = self
+            .transport
+            .request(
+                reqwest::Method::POST,
+                &format!("/library/{}/live", crate::transport::segment(library_id)),
+            )
+            .json(body);
+        self.transport.json(request).await
+    }
+
+    /// Start live stream
+    ///
+    /// Marks the stream as started, allowing viewers to view the stream.
+    ///
+    /// Returns: The details of the started live stream
+    ///
+    /// `PUT /library/{libraryId}/live/{streamId}/start`
+    pub async fn start_live_stream(
+        &self,
+        library_id: i64,
+        stream_id: &str,
+    ) -> crate::Result<LiveStreamModel> {
+        let request = self.transport.request(
+            reqwest::Method::PUT,
+            &format!(
+                "/library/{}/live/{}/start",
+                crate::transport::segment(library_id),
+                crate::transport::segment(stream_id)
+            ),
+        );
+        self.transport.json(request).await
+    }
+
+    /// Stop live stream
+    ///
+    /// Stops the stream, if publishing is still ongoing, it will be stopped by the ingest server. If 'DvrEnabled' was set to true, the stream will be converted to a regular video as a VOD.This operation cannot be undone.
+    ///
+    /// Returns: The details of the requested live stream
+    ///
+    /// `PUT /library/{libraryId}/live/{streamId}/stop`
+    pub async fn stop_live_stream(
+        &self,
+        library_id: i64,
+        stream_id: &str,
+    ) -> crate::Result<LiveStreamModel> {
+        let request = self.transport.request(
+            reqwest::Method::PUT,
+            &format!(
+                "/library/{}/live/{}/stop",
+                crate::transport::segment(library_id),
+                crate::transport::segment(stream_id)
+            ),
+        );
+        self.transport.json(request).await
+    }
+
+    /// `GET /library/{libraryId}/live/{streamId}/bitrate-history`
+    pub async fn get_live_stream_bitrate_history(
+        &self,
+        library_id: i64,
+        stream_id: &str,
+        query: &GetLiveStreamBitrateHistoryQuery,
+    ) -> crate::Result<bytes::Bytes> {
+        let request = self.transport.request_with_query(
+            reqwest::Method::GET,
+            &format!(
+                "/library/{}/live/{}/bitrate-history",
+                crate::transport::segment(library_id),
+                crate::transport::segment(stream_id)
+            ),
+            query,
+        )?;
+        self.transport.bytes(request).await
+    }
+
+    /// `GET /library/{libraryId}/live/{streamId}/current-bitrate`
+    pub async fn get_live_stream_current_bitrate(
+        &self,
+        library_id: i64,
+        stream_id: &str,
+    ) -> crate::Result<bytes::Bytes> {
+        let request = self.transport.request(
+            reqwest::Method::GET,
+            &format!(
+                "/library/{}/live/{}/current-bitrate",
+                crate::transport::segment(library_id),
+                crate::transport::segment(stream_id)
+            ),
+        );
+        self.transport.bytes(request).await
+    }
+
+    /// Set Thumbnail
+    ///
+    /// Returns: The thumbnail was successfully set
+    ///
+    /// `POST /library/{libraryId}/live/{streamId}/thumbnail`
+    pub async fn set_live_stream_thumbnail(
+        &self,
+        library_id: i64,
+        stream_id: &str,
+        query: &SetLiveStreamThumbnailQuery,
+    ) -> crate::Result<StatusModel> {
+        let request = self.transport.request_with_query(
+            reqwest::Method::POST,
+            &format!(
+                "/library/{}/live/{}/thumbnail",
+                crate::transport::segment(library_id),
+                crate::transport::segment(stream_id)
+            ),
+            query,
+        )?;
+        self.transport.json(request).await
+    }
+
+    /// Get live stream thumbnails
+    ///
+    /// Returns recent generated thumbnail object paths for the specified live stream. You can limit the number of results and optionally constrain by a time range using 'from' and 'to' in UTC.
+    ///
+    /// Returns: A list of thumbnail object paths (most recent first)
+    ///
+    /// `GET /library/{libraryId}/live/{streamId}/thumbnails`
+    pub async fn get_live_stream_thumbnails(
+        &self,
+        library_id: i64,
+        stream_id: &str,
+        query: &GetLiveStreamThumbnailsQuery,
+    ) -> crate::Result<Vec<ThumbnailListResponseModel>> {
+        let request = self.transport.request_with_query(
+            reqwest::Method::GET,
+            &format!(
+                "/library/{}/live/{}/thumbnails",
+                crate::transport::segment(library_id),
+                crate::transport::segment(stream_id)
+            ),
+            query,
+        )?;
+        self.transport.json(request).await
+    }
 }
 
 #[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
@@ -1758,6 +2026,307 @@ pub struct VideoOEmbedModel {
     pub provider_url: Option<String>,
 }
 
+#[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
+#[serde(default)]
+pub struct LiveStreamModel {
+    /// The ID of the video library that the live stream belongs to
+    #[serde(rename = "videoLibraryId")]
+    pub video_library_id: i64,
+    /// The unique ID of the live stream
+    pub guid: String,
+    /// The title of the live stream
+    pub title: String,
+    /// The description of the live stream
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub description: Option<String>,
+    /// The category of the live stream
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub category: Option<String>,
+    /// The ID of the collection where the live stream belongs
+    #[serde(rename = "collectionId", skip_serializing_if = "Option::is_none")]
+    pub collection_id: Option<String>,
+    /// Determines if the live stream is publicly accessible
+    pub public: bool,
+    /// The status of the live stream. See LiveStreamStatus.
+    pub status: LiveStreamStatus,
+    /// The date when the live stream was created
+    #[serde(rename = "dateCreated")]
+    pub date_created: String,
+    /// The scheduled start time of the live stream (optional)
+    #[serde(rename = "scheduledStartTime", skip_serializing_if = "Option::is_none")]
+    pub scheduled_start_time: Option<String>,
+    /// The scheduled end time of the live stream (optional)
+    #[serde(rename = "scheduledEndTime", skip_serializing_if = "Option::is_none")]
+    pub scheduled_end_time: Option<String>,
+    /// The date and time when the live stream publishing started
+    #[serde(rename = "startedAt", skip_serializing_if = "Option::is_none")]
+    pub started_at: Option<String>,
+    /// The date and time when the live stream publishing ended
+    #[serde(rename = "endedAt", skip_serializing_if = "Option::is_none")]
+    pub ended_at: Option<String>,
+    /// The duration of the live stream in seconds
+    #[serde(rename = "durationSeconds", skip_serializing_if = "Option::is_none")]
+    pub duration_seconds: Option<i32>,
+    /// The stream key required for publishing the live stream
+    #[serde(rename = "streamKey")]
+    pub stream_key: String,
+    /// The HLS playback URL of the live stream
+    #[serde(rename = "playbackUrlHls")]
+    pub playback_url_hls: String,
+    /// Determines if DVR is enabled for the live stream
+    #[serde(rename = "dvrEnabled")]
+    pub dvr_enabled: bool,
+    /// The DVR window size in seconds, required when DvrEnabled is true
+    #[serde(rename = "dvrWindowSeconds", skip_serializing_if = "Option::is_none")]
+    pub dvr_window_seconds: Option<i32>,
+    /// Determines if a VOD recording should be created for the live stream
+    #[serde(rename = "recordVod")]
+    pub record_vod: bool,
+    /// The available output resolutions of the live stream
+    #[serde(rename = "availableResolutions")]
+    pub available_resolutions: String,
+    /// The input video width in pixels
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub width: Option<i32>,
+    /// The input video height in pixels
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub height: Option<i32>,
+    /// The framerate of the input stream
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub framerate: Option<f64>,
+    /// The primary ingest region of the live stream
+    #[serde(rename = "ingestRegion")]
+    pub ingest_region: String,
+    /// The peak number of concurrent viewers
+    #[serde(
+        rename = "peakConcurrentViewers",
+        skip_serializing_if = "Option::is_none"
+    )]
+    pub peak_concurrent_viewers: Option<i32>,
+    /// The total viewer watch time in seconds
+    #[serde(rename = "totalViewerSeconds", skip_serializing_if = "Option::is_none")]
+    pub total_viewer_seconds: Option<i64>,
+    /// The file name of the thumbnail inside of the storage
+    #[serde(rename = "thumbnailFileName", skip_serializing_if = "Option::is_none")]
+    pub thumbnail_file_name: Option<String>,
+    /// The date and time when the thumbnail was last updated
+    #[serde(rename = "thumbnailUpdatedAt", skip_serializing_if = "Option::is_none")]
+    pub thumbnail_updated_at: Option<String>,
+    /// Determines if countdown should be shown in player before the stream start, if it was scheduled
+    #[serde(rename = "enableCountdown", skip_serializing_if = "Option::is_none")]
+    pub enable_countdown: Option<bool>,
+    /// A list of up to 5 RTMP outputs that the incoming stream will be forwarded to
+    #[serde(rename = "rtmpOutputs", skip_serializing_if = "Option::is_none")]
+    pub rtmp_outputs: Option<Vec<String>>,
+}
+
+int_enum! {
+    /// 0 = Unknown
+    /// 1 = Created
+    /// 2 = Scheduled
+    /// 3 = Preview
+    /// 4 = Running
+    /// 5 = Ended
+    /// 6 = VodProcessing
+    /// 7 = Error
+    LiveStreamStatus {
+        Unknown = 0,
+        Created = 1,
+        Scheduled = 2,
+        Preview = 3,
+        Running = 4,
+        Ended = 5,
+        VodProcessing = 6,
+        Error = 7,
+    }
+}
+
+#[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
+#[serde(default)]
+pub struct LiveStreamPlayDataModel {
+    /// Live stream data.
+    #[serde(rename = "liveStream", skip_serializing_if = "Option::is_none")]
+    pub live_stream: Option<LiveStreamModel>,
+    #[serde(rename = "libraryName", skip_serializing_if = "Option::is_none")]
+    pub library_name: Option<String>,
+    #[serde(rename = "captionsPath", skip_serializing_if = "Option::is_none")]
+    pub captions_path: Option<String>,
+    #[serde(rename = "seekPath", skip_serializing_if = "Option::is_none")]
+    pub seek_path: Option<String>,
+    #[serde(rename = "thumbnailUrl", skip_serializing_if = "Option::is_none")]
+    pub thumbnail_url: Option<String>,
+    #[serde(rename = "fallbackUrl", skip_serializing_if = "Option::is_none")]
+    pub fallback_url: Option<String>,
+    #[serde(rename = "videoPlaylistUrl", skip_serializing_if = "Option::is_none")]
+    pub video_playlist_url: Option<String>,
+    #[serde(rename = "originalUrl", skip_serializing_if = "Option::is_none")]
+    pub original_url: Option<String>,
+    #[serde(rename = "previewUrl", skip_serializing_if = "Option::is_none")]
+    pub preview_url: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub controls: Option<String>,
+    #[serde(rename = "enableDRM", skip_serializing_if = "Option::is_none")]
+    pub enable_drm: Option<bool>,
+    #[serde(rename = "drmVersion", skip_serializing_if = "Option::is_none")]
+    pub drm_version: Option<i32>,
+    #[serde(rename = "playerKeyColor", skip_serializing_if = "Option::is_none")]
+    pub player_key_color: Option<String>,
+    #[serde(rename = "vastTagUrl", skip_serializing_if = "Option::is_none")]
+    pub vast_tag_url: Option<String>,
+    #[serde(rename = "viAiPublisherId", skip_serializing_if = "Option::is_none")]
+    pub vi_ai_publisher_id: Option<String>,
+    #[serde(rename = "captionsFontSize", skip_serializing_if = "Option::is_none")]
+    pub captions_font_size: Option<i32>,
+    #[serde(rename = "captionsFontColor", skip_serializing_if = "Option::is_none")]
+    pub captions_font_color: Option<String>,
+    #[serde(rename = "captionsBackground", skip_serializing_if = "Option::is_none")]
+    pub captions_background: Option<String>,
+    #[serde(rename = "uiLanguage", skip_serializing_if = "Option::is_none")]
+    pub ui_language: Option<String>,
+    #[serde(rename = "allowEarlyPlay", skip_serializing_if = "Option::is_none")]
+    pub allow_early_play: Option<bool>,
+    #[serde(rename = "tokenAuthEnabled", skip_serializing_if = "Option::is_none")]
+    pub token_auth_enabled: Option<bool>,
+    #[serde(rename = "enableMP4Fallback", skip_serializing_if = "Option::is_none")]
+    pub enable_mp4_fallback: Option<bool>,
+    #[serde(rename = "showHeatmap", skip_serializing_if = "Option::is_none")]
+    pub show_heatmap: Option<bool>,
+    #[serde(rename = "fontFamily", skip_serializing_if = "Option::is_none")]
+    pub font_family: Option<String>,
+    #[serde(rename = "playbackSpeeds", skip_serializing_if = "Option::is_none")]
+    pub playback_speeds: Option<String>,
+    #[serde(
+        rename = "widevineMinClientSecurityLevel",
+        skip_serializing_if = "Option::is_none"
+    )]
+    pub widevine_min_client_security_level: Option<i32>,
+    #[serde(rename = "zoneTier", skip_serializing_if = "Option::is_none")]
+    pub zone_tier: Option<i32>,
+    #[serde(
+        rename = "rememberPlayerPosition",
+        skip_serializing_if = "Option::is_none"
+    )]
+    pub remember_player_position: Option<bool>,
+}
+
+#[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
+#[serde(default)]
+pub struct StatusModelOfListOfString {
+    /// Determines if the request was successful
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub success: Option<bool>,
+    /// Human-readable message describing the result, typically populated with error details when Success is false.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub message: Option<String>,
+    /// The HTTP status code corresponding to the result of the request.
+    #[serde(rename = "statusCode", skip_serializing_if = "Option::is_none")]
+    pub status_code: Option<i32>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub data: Option<Vec<String>>,
+}
+
+#[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
+#[serde(default)]
+pub struct CreateLiveStreamModel {
+    /// The title of the live stream
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub title: Option<String>,
+    /// The description of the live stream
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub description: Option<String>,
+    /// The ID of the collection where the live stream belongs
+    #[serde(rename = "collectionId", skip_serializing_if = "Option::is_none")]
+    pub collection_id: Option<String>,
+    /// Determines if DVR is enabled for the live stream
+    #[serde(rename = "dvrEnabled", skip_serializing_if = "Option::is_none")]
+    pub dvr_enabled: Option<bool>,
+    /// The DVR window size in seconds, required when DvrEnabled is true, max is 12 hours
+    #[serde(rename = "dvrWindowSeconds", skip_serializing_if = "Option::is_none")]
+    pub dvr_window_seconds: Option<i32>,
+    /// Determines if a VOD recording should be created for the live stream
+    #[serde(rename = "recordVod", skip_serializing_if = "Option::is_none")]
+    pub record_vod: Option<bool>,
+    /// The scheduled start time of the live stream (optional, UTC)
+    #[serde(rename = "scheduledStartTime", skip_serializing_if = "Option::is_none")]
+    pub scheduled_start_time: Option<String>,
+    /// The scheduled end time of the live stream (optional, UTC)
+    #[serde(rename = "scheduledEndTime", skip_serializing_if = "Option::is_none")]
+    pub scheduled_end_time: Option<String>,
+    /// Determines if the live stream is publicly accessible, defaults to true
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub public: Option<bool>,
+    /// Determines if countdown should be shown in player before the stream start, if it was scheduled
+    #[serde(rename = "enableCountdown", skip_serializing_if = "Option::is_none")]
+    pub enable_countdown: Option<bool>,
+    /// A list of up to 5 RTMP outputs that the incoming stream will be forwarded to
+    #[serde(rename = "rtmpOutputs", skip_serializing_if = "Option::is_none")]
+    pub rtmp_outputs: Option<Vec<String>>,
+}
+
+#[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
+#[serde(default)]
+pub struct UpdateLiveStreamModel {
+    /// The title of the live stream
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub title: Option<String>,
+    /// The description of the live stream
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub description: Option<String>,
+    /// The ID of the collection where the live stream belongs
+    #[serde(rename = "collectionId", skip_serializing_if = "Option::is_none")]
+    pub collection_id: Option<String>,
+    /// Determines if DVR is enabled for the live stream
+    #[serde(rename = "dvrEnabled", skip_serializing_if = "Option::is_none")]
+    pub dvr_enabled: Option<bool>,
+    /// The DVR window size in seconds, required when DvrEnabled is true, max is 12 hours
+    #[serde(rename = "dvrWindowSeconds", skip_serializing_if = "Option::is_none")]
+    pub dvr_window_seconds: Option<i32>,
+    /// Determines if a VOD recording should be created for the live stream
+    #[serde(rename = "recordVod", skip_serializing_if = "Option::is_none")]
+    pub record_vod: Option<bool>,
+    /// The scheduled start time of the live stream (optional, UTC)
+    #[serde(rename = "scheduledStartTime", skip_serializing_if = "Option::is_none")]
+    pub scheduled_start_time: Option<String>,
+    /// The scheduled end time of the live stream (optional, UTC)
+    #[serde(rename = "scheduledEndTime", skip_serializing_if = "Option::is_none")]
+    pub scheduled_end_time: Option<String>,
+    /// Determines if the live stream is publicly accessible, defaults to true
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub public: Option<bool>,
+    /// Determines if countdown should be shown in player before the stream start, if it was scheduled (optional)
+    #[serde(rename = "enableCountdown", skip_serializing_if = "Option::is_none")]
+    pub enable_countdown: Option<bool>,
+    /// A list of up to 5 RTMP outputs that the incoming stream will be forwarded to
+    #[serde(rename = "rtmpOutputs", skip_serializing_if = "Option::is_none")]
+    pub rtmp_outputs: Option<Vec<String>>,
+}
+
+#[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
+#[serde(default)]
+pub struct PaginationListOfLiveStreamModel {
+    /// The total number of items that can be returned
+    #[serde(rename = "totalItems", skip_serializing_if = "Option::is_none")]
+    pub total_items: Option<i64>,
+    /// The current page of the response
+    #[serde(rename = "currentPage", skip_serializing_if = "Option::is_none")]
+    pub current_page: Option<i64>,
+    /// The number of items returned per page
+    #[serde(rename = "itemsPerPage", skip_serializing_if = "Option::is_none")]
+    pub items_per_page: Option<i32>,
+    /// The result items on the current result
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub items: Option<Vec<LiveStreamModel>>,
+}
+
+#[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
+#[serde(default)]
+pub struct ThumbnailListResponseModel {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub url: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub timestamp: Option<String>,
+}
+
 /// Query parameters for [`StreamClient::get_collection`].
 #[derive(Debug, Clone, Default, PartialEq, Serialize)]
 pub struct GetCollectionQuery {
@@ -1997,6 +2566,61 @@ pub struct GetOembedDataQuery {
     /// Unix timestamp (seconds) the token is valid until, required when the video library has token authentication enabled.
     #[serde(rename = "expires", skip_serializing_if = "Option::is_none")]
     pub expires: Option<i64>,
+}
+
+/// Query parameters for [`StreamClient::get_live_stream_play_data`].
+#[derive(Debug, Clone, Default, PartialEq, Serialize)]
+pub struct GetLiveStreamPlayDataQuery {
+    #[serde(rename = "token", skip_serializing_if = "Option::is_none")]
+    pub token: Option<String>,
+    #[serde(rename = "expires", skip_serializing_if = "Option::is_none")]
+    pub expires: Option<i64>,
+}
+
+/// Query parameters for [`StreamClient::list_live_streams`].
+#[derive(Debug, Clone, Default, PartialEq, Serialize)]
+pub struct ListLiveStreamsQuery {
+    #[serde(rename = "page", skip_serializing_if = "Option::is_none")]
+    pub page: Option<i32>,
+    #[serde(rename = "itemsPerPage", skip_serializing_if = "Option::is_none")]
+    pub items_per_page: Option<i32>,
+    #[serde(rename = "search", skip_serializing_if = "Option::is_none")]
+    pub search: Option<String>,
+    /// The field to order by. Possible values: date, title, status, started, ended, planned
+    #[serde(rename = "orderBy", skip_serializing_if = "Option::is_none")]
+    pub order_by: Option<String>,
+    #[serde(rename = "collectionId", skip_serializing_if = "Option::is_none")]
+    pub collection_id: Option<String>,
+}
+
+/// Query parameters for [`StreamClient::get_live_stream_bitrate_history`].
+#[derive(Debug, Clone, Default, PartialEq, Serialize)]
+pub struct GetLiveStreamBitrateHistoryQuery {
+    #[serde(rename = "startTime", skip_serializing_if = "Option::is_none")]
+    pub start_time: Option<String>,
+    #[serde(rename = "endTime", skip_serializing_if = "Option::is_none")]
+    pub end_time: Option<String>,
+}
+
+/// Query parameters for [`StreamClient::set_live_stream_thumbnail`].
+#[derive(Debug, Clone, Default, PartialEq, Serialize)]
+pub struct SetLiveStreamThumbnailQuery {
+    #[serde(rename = "thumbnailUrl", skip_serializing_if = "Option::is_none")]
+    pub thumbnail_url: Option<String>,
+}
+
+/// Query parameters for [`StreamClient::get_live_stream_thumbnails`].
+#[derive(Debug, Clone, Default, PartialEq, Serialize)]
+pub struct GetLiveStreamThumbnailsQuery {
+    /// The maximum number of thumbnails to return. Default: 5
+    #[serde(rename = "limit", skip_serializing_if = "Option::is_none")]
+    pub limit: Option<i32>,
+    /// Filter thumbnails created at or after this UTC timestamp
+    #[serde(rename = "from", skip_serializing_if = "Option::is_none")]
+    pub from: Option<String>,
+    /// Filter thumbnails created at or before this UTC timestamp
+    #[serde(rename = "to", skip_serializing_if = "Option::is_none")]
+    pub to: Option<String>,
 }
 
 pub use crate::stream_upload::{TusAuthorization, TusUpload};

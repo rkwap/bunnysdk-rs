@@ -25,6 +25,9 @@ pub struct Spec {
     pub client: &'static str,
     /// Which key the client authenticates with.
     pub key: &'static str,
+    /// Older or alternate copies of the spec. Operations and schemas they
+    /// have that `url` lacks are merged in; `url` wins on conflicts.
+    pub merge: &'static [&'static str],
     pub naming: Naming,
     /// Method names chosen by hand: `("METHOD /path", "name")`.
     pub overrides: &'static [(&'static str, &'static str)],
@@ -32,8 +35,9 @@ pub struct Spec {
     pub extra: &'static str,
 }
 
-/// Same sources as the official bunny.net TypeScript client (BunnyWay/cli).
-/// Storage and Logging are hand-written, so they are not listed.
+/// The official specs listed at <https://bunny.net/docs/llms.txt> ("OpenAPI Specs").
+/// Storage and Logging are hand-written, so they are not listed: Storage needs
+/// streaming, and the Logging spec does not describe the v1 response body.
 pub const SPECS: &[Spec] = &[
     Spec {
         name: "core",
@@ -41,6 +45,7 @@ pub const SPECS: &[Spec] = &[
         title: "Core Platform API (pull zones, DNS, storage zones, video libraries, billing, ...)",
         client: "CoreClient",
         key: "your account API key",
+        merge: &[],
         naming: Naming::Summary,
         overrides: &[
             ("GET /dnszone/{id}/export", "export_dns_zone"),
@@ -103,6 +108,7 @@ pub const SPECS: &[Spec] = &[
         title: "Edge Scripting API",
         client: "ComputeClient",
         key: "your account API key",
+        merge: &[],
         naming: Naming::Summary,
         overrides: &[(
             "POST /compute/script/{id}/publish/{uuid}",
@@ -116,6 +122,7 @@ pub const SPECS: &[Spec] = &[
         title: "Shield API (WAF, rate limiting, bot detection, access lists)",
         client: "ShieldClient",
         key: "your account API key",
+        merge: &[],
         naming: Naming::OperationId,
         overrides: &[
             (
@@ -132,8 +139,30 @@ pub const SPECS: &[Spec] = &[
         title: "Stream API (video libraries, videos, collections)",
         client: "StreamClient",
         key: "the video library's API key (not the account key)",
+        // The docs-site copy still documents the live streaming endpoints.
+        merge: &["https://bunny.net/docs/api-reference/stream/openapi.json"],
         naming: Naming::Summary,
-        overrides: &[("GET /OEmbed", "get_oembed_data")],
+        overrides: &[
+            ("GET /OEmbed", "get_oembed_data"),
+            ("GET /library/{libraryId}/live", "list_live_streams"),
+            ("POST /library/{libraryId}/live", "create_live_stream"),
+            (
+                "GET /library/{libraryId}/live/{streamId}",
+                "get_live_stream",
+            ),
+            (
+                "GET /library/{libraryId}/live/{streamId}/bitrate-history",
+                "get_live_stream_bitrate_history",
+            ),
+            (
+                "GET /library/{libraryId}/live/{streamId}/current-bitrate",
+                "get_live_stream_current_bitrate",
+            ),
+            (
+                "POST /library/{libraryId}/live/{streamId}/thumbnail",
+                "set_live_stream_thumbnail",
+            ),
+        ],
         extra: "pub use crate::stream_upload::{TusAuthorization, TusUpload};\n",
     },
     Spec {
@@ -142,6 +171,7 @@ pub const SPECS: &[Spec] = &[
         title: "Magic Containers API",
         client: "ContainersClient",
         key: "your account API key",
+        merge: &[],
         naming: Naming::OperationId,
         overrides: &[],
         extra: "",
@@ -152,6 +182,7 @@ pub const SPECS: &[Spec] = &[
         title: "Database API (managed libSQL databases)",
         client: "DatabaseClient",
         key: "your account API key",
+        merge: &[],
         naming: Naming::Summary,
         overrides: &[
             ("GET /v1/groups", "list_groups"),
@@ -227,8 +258,20 @@ pub const SPECS: &[Spec] = &[
         title: "Origin Errors API",
         client: "OriginErrorsClient",
         key: "your account API key",
+        merge: &[],
         naming: Naming::Summary,
         overrides: &[("GET /{pullZoneId}/{dateTime}", "get_origin_errors")],
+        extra: "",
+    },
+    Spec {
+        name: "partner",
+        url: "https://core-api-public-docs.b-cdn.net/docs/v3/PartnerPortal.json",
+        title: "Partner API (manage reseller customers, pricing and billing)",
+        client: "PartnerClient",
+        key: "your partner account API key",
+        merge: &[],
+        naming: Naming::Summary,
+        overrides: &[],
         extra: "",
     },
 ];
@@ -264,23 +307,57 @@ fn update_specs() -> Result {
     let dir = root().join("specs");
     std::fs::create_dir_all(&dir)?;
     for spec in SPECS {
-        let output = Command::new("curl")
-            .args(["-fsSL", "--retry", "3", "--max-time", "60", spec.url])
-            .output()?;
-        if !output.status.success() {
-            return Err(format!(
-                "downloading {}: {}",
-                spec.url,
-                String::from_utf8_lossy(&output.stderr)
-            )
-            .into());
+        let mut json = download(spec.url)?;
+        for url in spec.merge {
+            merge(&mut json, download(url)?);
+            println!("{} <+ {url}", spec.name);
         }
-        let json: serde_json::Value = serde_json::from_slice(&output.stdout)
-            .map_err(|e| format!("{} is not valid JSON: {e}", spec.url))?;
         let mut text = serde_json::to_string_pretty(&json)?;
         text.push('\n');
         std::fs::write(dir.join(format!("{}.json", spec.name)), text)?;
         println!("{} <- {}", spec.name, spec.url);
     }
     Ok(())
+}
+
+fn download(url: &str) -> Result<serde_json::Value> {
+    let output = Command::new("curl")
+        .args(["-fsSL", "--retry", "3", "--max-time", "60", url])
+        .output()?;
+    if !output.status.success() {
+        return Err(format!(
+            "downloading {url}: {}",
+            String::from_utf8_lossy(&output.stderr)
+        )
+        .into());
+    }
+    serde_json::from_slice(&output.stdout)
+        .map_err(|e| format!("{url} is not valid JSON: {e}").into())
+}
+
+/// Adds the operations and component schemas of `other` that `base` lacks.
+fn merge(base: &mut serde_json::Value, other: serde_json::Value) {
+    use serde_json::Value;
+    if let Some(Value::Object(paths)) = other.get("paths")
+        && let Some(Value::Object(target)) = base.get_mut("paths")
+    {
+        for (path, item) in paths {
+            let Value::Object(ops) = item else { continue };
+            let entry = target
+                .entry(path.clone())
+                .or_insert_with(|| Value::Object(Default::default()));
+            if let Value::Object(entry) = entry {
+                for (method, op) in ops {
+                    entry.entry(method.clone()).or_insert_with(|| op.clone());
+                }
+            }
+        }
+    }
+    if let Some(Value::Object(schemas)) = other.pointer("/components/schemas")
+        && let Some(Value::Object(target)) = base.pointer_mut("/components/schemas")
+    {
+        for (name, schema) in schemas {
+            target.entry(name.clone()).or_insert_with(|| schema.clone());
+        }
+    }
 }

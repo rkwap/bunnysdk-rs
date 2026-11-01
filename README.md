@@ -2,7 +2,7 @@
 
 Async Rust SDK for the [bunny.net](https://bunny.net) APIs.
 
-- **Complete:** 320 endpoints across 9 APIs, most generated from bunny.net's official OpenAPI specs.
+- **Complete:** about 350 endpoints across 10 APIs, most generated from bunny.net's official OpenAPI specs.
 - **Kept current:** a weekly job refreshes the specs, regenerates, tests, and opens a PR.
 - **Typed errors:** bunny.net's five error formats become one `ApiError { status, message, field, validation_errors, .. }`.
 - **Robust decoding:** enums have an `Other(..)` variant and unknown fields are ignored, so API additions don't break you.
@@ -19,8 +19,9 @@ Async Rust SDK for the [bunny.net](https://bunny.net) APIs.
 | `containers` | Magic Containers | account API key | generated |
 | `database` | Managed libSQL databases | account API key | generated |
 | `origin_errors` | Origin error logs | account API key | generated |
+| `partner` | Reseller customers, pricing, billing | partner account API key | generated |
 | `logging` | CDN request logs (v2 JSON, v1 raw) | account API key | hand-written |
-| `stream` | Videos, collections, captions + resumable TUS uploads | video library API key | generated + hand-written |
+| `stream` | Videos, collections, captions, live streams + resumable TUS uploads | video library API key | generated + hand-written |
 | `storage` | Edge Storage files | storage zone password | hand-written |
 
 Each module is a Cargo feature (`origin-errors` for `origin_errors`), all on by default.

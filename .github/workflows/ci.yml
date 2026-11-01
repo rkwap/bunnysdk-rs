@@ -50,7 +50,7 @@ jobs:
       - uses: Swatinem/rust-cache@v2
       - run: cargo check --lib --locked --no-default-features
       - run: |
-          for feature in core compute shield stream containers database origin-errors storage logging; do
+          for feature in core compute shield stream containers database origin-errors partner storage logging; do
             echo "::group::$feature"
             cargo check --lib --locked --no-default-features --features "$feature"
             echo "::endgroup::"

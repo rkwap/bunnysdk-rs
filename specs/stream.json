@@ -3055,6 +3055,910 @@
           }
         }
       }
+    },
+    "/library/{libraryId}/live/{streamId}": {
+      "get": {
+        "tags": [
+          "Manage Live Streams"
+        ],
+        "summary": "Get live stream by ID",
+        "description": "Gets details of a live stream contained in library by its ID.",
+        "operationId": "LiveStream_GetByStreamId",
+        "parameters": [
+          {
+            "name": "libraryId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "x-position": 1
+          },
+          {
+            "name": "streamId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "x-position": 2
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The details of the requested live stream",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LiveStreamModel"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "The request authentication failed"
+          },
+          "404": {
+            "description": "The requested live stream was not found"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        },
+        "security": [
+          {
+            "AccessKey": []
+          }
+        ]
+      },
+      "put": {
+        "tags": [
+          "Manage Live Streams"
+        ],
+        "summary": "Update live stream",
+        "description": "Updates the live stream object with the specified parameters and returns it",
+        "operationId": "LiveStream_UpdateLiveStream",
+        "parameters": [
+          {
+            "name": "libraryId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "x-position": 1
+          },
+          {
+            "name": "streamId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "x-position": 2
+          }
+        ],
+        "requestBody": {
+          "x-name": "model",
+          "content": {
+            "application/json": {
+              "schema": {
+                "nullable": true,
+                "oneOf": [
+                  {
+                    "$ref": "#/components/schemas/UpdateLiveStreamModel"
+                  }
+                ]
+              }
+            }
+          },
+          "required": true,
+          "x-position": 3
+        },
+        "responses": {
+          "200": {
+            "description": "The live stream was successfully updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LiveStreamModel"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Request was invalid",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StatusModelOfListOfString"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "The request authentication failed"
+          },
+          "403": {
+            "description": "The request authorization failed"
+          },
+          "404": {
+            "description": "The requested live stream was not found"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        },
+        "security": [
+          {
+            "AccessKey": []
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "Manage Live Streams"
+        ],
+        "summary": "Delete live stream",
+        "description": "Deletes the live stream object and all resources associated with it. This operation cannot be undone.",
+        "operationId": "LiveStream_DeleteStream",
+        "parameters": [
+          {
+            "name": "libraryId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "x-position": 1
+          },
+          {
+            "name": "streamId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "x-position": 2
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The details of the requested live stream",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LiveStreamModel"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Request was invalid",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StatusModelOfListOfString"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "The request authentication failed"
+          },
+          "403": {
+            "description": "The request authorization failed"
+          },
+          "404": {
+            "description": "The requested live stream was not found"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        },
+        "security": [
+          {
+            "AccessKey": []
+          }
+        ]
+      }
+    },
+    "/library/{libraryId}/live/{streamId}/play": {
+      "get": {
+        "tags": [
+          "Manage Live Streams"
+        ],
+        "summary": "Get live stream play data",
+        "operationId": "LiveStream_GetStreamPlayData",
+        "parameters": [
+          {
+            "name": "libraryId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "x-position": 1
+          },
+          {
+            "name": "streamId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "x-position": 2
+          },
+          {
+            "name": "token",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "default": "",
+              "nullable": true
+            },
+            "x-position": 3
+          },
+          {
+            "name": "expires",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "default": 0
+            },
+            "x-position": 4
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The play data of the requested live stream",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LiveStreamPlayDataModel"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "The request authentication failed"
+          },
+          "403": {
+            "description": "The request authorization failed"
+          },
+          "404": {
+            "description": "The requested live stream was not found"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/library/{libraryId}/live": {
+      "post": {
+        "tags": [
+          "Manage Live Streams"
+        ],
+        "summary": "Create new live stream",
+        "description": "Creates a new live stream object with the specified parameters and returns it",
+        "operationId": "LiveStream_Create",
+        "parameters": [
+          {
+            "name": "libraryId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "x-position": 1
+          }
+        ],
+        "requestBody": {
+          "x-name": "model",
+          "content": {
+            "application/json": {
+              "schema": {
+                "nullable": true,
+                "oneOf": [
+                  {
+                    "$ref": "#/components/schemas/CreateLiveStreamModel"
+                  }
+                ]
+              }
+            }
+          },
+          "required": true,
+          "x-position": 2
+        },
+        "responses": {
+          "200": {
+            "description": "The live stream was successfully created and returned as the response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LiveStreamModel"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Request was invalid",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StatusModelOfListOfString"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "The request authentication failed"
+          },
+          "403": {
+            "description": "The request authorization failed"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        },
+        "security": [
+          {
+            "AccessKey": []
+          }
+        ]
+      },
+      "get": {
+        "tags": [
+          "Manage Live Streams"
+        ],
+        "summary": "List streams",
+        "description": "Returns a list of streams associated with this library and collection, if passed",
+        "operationId": "LiveStream_List",
+        "parameters": [
+          {
+            "name": "libraryId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "x-position": 1
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 1
+            },
+            "x-position": 2
+          },
+          {
+            "name": "itemsPerPage",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 100
+            },
+            "x-position": 3
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "default": "",
+              "nullable": true
+            },
+            "x-position": 4
+          },
+          {
+            "name": "orderBy",
+            "in": "query",
+            "description": "The field to order by. Possible values: date, title, status, started, ended, planned",
+            "schema": {
+              "type": "string",
+              "default": "date",
+              "nullable": true
+            },
+            "x-position": 5
+          },
+          {
+            "name": "collectionId",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "x-position": 6
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The list of live streams associated with this library",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginationListOfLiveStreamModel"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Request was invalid",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "The request authentication failed"
+          },
+          "404": {
+            "description": "The requested library was not found"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        },
+        "security": [
+          {
+            "AccessKey": []
+          }
+        ]
+      }
+    },
+    "/library/{libraryId}/live/{streamId}/start": {
+      "put": {
+        "tags": [
+          "Manage Live Streams"
+        ],
+        "summary": "Start live stream",
+        "description": "Marks the stream as started, allowing viewers to view the stream.",
+        "operationId": "LiveStream_StartStream",
+        "parameters": [
+          {
+            "name": "libraryId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "x-position": 1
+          },
+          {
+            "name": "streamId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "x-position": 2
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The details of the started live stream",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LiveStreamModel"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Request was invalid",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StatusModelOfListOfString"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "The request authentication failed"
+          },
+          "403": {
+            "description": "The request authorization failed"
+          },
+          "404": {
+            "description": "The requested live stream was not found"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        },
+        "security": [
+          {
+            "AccessKey": []
+          }
+        ]
+      }
+    },
+    "/library/{libraryId}/live/{streamId}/stop": {
+      "put": {
+        "tags": [
+          "Manage Live Streams"
+        ],
+        "summary": "Stop live stream",
+        "description": "Stops the stream, if publishing is still ongoing, it will be stopped by the ingest server. If 'DvrEnabled' was set to true, the stream will be converted to a regular video as a VOD.This operation cannot be undone.",
+        "operationId": "LiveStream_StopStream",
+        "parameters": [
+          {
+            "name": "libraryId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "x-position": 1
+          },
+          {
+            "name": "streamId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "x-position": 2
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The details of the requested live stream",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LiveStreamModel"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Request was invalid",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StatusModelOfListOfString"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "The request authentication failed"
+          },
+          "403": {
+            "description": "The request authorization failed"
+          },
+          "404": {
+            "description": "The requested live stream was not found"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        },
+        "security": [
+          {
+            "AccessKey": []
+          }
+        ]
+      }
+    },
+    "/library/{libraryId}/live/{streamId}/bitrate-history": {
+      "get": {
+        "tags": [
+          "Manage Live Streams"
+        ],
+        "operationId": "LiveStream_GetBitrateHistory",
+        "parameters": [
+          {
+            "name": "libraryId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "x-position": 1
+          },
+          {
+            "name": "streamId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "guid"
+            },
+            "x-position": 2
+          },
+          {
+            "name": "startTime",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time",
+              "nullable": true
+            },
+            "x-position": 3
+          },
+          {
+            "name": "endTime",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time",
+              "nullable": true
+            },
+            "x-position": 4
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/library/{libraryId}/live/{streamId}/current-bitrate": {
+      "get": {
+        "tags": [
+          "Manage Live Streams"
+        ],
+        "operationId": "LiveStream_GetLatestBitrate",
+        "parameters": [
+          {
+            "name": "libraryId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "x-position": 1
+          },
+          {
+            "name": "streamId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "guid"
+            },
+            "x-position": 2
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/library/{libraryId}/live/{streamId}/thumbnail": {
+      "post": {
+        "tags": [
+          "Manage Live Streams"
+        ],
+        "summary": "Set Thumbnail",
+        "operationId": "LiveStream_SetThumbnail",
+        "parameters": [
+          {
+            "name": "libraryId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "x-position": 1
+          },
+          {
+            "name": "streamId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "guid"
+            },
+            "x-position": 2
+          },
+          {
+            "name": "thumbnailUrl",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "x-position": 3
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The thumbnail was successfully set",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StatusModel"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request was invalid",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "The request authentication failed"
+          },
+          "403": {
+            "description": "The request authorization failed"
+          },
+          "404": {
+            "description": "The requested stream was not found"
+          },
+          "422": {
+            "description": "Unable to fetch thumbnail from origin",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        },
+        "security": [
+          {
+            "AccessKey": []
+          }
+        ]
+      }
+    },
+    "/library/{libraryId}/live/{streamId}/thumbnails": {
+      "get": {
+        "tags": [
+          "Manage Live Streams"
+        ],
+        "summary": "Get live stream thumbnails",
+        "description": "Returns recent generated thumbnail object paths for the specified live stream. You can limit the number of results and optionally constrain by a time range using 'from' and 'to' in UTC.",
+        "operationId": "LiveStream_GetThumbnails",
+        "parameters": [
+          {
+            "name": "libraryId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "x-position": 1
+          },
+          {
+            "name": "streamId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "guid"
+            },
+            "x-position": 2
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "The maximum number of thumbnails to return. Default: 5",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 5
+            },
+            "x-position": 3
+          },
+          {
+            "name": "from",
+            "in": "query",
+            "description": "Filter thumbnails created at or after this UTC timestamp",
+            "schema": {
+              "type": "string",
+              "format": "date-time",
+              "nullable": true
+            },
+            "x-position": 4
+          },
+          {
+            "name": "to",
+            "in": "query",
+            "description": "Filter thumbnails created at or before this UTC timestamp",
+            "schema": {
+              "type": "string",
+              "format": "date-time",
+              "nullable": true
+            },
+            "x-position": 5
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A list of thumbnail object paths (most recent first)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ThumbnailListResponseModel"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request was invalid",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "The request authentication failed"
+          },
+          "404": {
+            "description": "The requested live stream was not found"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        },
+        "security": [
+          {
+            "AccessKey": []
+          }
+        ]
+      }
     }
   },
   "components": {
@@ -4945,6 +5849,531 @@
             "type": "string",
             "description": "The URL of the embed provider. Always \"https://bunny.net/\".",
             "nullable": true
+          }
+        }
+      },
+      "LiveStreamModel": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "videoLibraryId",
+          "guid",
+          "title",
+          "public",
+          "status",
+          "dateCreated",
+          "streamKey",
+          "playbackUrlHls",
+          "dvrEnabled",
+          "recordVod",
+          "availableResolutions",
+          "ingestRegion"
+        ],
+        "properties": {
+          "videoLibraryId": {
+            "type": "integer",
+            "description": "The ID of the video library that the live stream belongs to",
+            "format": "int64"
+          },
+          "guid": {
+            "type": "string",
+            "description": "The unique ID of the live stream",
+            "format": "guid",
+            "minLength": 1
+          },
+          "title": {
+            "type": "string",
+            "description": "The title of the live stream",
+            "minLength": 1
+          },
+          "description": {
+            "type": "string",
+            "description": "The description of the live stream",
+            "nullable": true
+          },
+          "category": {
+            "type": "string",
+            "description": "The category of the live stream",
+            "nullable": true
+          },
+          "collectionId": {
+            "type": "string",
+            "description": "The ID of the collection where the live stream belongs",
+            "nullable": true
+          },
+          "public": {
+            "type": "boolean",
+            "description": "Determines if the live stream is publicly accessible"
+          },
+          "status": {
+            "description": "The status of the live stream. See LiveStreamStatus.",
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/LiveStreamStatus"
+              }
+            ]
+          },
+          "dateCreated": {
+            "type": "string",
+            "description": "The date when the live stream was created",
+            "format": "date-time",
+            "minLength": 1
+          },
+          "scheduledStartTime": {
+            "type": "string",
+            "description": "The scheduled start time of the live stream (optional)",
+            "format": "date-time",
+            "nullable": true
+          },
+          "scheduledEndTime": {
+            "type": "string",
+            "description": "The scheduled end time of the live stream (optional)",
+            "format": "date-time",
+            "nullable": true
+          },
+          "startedAt": {
+            "type": "string",
+            "description": "The date and time when the live stream publishing started",
+            "format": "date-time",
+            "nullable": true
+          },
+          "endedAt": {
+            "type": "string",
+            "description": "The date and time when the live stream publishing ended",
+            "format": "date-time",
+            "nullable": true
+          },
+          "durationSeconds": {
+            "type": "integer",
+            "description": "The duration of the live stream in seconds",
+            "format": "int32",
+            "nullable": true
+          },
+          "streamKey": {
+            "type": "string",
+            "description": "The stream key required for publishing the live stream",
+            "minLength": 1
+          },
+          "playbackUrlHls": {
+            "type": "string",
+            "description": "The HLS playback URL of the live stream",
+            "minLength": 1
+          },
+          "dvrEnabled": {
+            "type": "boolean",
+            "description": "Determines if DVR is enabled for the live stream"
+          },
+          "dvrWindowSeconds": {
+            "type": "integer",
+            "description": "The DVR window size in seconds, required when DvrEnabled is true",
+            "format": "int32",
+            "nullable": true
+          },
+          "recordVod": {
+            "type": "boolean",
+            "description": "Determines if a VOD recording should be created for the live stream"
+          },
+          "availableResolutions": {
+            "type": "string",
+            "description": "The available output resolutions of the live stream",
+            "minLength": 1
+          },
+          "width": {
+            "type": "integer",
+            "description": "The input video width in pixels",
+            "format": "int32",
+            "nullable": true
+          },
+          "height": {
+            "type": "integer",
+            "description": "The input video height in pixels",
+            "format": "int32",
+            "nullable": true
+          },
+          "framerate": {
+            "type": "number",
+            "description": "The framerate of the input stream",
+            "format": "double",
+            "nullable": true
+          },
+          "ingestRegion": {
+            "type": "string",
+            "description": "The primary ingest region of the live stream",
+            "minLength": 1
+          },
+          "peakConcurrentViewers": {
+            "type": "integer",
+            "description": "The peak number of concurrent viewers",
+            "format": "int32",
+            "nullable": true
+          },
+          "totalViewerSeconds": {
+            "type": "integer",
+            "description": "The total viewer watch time in seconds",
+            "format": "int64",
+            "nullable": true
+          },
+          "thumbnailFileName": {
+            "type": "string",
+            "description": "The file name of the thumbnail inside of the storage",
+            "nullable": true
+          },
+          "thumbnailUpdatedAt": {
+            "type": "string",
+            "description": "The date and time when the thumbnail was last updated",
+            "format": "date-time",
+            "nullable": true
+          },
+          "enableCountdown": {
+            "type": "boolean",
+            "description": "Determines if countdown should be shown in player before the stream start, if it was scheduled",
+            "nullable": true
+          },
+          "rtmpOutputs": {
+            "type": "array",
+            "description": "A list of up to 5 RTMP outputs that the incoming stream will be forwarded to",
+            "nullable": true,
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "LiveStreamStatus": {
+        "type": "integer",
+        "description": "0 = Unknown\n1 = Created\n2 = Scheduled\n3 = Preview\n4 = Running\n5 = Ended\n6 = VodProcessing\n7 = Error",
+        "x-enumNames": [
+          "Unknown",
+          "Created",
+          "Scheduled",
+          "Preview",
+          "Running",
+          "Ended",
+          "VodProcessing",
+          "Error"
+        ],
+        "enum": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ]
+      },
+      "LiveStreamPlayDataModel": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "liveStream": {
+            "description": "Live stream data.",
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/LiveStreamModel"
+              }
+            ]
+          },
+          "libraryName": {
+            "type": "string",
+            "nullable": true
+          },
+          "captionsPath": {
+            "type": "string",
+            "nullable": true
+          },
+          "seekPath": {
+            "type": "string",
+            "nullable": true
+          },
+          "thumbnailUrl": {
+            "type": "string",
+            "nullable": true
+          },
+          "fallbackUrl": {
+            "type": "string",
+            "nullable": true
+          },
+          "videoPlaylistUrl": {
+            "type": "string",
+            "nullable": true
+          },
+          "originalUrl": {
+            "type": "string",
+            "nullable": true
+          },
+          "previewUrl": {
+            "type": "string",
+            "nullable": true
+          },
+          "controls": {
+            "type": "string",
+            "nullable": true
+          },
+          "enableDRM": {
+            "type": "boolean"
+          },
+          "drmVersion": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "playerKeyColor": {
+            "type": "string",
+            "nullable": true
+          },
+          "vastTagUrl": {
+            "type": "string",
+            "nullable": true
+          },
+          "viAiPublisherId": {
+            "type": "string",
+            "nullable": true
+          },
+          "captionsFontSize": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "captionsFontColor": {
+            "type": "string",
+            "nullable": true
+          },
+          "captionsBackground": {
+            "type": "string",
+            "nullable": true
+          },
+          "uiLanguage": {
+            "type": "string",
+            "nullable": true
+          },
+          "allowEarlyPlay": {
+            "type": "boolean"
+          },
+          "tokenAuthEnabled": {
+            "type": "boolean"
+          },
+          "enableMP4Fallback": {
+            "type": "boolean"
+          },
+          "showHeatmap": {
+            "type": "boolean"
+          },
+          "fontFamily": {
+            "type": "string",
+            "nullable": true
+          },
+          "playbackSpeeds": {
+            "type": "string",
+            "nullable": true
+          },
+          "widevineMinClientSecurityLevel": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "zoneTier": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "rememberPlayerPosition": {
+            "type": "boolean"
+          }
+        }
+      },
+      "StatusModelOfListOfString": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/StatusModel"
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "data": {
+                "type": "array",
+                "nullable": true,
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "CreateLiveStreamModel": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "title": {
+            "type": "string",
+            "description": "The title of the live stream",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "description": "The description of the live stream",
+            "nullable": true
+          },
+          "collectionId": {
+            "type": "string",
+            "description": "The ID of the collection where the live stream belongs",
+            "nullable": true
+          },
+          "dvrEnabled": {
+            "type": "boolean",
+            "description": "Determines if DVR is enabled for the live stream"
+          },
+          "dvrWindowSeconds": {
+            "type": "integer",
+            "description": "The DVR window size in seconds, required when DvrEnabled is true, max is 12 hours",
+            "format": "int32",
+            "maximum": 43200,
+            "minimum": 1,
+            "nullable": true
+          },
+          "recordVod": {
+            "type": "boolean",
+            "description": "Determines if a VOD recording should be created for the live stream"
+          },
+          "scheduledStartTime": {
+            "type": "string",
+            "description": "The scheduled start time of the live stream (optional, UTC)",
+            "format": "date-time",
+            "nullable": true
+          },
+          "scheduledEndTime": {
+            "type": "string",
+            "description": "The scheduled end time of the live stream (optional, UTC)",
+            "format": "date-time",
+            "nullable": true
+          },
+          "public": {
+            "type": "boolean",
+            "description": "Determines if the live stream is publicly accessible, defaults to true"
+          },
+          "enableCountdown": {
+            "type": "boolean",
+            "description": "Determines if countdown should be shown in player before the stream start, if it was scheduled",
+            "nullable": true
+          },
+          "rtmpOutputs": {
+            "type": "array",
+            "description": "A list of up to 5 RTMP outputs that the incoming stream will be forwarded to",
+            "nullable": true,
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "UpdateLiveStreamModel": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "title": {
+            "type": "string",
+            "description": "The title of the live stream",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "description": "The description of the live stream",
+            "nullable": true
+          },
+          "collectionId": {
+            "type": "string",
+            "description": "The ID of the collection where the live stream belongs",
+            "nullable": true
+          },
+          "dvrEnabled": {
+            "type": "boolean",
+            "description": "Determines if DVR is enabled for the live stream"
+          },
+          "dvrWindowSeconds": {
+            "type": "integer",
+            "description": "The DVR window size in seconds, required when DvrEnabled is true, max is 12 hours",
+            "format": "int32",
+            "maximum": 43200,
+            "minimum": 1,
+            "nullable": true
+          },
+          "recordVod": {
+            "type": "boolean",
+            "description": "Determines if a VOD recording should be created for the live stream"
+          },
+          "scheduledStartTime": {
+            "type": "string",
+            "description": "The scheduled start time of the live stream (optional, UTC)",
+            "format": "date-time",
+            "nullable": true
+          },
+          "scheduledEndTime": {
+            "type": "string",
+            "description": "The scheduled end time of the live stream (optional, UTC)",
+            "format": "date-time",
+            "nullable": true
+          },
+          "public": {
+            "type": "boolean",
+            "description": "Determines if the live stream is publicly accessible, defaults to true"
+          },
+          "enableCountdown": {
+            "type": "boolean",
+            "description": "Determines if countdown should be shown in player before the stream start, if it was scheduled (optional)",
+            "nullable": true
+          },
+          "rtmpOutputs": {
+            "type": "array",
+            "description": "A list of up to 5 RTMP outputs that the incoming stream will be forwarded to",
+            "nullable": true,
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "PaginationListOfLiveStreamModel": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "totalItems": {
+            "type": "integer",
+            "description": "The total number of items that can be returned",
+            "format": "int64"
+          },
+          "currentPage": {
+            "type": "integer",
+            "description": "The current page of the response",
+            "format": "int64"
+          },
+          "itemsPerPage": {
+            "type": "integer",
+            "description": "The number of items returned per page",
+            "format": "int32"
+          },
+          "items": {
+            "type": "array",
+            "description": "The result items on the current result",
+            "nullable": true,
+            "items": {
+              "$ref": "#/components/schemas/LiveStreamModel"
+            }
+          }
+        }
+      },
+      "ThumbnailListResponseModel": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "url": {
+            "type": "string",
+            "nullable": true
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
           }
         }
       }
