@@ -180,15 +180,22 @@ same name, codegen stops and asks for an override in `xtask/src/main.rs`.
 
 ### Live tests
 
-Ignored by default; CI runs them when these repository secrets exist:
+`tests/live.rs` calls every API against your real account. CI runs it on every PR and push to
+`main` once these repository secrets exist; each test skips itself when its secrets are missing.
 
-| Secret | Used by |
+| Secret | Used for |
 |---|---|
-| `BUNNY_API_KEY` | read-only Core calls |
-| `BUNNY_STORAGE_ZONE`, `BUNNY_STORAGE_PASSWORD`, `BUNNY_STORAGE_REGION` | storage round-trip in a **dedicated test zone**, under `bunnysdk-ci/` only |
+| `BUNNY_API_KEY` | account API key: read-only calls to Core, Compute, Shield, Containers, Database, Logging, Origin Errors |
+| `BUNNY_TEST_PULL_ZONE_ID` | *optional*: pull zone for Logging / Origin Errors (default: the first one) |
+| `BUNNY_TEST_STORAGE_ZONE_ID` | *optional*: a **dedicated test** storage zone; files are written under `bunnysdk-ci/` and deleted |
+| `BUNNY_TEST_VIDEO_LIBRARY_ID` | *optional*: a **dedicated test** video library; test videos are created and deleted |
+| `BUNNY_PARTNER_API_KEY` | *optional*: Partner API (partner accounts only) |
+
+The storage zone password and video library key are looked up with `BUNNY_API_KEY`, so they need
+no secrets of their own. Output lists each call as `ok` or `FAIL`; response values are never printed.
 
 ```sh
-BUNNY_API_KEY=... cargo test --test live -- --ignored
+BUNNY_API_KEY=... cargo test --test live -- --ignored --nocapture --test-threads=1
 ```
 
 ## License
