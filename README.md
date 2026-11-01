@@ -1,6 +1,12 @@
 # bunnysdk-rs
 
+[![crates.io](https://img.shields.io/crates/v/bunnysdk.svg)](https://crates.io/crates/bunnysdk)
+[![docs.rs](https://img.shields.io/docsrs/bunnysdk)](https://docs.rs/bunnysdk)
+[![CI](https://github.com/rkwap/bunnysdk-rs/actions/workflows/ci.yml/badge.svg)](https://github.com/rkwap/bunnysdk-rs/actions/workflows/ci.yml)
+
 Async Rust SDK for the [bunny.net](https://bunny.net) APIs.
+
+> Unofficial: not affiliated with or endorsed by bunny.net (BunnyWay d.o.o.).
 
 - **Complete:** about 350 endpoints across 10 APIs, most generated from bunny.net's official OpenAPI specs.
 - **Kept current:** a weekly job refreshes the specs, regenerates, tests, and opens a PR.
@@ -30,11 +36,11 @@ Each module is a Cargo feature (`origin-errors` for `origin_errors`), all on by 
 
 ```toml
 [dependencies]
-bunnysdk = { git = "https://github.com/rkwap/bunnysdk-rs" }
+bunnysdk = "0.1"
 tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
 
-# Or only what you use, for faster builds:
-# bunnysdk = { git = "...", default-features = false, features = ["core", "storage"] }
+# Or only the APIs you use, for faster builds:
+# bunnysdk = { version = "0.1", default-features = false, features = ["core", "storage"] }
 ```
 
 Minimum supported Rust version: 1.88.

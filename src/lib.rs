@@ -1,5 +1,7 @@
 //! Async Rust SDK for the [bunny.net](https://bunny.net) APIs.
 //!
+//! Unofficial: not affiliated with or endorsed by bunny.net (BunnyWay d.o.o.).
+//!
 //! Each API has its own client, because each uses its own key and hostname:
 //!
 //! | Module | API | Key |
