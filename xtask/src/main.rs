@@ -25,9 +25,11 @@ pub struct Spec {
     pub client: &'static str,
     /// Which key the client authenticates with.
     pub key: &'static str,
-    /// Older or alternate copies of the spec. Operations and schemas they
-    /// have that `url` lacks are merged in; `url` wins on conflicts.
-    pub merge: &'static [&'static str],
+    /// `(url, path prefix)`: operations under the prefix that another copy
+    /// of the spec documents but `url` lacks are merged in, with the schemas
+    /// they use. `url` wins on conflicts. Scoped to a prefix so endpoints
+    /// bunny.net removes from `url` are not brought back.
+    pub merge: &'static [(&'static str, &'static str)],
     pub naming: Naming,
     /// Method names chosen by hand: `("METHOD /path", "name")`.
     pub overrides: &'static [(&'static str, &'static str)],
@@ -140,7 +142,10 @@ pub const SPECS: &[Spec] = &[
         client: "StreamClient",
         key: "the video library's API key (not the account key)",
         // The docs-site copy still documents the live streaming endpoints.
-        merge: &["https://bunny.net/docs/api-reference/stream/openapi.json"],
+        merge: &[(
+            "https://bunny.net/docs/api-reference/stream/openapi.json",
+            "/library/{libraryId}/live",
+        )],
         naming: Naming::Summary,
         overrides: &[
             ("GET /OEmbed", "get_oembed_data"),
@@ -308,8 +313,8 @@ fn update_specs() -> Result {
     std::fs::create_dir_all(&dir)?;
     for spec in SPECS {
         let mut json = download(spec.url)?;
-        for url in spec.merge {
-            merge(&mut json, download(url)?);
+        for (url, prefix) in spec.merge {
+            merge(&mut json, &download(url)?, prefix);
             println!("{} <+ {url}", spec.name);
         }
         let mut text = serde_json::to_string_pretty(&json)?;
@@ -335,29 +340,60 @@ fn download(url: &str) -> Result<serde_json::Value> {
         .map_err(|e| format!("{url} is not valid JSON: {e}").into())
 }
 
-/// Adds the operations and component schemas of `other` that `base` lacks.
-fn merge(base: &mut serde_json::Value, other: serde_json::Value) {
+/// Adds the operations under `prefix` that `other` has and `base` lacks,
+/// plus the component schemas they use (transitively).
+fn merge(base: &mut serde_json::Value, other: &serde_json::Value, prefix: &str) {
     use serde_json::Value;
+    let mut needed = Vec::new();
     if let Some(Value::Object(paths)) = other.get("paths")
         && let Some(Value::Object(target)) = base.get_mut("paths")
     {
-        for (path, item) in paths {
+        for (path, item) in paths.iter().filter(|(p, _)| p.starts_with(prefix)) {
             let Value::Object(ops) = item else { continue };
             let entry = target
                 .entry(path.clone())
                 .or_insert_with(|| Value::Object(Default::default()));
-            if let Value::Object(entry) = entry {
-                for (method, op) in ops {
-                    entry.entry(method.clone()).or_insert_with(|| op.clone());
+            let Value::Object(entry) = entry else {
+                continue;
+            };
+            for (method, op) in ops {
+                if !entry.contains_key(method) {
+                    schema_refs(op, &mut needed);
+                    entry.insert(method.clone(), op.clone());
                 }
             }
         }
     }
-    if let Some(Value::Object(schemas)) = other.pointer("/components/schemas")
-        && let Some(Value::Object(target)) = base.pointer_mut("/components/schemas")
-    {
-        for (name, schema) in schemas {
-            target.entry(name.clone()).or_insert_with(|| schema.clone());
+    while let Some(name) = needed.pop() {
+        let Some(schema) = other.pointer(&format!("/components/schemas/{name}")) else {
+            continue;
+        };
+        let Some(Value::Object(target)) = base.pointer_mut("/components/schemas") else {
+            return;
+        };
+        if !target.contains_key(&name) {
+            schema_refs(schema, &mut needed);
+            target.insert(name, schema.clone());
         }
+    }
+}
+
+/// Names of the component schemas `value` refers to.
+fn schema_refs(value: &serde_json::Value, out: &mut Vec<String>) {
+    use serde_json::Value;
+    match value {
+        Value::Object(map) => {
+            for (key, v) in map {
+                match v
+                    .as_str()
+                    .and_then(|r| r.strip_prefix("#/components/schemas/"))
+                {
+                    Some(name) if key == "$ref" => out.push(name.to_owned()),
+                    _ => schema_refs(v, out),
+                }
+            }
+        }
+        Value::Array(items) => items.iter().for_each(|v| schema_refs(v, out)),
+        _ => {}
     }
 }

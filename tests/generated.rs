@@ -278,6 +278,110 @@ async fn partner_list_customers() {
     assert_eq!(partner.list_customers().await.unwrap().len(), 1);
 }
 
+#[tokio::test]
+async fn paged_list_accepts_a_plain_array() {
+    // `page` defaults to 0, where bunny.net answers with a plain array.
+    let server = MockServer::start().await;
+    Mock::given(method("GET"))
+        .and(path("/videolibrary"))
+        .respond_with(ResponseTemplate::new(200).set_body_json(json!([{ "Id": 5, "Name": "lib" }])))
+        .mount(&server)
+        .await;
+    let page = core(&server)
+        .await
+        .list_video_libraries(&Default::default())
+        .await
+        .unwrap();
+    let items = page.items.unwrap();
+    assert_eq!(items[0].id, Some(5));
+}
+
+#[tokio::test]
+async fn non_list_decode_errors_are_not_masked() {
+    let server = MockServer::start().await;
+    Mock::given(method("GET"))
+        .and(path("/pullzone/1"))
+        .respond_with(ResponseTemplate::new(200).set_body_json(json!({ "Items": [], "Id": "x" })))
+        .mount(&server)
+        .await;
+    let err = core(&server)
+        .await
+        .get_pull_zone(1, &Default::default())
+        .await
+        .unwrap_err();
+    assert!(matches!(err, bunnysdk::Error::Decode { .. }), "{err:?}");
+}
+
+#[tokio::test]
+async fn optional_result_when_the_api_may_answer_without_a_body() {
+    let server = MockServer::start().await;
+    Mock::given(method("PUT"))
+        .and(path("/compute/script/1/secrets"))
+        .respond_with(ResponseTemplate::new(204))
+        .up_to_n_times(1)
+        .mount(&server)
+        .await;
+    Mock::given(method("PUT"))
+        .and(path("/compute/script/1/secrets"))
+        .respond_with(ResponseTemplate::new(200).set_body_json(json!({ "Id": 3, "Name": "TOKEN" })))
+        .mount(&server)
+        .await;
+
+    let compute = bunnysdk::compute::ComputeClient::with_config(
+        "account-key",
+        Config::new().base_url(server.uri()),
+    )
+    .unwrap();
+    let body = bunnysdk::compute::EdgeScriptUpsertSecretModel {
+        name: Some("TOKEN".into()),
+        secret: Some("s3cret".into()),
+    };
+    assert_eq!(compute.upsert_secret(1, &body).await.unwrap(), None);
+    let created = compute.upsert_secret(1, &body).await.unwrap().unwrap();
+    assert_eq!(created.id, Some(3));
+}
+
+#[tokio::test]
+async fn csv_export_is_returned_as_text() {
+    let server = MockServer::start().await;
+    Mock::given(method("POST"))
+        .and(path("/shield/event-logs/7/export"))
+        .and(header("Accept", "text/csv"))
+        .respond_with(ResponseTemplate::new(200).set_body_raw("time,ip\n1,1.2.3.4\n", "text/csv"))
+        .expect(1)
+        .mount(&server)
+        .await;
+    let shield = bunnysdk::shield::ShieldClient::with_config(
+        "account-key",
+        Config::new().base_url(server.uri()),
+    )
+    .unwrap();
+    let csv = shield
+        .export_event_logs(7, &Default::default())
+        .await
+        .unwrap();
+    assert!(csv.starts_with("time,ip"));
+}
+
+#[tokio::test]
+async fn undocumented_get_bodies_are_returned_as_bytes() {
+    let server = MockServer::start().await;
+    Mock::given(method("GET"))
+        .and(path("/partner/customer/u1/billing/9/pdf"))
+        .respond_with(
+            ResponseTemplate::new(200).set_body_raw(b"%PDF-1.7".to_vec(), "application/pdf"),
+        )
+        .mount(&server)
+        .await;
+    let partner = bunnysdk::partner::PartnerClient::with_config(
+        "partner-key",
+        Config::new().base_url(server.uri()),
+    )
+    .unwrap();
+    let pdf = partner.download_invoice_pdf("u1", 9).await.unwrap();
+    assert!(pdf.starts_with(b"%PDF"));
+}
+
 #[test]
 fn every_client_has_a_default_base_url() {
     assert_eq!(bunnysdk::core::BASE_URL, "https://api.bunny.net");

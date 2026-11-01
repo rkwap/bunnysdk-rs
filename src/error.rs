@@ -18,14 +18,17 @@ pub enum Error {
     Http(#[from] reqwest::Error),
 
     /// The API answered successfully, but the body was not the expected JSON.
-    /// A non-JSON content type usually means a proxy or captive portal
-    /// answered instead of bunny.net.
+    /// A non-JSON body usually means a proxy or captive portal answered
+    /// instead of bunny.net.
     #[error(
-        "failed to decode response (HTTP {status}, content-type {content_type:?}): {source}; body starts with: {body}"
+        "failed to decode response (HTTP {status}, content-type {content_type:?}): {source}{}",
+        body_hint(.body)
     )]
     Decode {
         status: u16,
         content_type: String,
+        /// The start of the body if it was not JSON (e.g. an HTML page),
+        /// otherwise empty: JSON bodies can contain credentials.
         body: String,
         #[source]
         source: serde_json::Error,
@@ -176,9 +179,8 @@ impl ApiError {
                     .collect();
             } else if let Some(msg) = s("detail").or_else(|| s("title")) {
                 err.message = msg;
-                if let Some(list) = obj.get("errors") {
-                    err.validation_errors =
-                        serde_json::from_value(list.clone()).unwrap_or_default();
+                if let Some(errors) = obj.get("errors") {
+                    err.validation_errors = validation_errors(errors);
                 }
             } else if let Some(msg) = s("Message") {
                 err.message = msg;
@@ -208,6 +210,41 @@ impl ApiError {
             .to_owned();
         }
         err
+    }
+}
+
+fn body_hint(body: &str) -> String {
+    if body.is_empty() {
+        String::new()
+    } else {
+        format!("; body starts with: {body}")
+    }
+}
+
+/// RFC 7807 `errors`, either a list of `{ field, message }` or, as ASP.NET
+/// sends it, a map of field name to messages.
+fn validation_errors(errors: &Value) -> Vec<ValidationError> {
+    match errors {
+        Value::Array(_) => serde_json::from_value(errors.clone()).unwrap_or_default(),
+        Value::Object(fields) => fields
+            .iter()
+            .flat_map(|(field, messages)| {
+                let messages: Vec<String> = match messages {
+                    Value::Array(list) => list
+                        .iter()
+                        .filter_map(Value::as_str)
+                        .map(str::to_owned)
+                        .collect(),
+                    Value::String(message) => vec![message.clone()],
+                    _ => Vec::new(),
+                };
+                messages.into_iter().map(|message| ValidationError {
+                    field: Some(field.clone()),
+                    message,
+                })
+            })
+            .collect(),
+        _ => Vec::new(),
     }
 }
 
@@ -271,6 +308,28 @@ mod tests {
         assert_eq!(e.validation_errors[0].field.as_deref(), Some("name"));
         assert_eq!(e.validation_errors[0].message, "required");
         assert_eq!(e.validation_errors[1].field, None);
+    }
+
+    #[test]
+    fn aspnet_validation_problem_details() {
+        let e = ApiError::from_body(
+            400,
+            br#"{"title":"One or more validation errors occurred.","status":400,"errors":{"Name":["The Name field is required.","Too short."],"Url":"Invalid URL"}}"#,
+        );
+        assert_eq!(e.message, "One or more validation errors occurred.");
+        let errors: Vec<(Option<&str>, &str)> = e
+            .validation_errors
+            .iter()
+            .map(|v| (v.field.as_deref(), v.message.as_str()))
+            .collect();
+        assert_eq!(
+            errors,
+            [
+                (Some("Name"), "The Name field is required."),
+                (Some("Name"), "Too short."),
+                (Some("Url"), "Invalid URL"),
+            ]
+        );
     }
 
     #[test]

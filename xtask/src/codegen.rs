@@ -285,7 +285,24 @@ impl<'a> Generator<'a> {
                 ty = format!("Box<{ty}>");
             }
             let optional = !required || nullable;
-            fields.push_str(&doc_comment(description(&schema), "    "));
+            let mut doc = description(&schema).unwrap_or_default().trim().to_owned();
+            if unwrap_nullable(&schema)
+                .0
+                .get("format")
+                .and_then(Value::as_str)
+                == Some("decimal")
+            {
+                // serde_json parses numbers as f64; lossless decimals would need
+                // its `arbitrary_precision` feature, which breaks untagged enums.
+                if !doc.is_empty() {
+                    doc.push_str("\n\n");
+                }
+                doc.push_str("A decimal number, parsed as `f64` (about 15 significant digits).");
+            }
+            fields.push_str(&doc_comment(
+                Some(doc.as_str()).filter(|d| !d.is_empty()),
+                "    ",
+            ));
             let rename = if ident.trim_start_matches("r#") == json_name {
                 String::new()
             } else {
@@ -493,42 +510,77 @@ impl<'a> Generator<'a> {
             }
         }
 
-        // Response: the first 2xx response that has a body.
-        let mut ret = "()".to_owned();
-        let mut send = "empty";
-        let mut returns = String::new();
+        // Response: the first 2xx response that has a body. If another 2xx
+        // answer has none (e.g. 200 with JSON, or 204), the result is optional.
         let mut codes: Vec<(&String, &Value)> = op
             .get("responses")
             .and_then(Value::as_object)
             .map(|r| r.iter().filter(|(c, _)| c.starts_with('2')).collect())
             .unwrap_or_default();
         codes.sort_by(|a, b| a.0.cmp(b.0));
+        let mut chosen: Option<(Value, Map<String, Value>)> = None;
+        let mut has_empty = false;
         for (code, response) in codes {
-            if code == "204" {
-                continue;
-            }
             let response = self.deref(response)?;
-            let Some(content) = response.get("content").and_then(Value::as_object) else {
-                continue;
-            };
-            if content.is_empty() {
-                continue;
+            let content = response
+                .get("content")
+                .and_then(Value::as_object)
+                .filter(|c| !c.is_empty())
+                .cloned();
+            match content {
+                Some(content) if code != "204" => {
+                    if chosen.is_none() {
+                        chosen = Some((response, content));
+                    }
+                }
+                _ => has_empty = true,
             }
-            let what = description(&response).unwrap_or_default().trim();
-            if what.split_whitespace().count() > 3 {
-                returns = format!("Returns: {what}");
+        }
+
+        let mut ret = "()".to_owned();
+        let mut call = "self.transport.empty(request)".to_owned();
+        let mut returns = String::new();
+        match chosen {
+            Some((response, content)) => {
+                let what = description(&response).unwrap_or_default().trim();
+                if what.split_whitespace().count() > 3 {
+                    returns = format!("Returns: {what}");
+                }
+                // A text type other than plain text (e.g. text/csv) is what
+                // such an endpoint is for, even if JSON is also offered.
+                let text_media = content.keys().find(|k| {
+                    k.starts_with("text/") && !matches!(k.as_str(), "text/plain" | "text/json")
+                });
+                if let Some(media) = text_media {
+                    ret = "String".into();
+                    call = "self.transport.text(request)".into();
+                    body_code.push_str(&format!(".header(reqwest::header::ACCEPT, {media:?})"));
+                } else if let Some(schema) = json_content(&content) {
+                    ret = self.ty(&schema, &format!("{pascal}Response"))?;
+                    call = match self.list_shape(&params, &schema, &ret)? {
+                        Some(shape) => format!(
+                            "self.transport.json_list(request, crate::transport::ListShape::{shape})"
+                        ),
+                        None => "self.transport.json(request)".into(),
+                    };
+                    if has_empty {
+                        ret = format!("Option<{ret}>");
+                    }
+                } else if content.keys().any(|k| k.starts_with("text/")) {
+                    ret = "String".into();
+                    call = "self.transport.text(request)".into();
+                } else {
+                    ret = "bytes::Bytes".into();
+                    call = "self.transport.bytes(request)".into();
+                }
             }
-            if let Some(schema) = json_content(content) {
-                ret = self.ty(&schema, &format!("{pascal}Response"))?;
-                send = "json";
-            } else if content.keys().any(|k| k.starts_with("text/")) {
-                ret = "String".into();
-                send = "text";
-            } else {
+            // A GET always returns something, even when the spec doesn't
+            // describe it (e.g. PDF downloads).
+            None if method == "get" => {
                 ret = "bytes::Bytes".into();
-                send = "bytes";
+                call = "self.transport.bytes(request)".into();
             }
-            break;
+            None => {}
         }
 
         let path_expr = if format_args.is_empty() {
@@ -575,10 +627,36 @@ impl<'a> Generator<'a> {
             code,
             "{doc}    pub async fn {name}({args}) -> crate::Result<{ret}> {{\n\
              let request = {request}{body_code};\n\
-             self.transport.{send}(request).await\n\
+             {call}.await\n\
              }}\n"
         )?;
         Ok((name, code))
+    }
+
+    /// For list endpoints (those with a `page` query parameter): the shape
+    /// the response must be normalised to, as a `ListShape` variant.
+    fn list_shape(&self, params: &[Value], schema: &Value, ret: &str) -> Result<Option<String>> {
+        let paged = params.iter().any(|p| {
+            p["in"] == "query"
+                && p["name"]
+                    .as_str()
+                    .is_some_and(|n| n.eq_ignore_ascii_case("page"))
+        });
+        if !paged {
+            return Ok(None);
+        }
+        if ret.starts_with("Vec<") {
+            return Ok(Some("Array".into()));
+        }
+        let (s, _) = unwrap_nullable(schema);
+        let items = self
+            .collect_props(&self.deref(&s)?)?
+            .into_iter()
+            .find(|(name, prop, _)| {
+                name.eq_ignore_ascii_case("items")
+                    && unwrap_nullable(prop).0.get("type").and_then(Value::as_str) == Some("array")
+            });
+        Ok(items.map(|(name, _, _)| format!("Page({name:?})")))
     }
 
     // ----------------------------------------------------------- the module

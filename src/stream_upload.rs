@@ -17,7 +17,6 @@ use bytes::Bytes;
 use reqwest::header::{CONTENT_TYPE, HeaderMap, LOCATION};
 use reqwest::{Method, RequestBuilder, Url};
 use serde::Serialize;
-use sha2::{Digest, Sha256};
 use tokio::io::{AsyncRead, AsyncReadExt};
 
 use crate::error::{ApiError, Error, Result};
@@ -222,27 +221,46 @@ impl StreamClient {
         chunk: Bytes,
     ) -> Result<u64> {
         let end = offset + chunk.len() as u64;
-        let mut from = offset;
+        // Where to send from; `None` means the server's offset is unknown
+        // (after a failure) and must be asked for with HEAD.
+        let mut from = Some(offset);
         let mut attempt = 0;
         loop {
-            let request = self
-                .tus_request(Method::PATCH, url.clone(), auth)
-                .header("Upload-Offset", from)
-                .header(CONTENT_TYPE, "application/offset+octet-stream")
-                .body(chunk.slice((from - offset) as usize..));
-            let error = match self.transport.send(request).await {
-                Ok(response) => match upload_offset(response.headers()) {
-                    Some(reached) if reached == end => return Ok(end),
-                    // The server took only part of the chunk; send the rest.
-                    Some(reached) if reached > from && reached < end => {
-                        from = reached;
-                        continue;
-                    }
-                    other => Error::from(ApiError::new(
-                        response.status().as_u16(),
-                        format!("TUS server reported offset {other:?}, expected {end}"),
-                    )),
-                },
+            let result = match from {
+                Some(start) => {
+                    let request = self
+                        .tus_request(Method::PATCH, url.clone(), auth)
+                        .header("Upload-Offset", start)
+                        .header(CONTENT_TYPE, "application/offset+octet-stream")
+                        .body(chunk.slice((start - offset) as usize..));
+                    self.offset_of(request).await
+                }
+                None => {
+                    self.offset_of(self.tus_request(Method::HEAD, url.clone(), auth))
+                        .await
+                }
+            };
+            let error = match result {
+                Ok(reached) if reached == end => return Ok(end),
+                // The server can't take bytes from before this chunk again.
+                Ok(reached) if reached < offset || reached > end => {
+                    return Err(ApiError::new(
+                        409,
+                        format!(
+                            "TUS server offset {reached} is outside the current chunk {offset}..{end}"
+                        ),
+                    )
+                    .into());
+                }
+                // Progress (or the offset HEAD reported): send the rest.
+                Ok(reached) if from.is_none_or(|start| reached > start) => {
+                    from = Some(reached);
+                    continue;
+                }
+                Ok(reached) => Error::from(ApiError::new(
+                    409,
+                    format!("TUS server did not advance past offset {reached}"),
+                )),
                 Err(e) => e,
             };
 
@@ -251,31 +269,15 @@ impl StreamClient {
                 return Err(error);
             }
             let wait = Duration::from_secs(1 << (attempt - 1));
-            tracing::warn!(%error, attempt, ?wait, "TUS chunk failed, resuming");
+            tracing::warn!(%error, attempt, ?wait, "TUS request failed, resuming");
             tokio::time::sleep(wait).await;
-
-            // Ask the server how much of the chunk it has.
-            from = self.server_offset(url, auth).await?;
-            if from == end {
-                return Ok(end);
-            }
-            if !(offset..end).contains(&from) {
-                return Err(ApiError::new(
-                    409,
-                    format!(
-                        "TUS server offset {from} is outside the current chunk {offset}..{end}"
-                    ),
-                )
-                .into());
-            }
+            from = None;
         }
     }
 
-    async fn server_offset(&self, url: &Url, auth: &TusAuthorization) -> Result<u64> {
-        let response = self
-            .transport
-            .send(self.tus_request(Method::HEAD, url.clone(), auth))
-            .await?;
+    /// Sends a TUS request and returns the `Upload-Offset` it reports.
+    async fn offset_of(&self, request: RequestBuilder) -> Result<u64> {
+        let response = self.transport.send(request).await?;
         upload_offset(response.headers()).ok_or_else(|| {
             ApiError::new(
                 response.status().as_u16(),
@@ -297,10 +299,7 @@ impl StreamClient {
 
 /// Hex SHA-256 of `library_id + api_key + expires + video_id`.
 fn sign(library_id: i64, api_key: &str, expires: u64, video_id: &str) -> String {
-    Sha256::digest(format!("{library_id}{api_key}{expires}{video_id}"))
-        .iter()
-        .map(|b| format!("{b:02x}"))
-        .collect()
+    crate::sha256_hex(format!("{library_id}{api_key}{expires}{video_id}"))
 }
 
 fn upload_offset(headers: &HeaderMap) -> Option<u64> {

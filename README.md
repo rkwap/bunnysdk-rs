@@ -68,6 +68,15 @@ Generated types follow the API reference: fields the spec doesn't mark as requir
 query parameters are a `...Query` struct (`&Default::default()` when you need none), and each
 method's docs show its HTTP route.
 
+Where the API behaves differently from its spec, the SDK smooths it over:
+
+- List endpoints with a `page` parameter accept both a plain array and a `{ Items: [...] }` page,
+  whichever the API sends for the page you ask for.
+- Endpoints that can answer with or without a body (e.g. `200` JSON or `204`) return `Option<T>`.
+- GET endpoints whose body the spec doesn't describe (e.g. PDF invoices) return the raw bytes.
+
+Decimal amounts (prices, balances) are `f64`, which keeps about 15 significant digits.
+
 ### Errors
 
 ```rust

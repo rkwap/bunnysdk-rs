@@ -23,7 +23,6 @@ use bytes::Bytes;
 use reqwest::header::CONTENT_TYPE;
 use reqwest::{Body, Method};
 use serde::Deserialize;
-use sha2::{Digest, Sha256};
 
 use crate::config::Config;
 use crate::error::{Error, Result};
@@ -167,10 +166,7 @@ impl UploadOptions {
 
 /// Upper-case hex SHA-256 of `data`, the format the Storage API expects.
 pub fn checksum(data: &[u8]) -> String {
-    Sha256::digest(data)
-        .iter()
-        .map(|b| format!("{b:02X}"))
-        .collect()
+    crate::sha256_hex(data).to_ascii_uppercase()
 }
 
 /// A download whose body is read chunk by chunk, for files too big for memory.

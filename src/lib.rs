@@ -44,7 +44,8 @@
 //! their types and methods follow the API reference at
 //! <https://docs.bunny.net/reference>. Fields the spec does not mark as
 //! required are `Option`s, and enums have an `Other(..)` variant for values
-//! added after this SDK was released.
+//! added after this SDK was released. Decimal amounts are `f64` (about 15
+//! significant digits).
 //!
 //! Requests are logged with [`tracing`](https://docs.rs/tracing) at debug
 //! level (method, path, status, duration). Keys and bodies are never logged.
@@ -92,6 +93,16 @@ mod stream_upload;
 
 pub use config::Config;
 pub use error::{ApiError, Error, Result, ValidationError};
+
+/// Lower-case hex SHA-256 of `data`.
+#[cfg(any(feature = "storage", feature = "stream"))]
+fn sha256_hex(data: impl AsRef<[u8]>) -> String {
+    use sha2::Digest as _;
+    sha2::Sha256::digest(data)
+        .iter()
+        .map(|b| format!("{b:02x}"))
+        .collect()
+}
 
 /// The `reqwest` version this SDK uses, for building a client to pass to
 /// [`Config::http_client`] or a [`reqwest::Body`] to upload.

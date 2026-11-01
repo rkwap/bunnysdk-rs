@@ -39,7 +39,10 @@ jobs:
       - uses: Swatinem/rust-cache@v2
       - run: cargo xtask codegen
       - name: Check generated code is up to date
-        run: git diff --exit-code -- src/generated
+        # `git status` also catches new, never-committed generated files.
+        run: |
+          git status --porcelain -- src/generated
+          test -z "$(git status --porcelain -- src/generated)"
 
   # Each API feature must build on its own.
   features:

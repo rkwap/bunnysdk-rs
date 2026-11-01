@@ -8,7 +8,7 @@ use reqwest::header::{CONTENT_TYPE, HeaderValue, RETRY_AFTER, USER_AGENT};
 use reqwest::{Method, RequestBuilder, Response, StatusCode, Url};
 use serde::Serialize;
 use serde::de::DeserializeOwned;
-use serde_json::Value;
+use serde_json::{Map, Value};
 
 use crate::config::Config;
 use crate::error::{ApiError, Error, Result, truncate};
@@ -56,6 +56,37 @@ fn query_pairs<Q: Serialize>(query: &Q) -> Result<Vec<(String, String)>> {
     Ok(pairs)
 }
 
+/// What a list endpoint's method returns. bunny.net list endpoints return
+/// either a plain array or a `{ "Items": [...], ... }` page depending on the
+/// `page` parameter, whatever their spec says, so responses are reshaped to
+/// match the method's return type.
+#[derive(Debug, Clone, Copy)]
+pub(crate) enum ListShape {
+    /// `Vec<T>`: a page object is unwrapped to its items.
+    Array,
+    /// A page struct whose items field has this JSON name: a plain array is
+    /// wrapped as `{ name: [...] }`.
+    Page(&'static str),
+}
+
+fn normalize_list(value: Value, shape: ListShape) -> Value {
+    match (shape, value) {
+        (ListShape::Array, Value::Object(mut page)) => {
+            let key = ["Items", "items"]
+                .into_iter()
+                .find(|k| page.get(*k).is_some_and(Value::is_array));
+            match key {
+                Some(key) => page.remove(key).unwrap_or_default(),
+                None => Value::Object(page),
+            }
+        }
+        (ListShape::Page(key), items @ Value::Array(_)) => {
+            Value::Object(Map::from_iter([(key.to_owned(), items)]))
+        }
+        (_, other) => other,
+    }
+}
+
 #[derive(Debug, Clone)]
 pub(crate) struct Transport {
     http: reqwest::Client,
@@ -67,7 +98,9 @@ pub(crate) struct Transport {
 
 impl Transport {
     pub(crate) fn new(access_key: &str, default_base_url: &str, config: Config) -> Result<Self> {
-        if access_key.trim().is_empty() {
+        // Keys pasted from files or env vars often carry stray whitespace.
+        let access_key = access_key.trim();
+        if access_key.is_empty() {
             return Err(Error::InvalidInput("API key must not be empty".into()));
         }
         let mut access_key = HeaderValue::from_str(access_key)
@@ -194,8 +227,8 @@ impl Transport {
         }
     }
 
-    /// Sends a request and decodes a JSON response body.
-    pub(crate) async fn json<T: DeserializeOwned>(&self, request: RequestBuilder) -> Result<T> {
+    /// Sends a request and returns status, content type and body.
+    async fn read(&self, request: RequestBuilder) -> Result<(u16, String, Bytes)> {
         let response = self.send(request).await?;
         let status = response.status().as_u16();
         let content_type = response
@@ -204,8 +237,25 @@ impl Transport {
             .and_then(|v| v.to_str().ok())
             .unwrap_or_default()
             .to_owned();
-        let body = response.bytes().await?;
+        Ok((status, content_type, response.bytes().await?))
+    }
+
+    /// Sends a request and decodes a JSON response body.
+    pub(crate) async fn json<T: DeserializeOwned>(&self, request: RequestBuilder) -> Result<T> {
+        let (status, content_type, body) = self.read(request).await?;
         decode_json(status, content_type, &body)
+    }
+
+    /// Like [`Transport::json`] for list endpoints; see [`ListShape`].
+    pub(crate) async fn json_list<T: DeserializeOwned>(
+        &self,
+        request: RequestBuilder,
+        shape: ListShape,
+    ) -> Result<T> {
+        let (status, content_type, body) = self.read(request).await?;
+        let value: Value = decode_json(status, content_type.clone(), &body)?;
+        serde_json::from_value(normalize_list(value, shape))
+            .map_err(|source| decode_error(status, content_type, &body, source))
     }
 
     /// Sends a request and ignores the response body.
@@ -234,22 +284,32 @@ fn decode_json<T: DeserializeOwned>(status: u16, content_type: String, body: &[u
     } else {
         body
     };
-    serde_json::from_slice(input).or_else(|source| {
-        // Core API list endpoints are documented as returning an array, but
-        // return `{ "Items": [...], ... }` when a page number is given.
-        if let Ok(Value::Object(mut page)) = serde_json::from_slice::<Value>(input)
-            && let Some(items @ Value::Array(_)) = page.remove("Items")
-            && let Ok(decoded) = serde_json::from_value(items)
-        {
-            return Ok(decoded);
-        }
-        Err(Error::Decode {
-            status,
-            content_type,
-            body: truncate(&String::from_utf8_lossy(body), 200),
-            source,
-        })
-    })
+    serde_json::from_slice(input).map_err(|source| decode_error(status, content_type, body, source))
+}
+
+fn decode_error(
+    status: u16,
+    content_type: String,
+    body: &[u8],
+    source: serde_json::Error,
+) -> Error {
+    // JSON bodies can carry credentials (zone passwords, library API keys),
+    // so only non-JSON bodies, like a proxy's HTML page, are quoted.
+    let looks_like_json = body
+        .iter()
+        .find(|b| !b.is_ascii_whitespace())
+        .is_some_and(|b| matches!(b, b'{' | b'['));
+    let body = if looks_like_json {
+        String::new()
+    } else {
+        truncate(&String::from_utf8_lossy(body), 200)
+    };
+    Error::Decode {
+        status,
+        content_type,
+        body,
+        source,
+    }
 }
 
 fn is_idempotent(method: &Method) -> bool {
@@ -330,18 +390,53 @@ mod tests {
     }
 
     #[test]
-    fn paginated_object_decodes_as_list() {
-        let body = br#"{"Items":[1,2],"CurrentPage":1,"TotalItems":2,"HasMoreItems":false}"#;
-        let items: Vec<u32> = decode_json(200, "application/json".into(), body).unwrap();
-        assert_eq!(items, [1, 2]);
+    fn list_shapes_are_normalized() {
+        let page = serde_json::json!({"Items": [1, 2], "CurrentPage": 1});
+        assert_eq!(
+            normalize_list(page.clone(), ListShape::Array),
+            serde_json::json!([1, 2])
+        );
+        assert_eq!(
+            normalize_list(serde_json::json!([1]), ListShape::Page("items")),
+            serde_json::json!({"items": [1]})
+        );
+        // Values already in the right shape are untouched.
+        assert_eq!(normalize_list(page.clone(), ListShape::Page("Items")), page);
+        let no_items = serde_json::json!({"Other": 1});
+        assert_eq!(normalize_list(no_items.clone(), ListShape::Array), no_items);
     }
 
     #[test]
-    fn html_body_is_a_decode_error() {
+    fn decode_errors_do_not_leak_json_bodies() {
+        // A paginated object for a Vec is a plain decode error (no silent fallback).
+        let err = decode_json::<Vec<u32>>(200, "application/json".into(), br#"{"Items":[]}"#)
+            .unwrap_err();
+        assert!(matches!(err, Error::Decode { status: 200, .. }));
+
+        let secret = br#"{"Id":1,"Password":"hunter2","Length":"oops"}"#;
+        #[derive(Debug, serde::Deserialize)]
+        #[allow(dead_code)]
+        struct Zone {
+            #[serde(rename = "Length")]
+            length: u32,
+        }
+        let err = decode_json::<Zone>(200, "application/json".into(), secret).unwrap_err();
+        assert!(!err.to_string().contains("hunter2"), "{err}");
+    }
+
+    #[test]
+    fn html_body_is_quoted_in_decode_error() {
         let err =
             decode_json::<Vec<u32>>(200, "text/html".into(), b"<html>login</html>").unwrap_err();
         assert!(matches!(err, Error::Decode { status: 200, .. }));
         assert!(err.to_string().contains("text/html"));
+        assert!(err.to_string().contains("<html>login"));
+    }
+
+    #[test]
+    fn api_key_is_trimmed() {
+        let transport = Transport::new(" key \n", "https://x", Config::new()).unwrap();
+        assert_eq!(transport.api_key(), "key");
     }
 
     #[test]
@@ -387,7 +482,7 @@ mod tests {
             Err(Error::InvalidInput(_))
         ));
         assert!(matches!(
-            Transport::new("key\n", "https://x", Config::new()),
+            Transport::new("ke\ny", "https://x", Config::new()),
             Err(Error::InvalidInput(_))
         ));
         assert!(matches!(

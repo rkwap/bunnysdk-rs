@@ -21,28 +21,55 @@ concurrency: update-specs
 env:
   CARGO_TERM_COLOR: always
   BRANCH: specs/update
+  BOT_EMAIL: 41898282+github-actions[bot]@users.noreply.github.com
 
 jobs:
   update:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # The branch is rebuilt from main each run, so don't overwrite fixes a
+      # maintainer pushed to an open PR; they land first.
+      - name: Check the PR branch for manual commits
+        id: guard
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          skip=false
+          if [ "$(gh pr view "$BRANCH" --json state -q .state 2>/dev/null)" = "OPEN" ]; then
+            authors=$(git log "origin/main..origin/$BRANCH" --format=%ae | sort -u | grep -vxF "$BOT_EMAIL" || true)
+            if [ -n "$authors" ]; then
+              echo "::warning::$BRANCH has commits by: $authors. Merge or close its PR; the specs will be refreshed on the next run."
+              skip=true
+            fi
+          fi
+          echo "skip=$skip" >> "$GITHUB_OUTPUT"
+
       - uses: dtolnay/rust-toolchain@stable
+        if: steps.guard.outputs.skip == 'false'
         with:
           components: rustfmt, clippy
       - uses: Swatinem/rust-cache@v2
+        if: steps.guard.outputs.skip == 'false'
 
       - run: cargo xtask update-specs
+        if: steps.guard.outputs.skip == 'false'
 
       - name: Regenerate code
         id: codegen
+        if: steps.guard.outputs.skip == 'false'
         continue-on-error: true
         run: cargo xtask codegen
 
       - name: Detect changes
         id: diff
+        if: steps.guard.outputs.skip == 'false'
         run: |
-          if git diff --quiet -- specs src/generated; then
+          # Includes untracked files, e.g. the first spec of a new API.
+          if [ -z "$(git status --porcelain -- specs src/generated)" ]; then
             echo "changed=false" >> "$GITHUB_OUTPUT"
           else
             echo "changed=true" >> "$GITHUB_OUTPUT"
@@ -64,7 +91,7 @@ jobs:
           TESTS: ${{ steps.test.outcome }}
         run: |
           git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config user.email "$BOT_EMAIL"
           git checkout -B "$BRANCH"
           git add specs src/generated
           git commit -m "Update bunny.net OpenAPI specs"

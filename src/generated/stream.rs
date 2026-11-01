@@ -131,7 +131,9 @@ impl StreamClient {
             ),
             query,
         )?;
-        self.transport.json(request).await
+        self.transport
+            .json_list(request, crate::transport::ListShape::Page("items"))
+            .await
     }
 
     /// Create Collection
@@ -457,7 +459,9 @@ impl StreamClient {
             &format!("/library/{}/videos", crate::transport::segment(library_id)),
             query,
         )?;
-        self.transport.json(request).await
+        self.transport
+            .json_list(request, crate::transport::ListShape::Page("items"))
+            .await
     }
 
     /// Create Video
@@ -836,7 +840,9 @@ impl StreamClient {
             &format!("/library/{}/live", crate::transport::segment(library_id)),
             query,
         )?;
-        self.transport.json(request).await
+        self.transport
+            .json_list(request, crate::transport::ListShape::Page("items"))
+            .await
     }
 
     /// Create new live stream
@@ -2028,6 +2034,31 @@ pub struct VideoOEmbedModel {
 
 #[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
 #[serde(default)]
+pub struct ThumbnailListResponseModel {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub url: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub timestamp: Option<String>,
+}
+
+#[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
+#[serde(default)]
+pub struct StatusModelOfListOfString {
+    /// Determines if the request was successful
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub success: Option<bool>,
+    /// Human-readable message describing the result, typically populated with error details when Success is false.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub message: Option<String>,
+    /// The HTTP status code corresponding to the result of the request.
+    #[serde(rename = "statusCode", skip_serializing_if = "Option::is_none")]
+    pub status_code: Option<i32>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub data: Option<Vec<String>>,
+}
+
+#[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
+#[serde(default)]
 pub struct LiveStreamModel {
     /// The ID of the video library that the live stream belongs to
     #[serde(rename = "videoLibraryId")]
@@ -2143,6 +2174,61 @@ int_enum! {
 
 #[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
 #[serde(default)]
+pub struct PaginationListOfLiveStreamModel {
+    /// The total number of items that can be returned
+    #[serde(rename = "totalItems", skip_serializing_if = "Option::is_none")]
+    pub total_items: Option<i64>,
+    /// The current page of the response
+    #[serde(rename = "currentPage", skip_serializing_if = "Option::is_none")]
+    pub current_page: Option<i64>,
+    /// The number of items returned per page
+    #[serde(rename = "itemsPerPage", skip_serializing_if = "Option::is_none")]
+    pub items_per_page: Option<i32>,
+    /// The result items on the current result
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub items: Option<Vec<LiveStreamModel>>,
+}
+
+#[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
+#[serde(default)]
+pub struct CreateLiveStreamModel {
+    /// The title of the live stream
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub title: Option<String>,
+    /// The description of the live stream
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub description: Option<String>,
+    /// The ID of the collection where the live stream belongs
+    #[serde(rename = "collectionId", skip_serializing_if = "Option::is_none")]
+    pub collection_id: Option<String>,
+    /// Determines if DVR is enabled for the live stream
+    #[serde(rename = "dvrEnabled", skip_serializing_if = "Option::is_none")]
+    pub dvr_enabled: Option<bool>,
+    /// The DVR window size in seconds, required when DvrEnabled is true, max is 12 hours
+    #[serde(rename = "dvrWindowSeconds", skip_serializing_if = "Option::is_none")]
+    pub dvr_window_seconds: Option<i32>,
+    /// Determines if a VOD recording should be created for the live stream
+    #[serde(rename = "recordVod", skip_serializing_if = "Option::is_none")]
+    pub record_vod: Option<bool>,
+    /// The scheduled start time of the live stream (optional, UTC)
+    #[serde(rename = "scheduledStartTime", skip_serializing_if = "Option::is_none")]
+    pub scheduled_start_time: Option<String>,
+    /// The scheduled end time of the live stream (optional, UTC)
+    #[serde(rename = "scheduledEndTime", skip_serializing_if = "Option::is_none")]
+    pub scheduled_end_time: Option<String>,
+    /// Determines if the live stream is publicly accessible, defaults to true
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub public: Option<bool>,
+    /// Determines if countdown should be shown in player before the stream start, if it was scheduled
+    #[serde(rename = "enableCountdown", skip_serializing_if = "Option::is_none")]
+    pub enable_countdown: Option<bool>,
+    /// A list of up to 5 RTMP outputs that the incoming stream will be forwarded to
+    #[serde(rename = "rtmpOutputs", skip_serializing_if = "Option::is_none")]
+    pub rtmp_outputs: Option<Vec<String>>,
+}
+
+#[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
+#[serde(default)]
 pub struct LiveStreamPlayDataModel {
     /// Live stream data.
     #[serde(rename = "liveStream", skip_serializing_if = "Option::is_none")]
@@ -2211,60 +2297,6 @@ pub struct LiveStreamPlayDataModel {
 
 #[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
 #[serde(default)]
-pub struct StatusModelOfListOfString {
-    /// Determines if the request was successful
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub success: Option<bool>,
-    /// Human-readable message describing the result, typically populated with error details when Success is false.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub message: Option<String>,
-    /// The HTTP status code corresponding to the result of the request.
-    #[serde(rename = "statusCode", skip_serializing_if = "Option::is_none")]
-    pub status_code: Option<i32>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub data: Option<Vec<String>>,
-}
-
-#[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
-#[serde(default)]
-pub struct CreateLiveStreamModel {
-    /// The title of the live stream
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub title: Option<String>,
-    /// The description of the live stream
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub description: Option<String>,
-    /// The ID of the collection where the live stream belongs
-    #[serde(rename = "collectionId", skip_serializing_if = "Option::is_none")]
-    pub collection_id: Option<String>,
-    /// Determines if DVR is enabled for the live stream
-    #[serde(rename = "dvrEnabled", skip_serializing_if = "Option::is_none")]
-    pub dvr_enabled: Option<bool>,
-    /// The DVR window size in seconds, required when DvrEnabled is true, max is 12 hours
-    #[serde(rename = "dvrWindowSeconds", skip_serializing_if = "Option::is_none")]
-    pub dvr_window_seconds: Option<i32>,
-    /// Determines if a VOD recording should be created for the live stream
-    #[serde(rename = "recordVod", skip_serializing_if = "Option::is_none")]
-    pub record_vod: Option<bool>,
-    /// The scheduled start time of the live stream (optional, UTC)
-    #[serde(rename = "scheduledStartTime", skip_serializing_if = "Option::is_none")]
-    pub scheduled_start_time: Option<String>,
-    /// The scheduled end time of the live stream (optional, UTC)
-    #[serde(rename = "scheduledEndTime", skip_serializing_if = "Option::is_none")]
-    pub scheduled_end_time: Option<String>,
-    /// Determines if the live stream is publicly accessible, defaults to true
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub public: Option<bool>,
-    /// Determines if countdown should be shown in player before the stream start, if it was scheduled
-    #[serde(rename = "enableCountdown", skip_serializing_if = "Option::is_none")]
-    pub enable_countdown: Option<bool>,
-    /// A list of up to 5 RTMP outputs that the incoming stream will be forwarded to
-    #[serde(rename = "rtmpOutputs", skip_serializing_if = "Option::is_none")]
-    pub rtmp_outputs: Option<Vec<String>>,
-}
-
-#[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
-#[serde(default)]
 pub struct UpdateLiveStreamModel {
     /// The title of the live stream
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -2299,32 +2331,6 @@ pub struct UpdateLiveStreamModel {
     /// A list of up to 5 RTMP outputs that the incoming stream will be forwarded to
     #[serde(rename = "rtmpOutputs", skip_serializing_if = "Option::is_none")]
     pub rtmp_outputs: Option<Vec<String>>,
-}
-
-#[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
-#[serde(default)]
-pub struct PaginationListOfLiveStreamModel {
-    /// The total number of items that can be returned
-    #[serde(rename = "totalItems", skip_serializing_if = "Option::is_none")]
-    pub total_items: Option<i64>,
-    /// The current page of the response
-    #[serde(rename = "currentPage", skip_serializing_if = "Option::is_none")]
-    pub current_page: Option<i64>,
-    /// The number of items returned per page
-    #[serde(rename = "itemsPerPage", skip_serializing_if = "Option::is_none")]
-    pub items_per_page: Option<i32>,
-    /// The result items on the current result
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub items: Option<Vec<LiveStreamModel>>,
-}
-
-#[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
-#[serde(default)]
-pub struct ThumbnailListResponseModel {
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub url: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub timestamp: Option<String>,
 }
 
 /// Query parameters for [`StreamClient::get_collection`].

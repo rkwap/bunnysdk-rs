@@ -526,8 +526,9 @@ impl ShieldClient {
                     crate::transport::segment(shield_zone_id)
                 ),
             )
-            .json(body);
-        self.transport.json(request).await
+            .json(body)
+            .header(reqwest::header::ACCEPT, "text/csv");
+        self.transport.text(request).await
     }
 
     /// Get the overage breakdown for the specified Shield Zone for a given month, segmented by billing plan changes
@@ -711,11 +712,11 @@ impl ShieldClient {
     /// Get the current Promotion State for your Account
     ///
     /// `GET /shield/promo/state`
-    pub async fn get_promotion_state(&self) -> crate::Result<()> {
+    pub async fn get_promotion_state(&self) -> crate::Result<bytes::Bytes> {
         let request = self
             .transport
             .request(reqwest::Method::GET, "/shield/promo/state");
-        self.transport.empty(request).await
+        self.transport.bytes(request).await
     }
 
     /// Get Rate Limits for your Shield Zone

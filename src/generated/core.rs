@@ -60,7 +60,9 @@ impl CoreClient {
         let request = self
             .transport
             .request_with_query(reqwest::Method::GET, "/dnszone", query)?;
-        self.transport.json(request).await
+        self.transport
+            .json_list(request, crate::transport::ListShape::Page("Items"))
+            .await
     }
 
     /// Add DNS Zone
@@ -161,7 +163,9 @@ impl CoreClient {
             &format!("/dnszone/{}/records", crate::transport::segment(zone_id)),
             query,
         )?;
-        self.transport.json(request).await
+        self.transport
+            .json_list(request, crate::transport::ListShape::Page("Items"))
+            .await
     }
 
     /// Add DNS Record
@@ -271,7 +275,9 @@ impl CoreClient {
         let request =
             self.transport
                 .request_with_query(reqwest::Method::GET, "/pullzone", query)?;
-        self.transport.json(request).await
+        self.transport
+            .json_list(request, crate::transport::ListShape::Array)
+            .await
     }
 
     /// Add Pull Zone
@@ -436,13 +442,13 @@ impl CoreClient {
     pub async fn load_free_certificate(
         &self,
         query: &LoadFreeCertificateQuery,
-    ) -> crate::Result<()> {
+    ) -> crate::Result<bytes::Bytes> {
         let request = self.transport.request_with_query(
             reqwest::Method::GET,
             "/pullzone/loadFreeCertificate",
             query,
         )?;
-        self.transport.empty(request).await
+        self.transport.bytes(request).await
     }
 
     /// Request External DNS Certificate
@@ -822,7 +828,9 @@ impl CoreClient {
         let request =
             self.transport
                 .request_with_query(reqwest::Method::GET, "/storagezone", query)?;
-        self.transport.json(request).await
+        self.transport
+            .json_list(request, crate::transport::ListShape::Array)
+            .await
     }
 
     /// Add Storage Zone
@@ -985,7 +993,9 @@ impl CoreClient {
         let request =
             self.transport
                 .request_with_query(reqwest::Method::GET, "/videolibrary", query)?;
-        self.transport.json(request).await
+        self.transport
+            .json_list(request, crate::transport::ListShape::Page("Items"))
+            .await
     }
 
     /// Add Video Library
@@ -1617,7 +1627,9 @@ impl CoreClient {
         let request =
             self.transport
                 .request_with_query(reqwest::Method::GET, "/loadbalancer", query)?;
-        self.transport.json(request).await
+        self.transport
+            .json_list(request, crate::transport::ListShape::Array)
+            .await
     }
 
     /// Create a new Load Balancer profile
@@ -1864,7 +1876,10 @@ impl CoreClient {
     /// Download Payment Request Invoice PDF
     ///
     /// `GET /billing/payment-request-invoice/{id}/pdf`
-    pub async fn download_payment_request_invoice_pdf(&self, id: i64) -> crate::Result<()> {
+    pub async fn download_payment_request_invoice_pdf(
+        &self,
+        id: i64,
+    ) -> crate::Result<bytes::Bytes> {
         let request = self.transport.request(
             reqwest::Method::GET,
             &format!(
@@ -1872,7 +1887,7 @@ impl CoreClient {
                 crate::transport::segment(id)
             ),
         );
-        self.transport.empty(request).await
+        self.transport.bytes(request).await
     }
 
     /// Get Pending Payment Requests
@@ -1892,7 +1907,10 @@ impl CoreClient {
     /// Get Billing Summary Document
     ///
     /// `GET /billing/summary/{billingRecordId}/pdf`
-    pub async fn get_billing_summary_document(&self, billing_record_id: i64) -> crate::Result<()> {
+    pub async fn get_billing_summary_document(
+        &self,
+        billing_record_id: i64,
+    ) -> crate::Result<bytes::Bytes> {
         let request = self.transport.request(
             reqwest::Method::GET,
             &format!(
@@ -1900,7 +1918,7 @@ impl CoreClient {
                 crate::transport::segment(billing_record_id)
             ),
         );
-        self.transport.empty(request).await
+        self.transport.bytes(request).await
     }
 
     /// Get Billing Summary
@@ -1927,7 +1945,9 @@ impl CoreClient {
         let request = self
             .transport
             .request_with_query(reqwest::Method::GET, "/apikey", query)?;
-        self.transport.json(request).await
+        self.transport
+            .json_list(request, crate::transport::ListShape::Page("Items"))
+            .await
     }
 
     /// Get affiliate details
@@ -1952,6 +1972,7 @@ pub struct CountryModel {
     pub iso_code: Option<String>,
     #[serde(rename = "IsEU", skip_serializing_if = "Option::is_none")]
     pub is_eu: Option<bool>,
+    /// A decimal number, parsed as `f64` (about 15 significant digits).
     #[serde(rename = "TaxRate", skip_serializing_if = "Option::is_none")]
     pub tax_rate: Option<f64>,
     #[serde(rename = "TaxPrefix", skip_serializing_if = "Option::is_none")]
@@ -2724,6 +2745,8 @@ pub struct PullZoneModel {
     )]
     pub monthly_bandwidth_used: Option<i64>,
     /// The total monthly charges for this so zone so far
+    ///
+    /// A decimal number, parsed as `f64` (about 15 significant digits).
     #[serde(rename = "MonthlyCharges", skip_serializing_if = "Option::is_none")]
     pub monthly_charges: Option<f64>,
     /// Determines if the Pull Zone should forward the current hostname to the origin
@@ -2805,9 +2828,13 @@ pub struct PullZoneModel {
     )]
     pub connection_limit_per_ip_count: Option<i32>,
     /// The custom price override for this zone. Unit is $/Byte.
+    ///
+    /// A decimal number, parsed as `f64` (about 15 significant digits).
     #[serde(rename = "PriceOverride", skip_serializing_if = "Option::is_none")]
     pub price_override: Option<f64>,
     /// Monthly pricing for Bunny Optimizer for this pull zone
+    ///
+    /// A decimal number, parsed as `f64` (about 15 significant digits).
     #[serde(rename = "OptimizerPricing", skip_serializing_if = "Option::is_none")]
     pub optimizer_pricing: Option<f64>,
     /// Determines if the Add Canonical Header is enabled for this Pull Zone
@@ -5682,6 +5709,8 @@ pub struct RegionModel {
     #[serde(rename = "Name", skip_serializing_if = "Option::is_none")]
     pub name: Option<String>,
     /// The traffic pricing per gigabyte for the region
+    ///
+    /// A decimal number, parsed as `f64` (about 15 significant digits).
     #[serde(rename = "PricePerGigabyte", skip_serializing_if = "Option::is_none")]
     pub price_per_gigabyte: Option<f64>,
     /// The region short code
@@ -5726,6 +5755,8 @@ pub struct StorageRegionModel {
     #[serde(rename = "Longitude", skip_serializing_if = "Option::is_none")]
     pub longitude: Option<f64>,
     /// The standard storage price in USD per GB per month, before discounts
+    ///
+    /// A decimal number, parsed as `f64` (about 15 significant digits).
     #[serde(rename = "PricePerGigabyte", skip_serializing_if = "Option::is_none")]
     pub price_per_gigabyte: Option<f64>,
     /// The storage tier: 0 for Standard (HDD), 1 for Edge (SSD)
@@ -5812,6 +5843,8 @@ pub struct StorageZoneModel {
     )]
     pub replication_change_in_progress: Option<bool>,
     /// The custom price override for this zone. Unit is $/TB/month.
+    ///
+    /// A decimal number, parsed as `f64` (about 15 significant digits).
     #[serde(rename = "PriceOverride", skip_serializing_if = "Option::is_none")]
     pub price_override: Option<f64>,
     /// The Storage Zone specific pricing discount.
@@ -6143,37 +6176,46 @@ pub struct VideoLibraryModel {
     #[serde(rename = "OutputCodecs", skip_serializing_if = "Option::is_none")]
     pub output_codecs: Option<String>,
     /// DRM (enterprise) monthly base price for this video library if it differs from list price.
+    ///
+    /// A decimal number, parsed as `f64` (about 15 significant digits).
     #[serde(
         rename = "DrmBasePriceOverride",
         skip_serializing_if = "Option::is_none"
     )]
     pub drm_base_price_override: Option<f64>,
     /// DRM (enterprise) cost per license for this video library if it differs from list price.
+    ///
+    /// A decimal number, parsed as `f64` (about 15 significant digits).
     #[serde(
         rename = "DrmCostPerLicenseOverride",
         skip_serializing_if = "Option::is_none"
     )]
     pub drm_cost_per_license_override: Option<f64>,
+    /// A decimal number, parsed as `f64` (about 15 significant digits).
     #[serde(
         rename = "TranscribingPriceOverride",
         skip_serializing_if = "Option::is_none"
     )]
     pub transcribing_price_override: Option<f64>,
+    /// A decimal number, parsed as `f64` (about 15 significant digits).
     #[serde(
         rename = "PremiumEncodingPriceOverride",
         skip_serializing_if = "Option::is_none"
     )]
     pub premium_encoding_price_override: Option<f64>,
+    /// A decimal number, parsed as `f64` (about 15 significant digits).
     #[serde(
         rename = "MonthlyChargesTranscribing",
         skip_serializing_if = "Option::is_none"
     )]
     pub monthly_charges_transcribing: Option<f64>,
+    /// A decimal number, parsed as `f64` (about 15 significant digits).
     #[serde(
         rename = "MonthlyChargesPremiumEncoding",
         skip_serializing_if = "Option::is_none"
     )]
     pub monthly_charges_premium_encoding: Option<f64>,
+    /// A decimal number, parsed as `f64` (about 15 significant digits).
     #[serde(
         rename = "MonthlyChargesEnterpriseDrm",
         skip_serializing_if = "Option::is_none"
@@ -7103,10 +7145,12 @@ pub struct PriceEstimationModel {
     /// 2 = Resource Override
     #[serde(rename = "PricingType", skip_serializing_if = "Option::is_none")]
     pub pricing_type: Option<AppliedPricingType>,
+    /// A decimal number, parsed as `f64` (about 15 significant digits).
     #[serde(rename = "PricePerUnit", skip_serializing_if = "Option::is_none")]
     pub price_per_unit: Option<f64>,
     #[serde(rename = "UnitDescription", skip_serializing_if = "Option::is_none")]
     pub unit_description: Option<String>,
+    /// A decimal number, parsed as `f64` (about 15 significant digits).
     #[serde(rename = "EstimatedCost", skip_serializing_if = "Option::is_none")]
     pub estimated_cost: Option<f64>,
     #[serde(rename = "Breakdown", skip_serializing_if = "Option::is_none")]
@@ -7131,8 +7175,10 @@ pub struct PriceEstimationBreakdownLine {
     pub description: Option<String>,
     #[serde(rename = "Units", skip_serializing_if = "Option::is_none")]
     pub units: Option<i64>,
+    /// A decimal number, parsed as `f64` (about 15 significant digits).
     #[serde(rename = "PricePerUnit", skip_serializing_if = "Option::is_none")]
     pub price_per_unit: Option<f64>,
+    /// A decimal number, parsed as `f64` (about 15 significant digits).
     #[serde(rename = "Cost", skip_serializing_if = "Option::is_none")]
     pub cost: Option<f64>,
 }
@@ -7749,6 +7795,7 @@ pub struct LoadBalancerUsageModel {
     pub current_requests: Option<i64>,
     #[serde(rename = "IncludedRequests", skip_serializing_if = "Option::is_none")]
     pub included_requests: Option<i64>,
+    /// A decimal number, parsed as `f64` (about 15 significant digits).
     #[serde(rename = "MonthlyFee", skip_serializing_if = "Option::is_none")]
     pub monthly_fee: Option<f64>,
     #[serde(rename = "Tiers", skip_serializing_if = "Option::is_none")]
@@ -7768,6 +7815,7 @@ pub struct LoadBalancerPricingTierModel {
         skip_serializing_if = "Option::is_none"
     )]
     pub threshold_to_millions: Option<i64>,
+    /// A decimal number, parsed as `f64` (about 15 significant digits).
     #[serde(rename = "PricePerMillion", skip_serializing_if = "Option::is_none")]
     pub price_per_million: Option<f64>,
 }
@@ -7972,9 +8020,13 @@ pub struct BillingModel {
     #[serde(rename = "AvailableBalance", skip_serializing_if = "Option::is_none")]
     pub available_balance: Option<f64>,
     /// All available (unexpired) coupon money on the account
+    ///
+    /// A decimal number, parsed as `f64` (about 15 significant digits).
     #[serde(rename = "CouponBalance", skip_serializing_if = "Option::is_none")]
     pub coupon_balance: Option<f64>,
     /// The total coupon credit used this month across all services
+    ///
+    /// A decimal number, parsed as `f64` (about 15 significant digits).
     #[serde(rename = "MonthlyCouponUsage", skip_serializing_if = "Option::is_none")]
     pub monthly_coupon_usage: Option<f64>,
     /// The list of billing records for this account
@@ -8038,6 +8090,8 @@ pub struct BillingModel {
     )]
     pub monthly_charges_transcribe: Option<f64>,
     /// The total monthly charges for Bunny Stream Premium Encoding
+    ///
+    /// A decimal number, parsed as `f64` (about 15 significant digits).
     #[serde(
         rename = "MonthlyChargesPremiumEncoding",
         skip_serializing_if = "Option::is_none"
@@ -8089,6 +8143,8 @@ pub struct BillingModel {
     #[serde(rename = "MonthlyChargesDrm", skip_serializing_if = "Option::is_none")]
     pub monthly_charges_drm: Option<f64>,
     /// The total monthly charges for Magic Containers
+    ///
+    /// A decimal number, parsed as `f64` (about 15 significant digits).
     #[serde(
         rename = "MonthlyChargesMagicContainers",
         skip_serializing_if = "Option::is_none"
@@ -8119,27 +8175,37 @@ pub struct BillingModel {
     #[serde(rename = "MonthlyMcVolumes", skip_serializing_if = "Option::is_none")]
     pub monthly_mc_volumes: Option<UsageBreakdown>,
     /// The total monthly charges for Shield
+    ///
+    /// A decimal number, parsed as `f64` (about 15 significant digits).
     #[serde(
         rename = "MonthlyChargesShield",
         skip_serializing_if = "Option::is_none"
     )]
     pub monthly_charges_shield: Option<f64>,
     /// The total monthly charges for Taxes
+    ///
+    /// A decimal number, parsed as `f64` (about 15 significant digits).
     #[serde(
         rename = "MonthlyChargesTaxes",
         skip_serializing_if = "Option::is_none"
     )]
     pub monthly_charges_taxes: Option<f64>,
     /// The total monthly charges for WebSockets
+    ///
+    /// A decimal number, parsed as `f64` (about 15 significant digits).
     #[serde(
         rename = "MonthlyChargesWebSockets",
         skip_serializing_if = "Option::is_none"
     )]
     pub monthly_charges_web_sockets: Option<f64>,
     /// The total monthly charges for DB
+    ///
+    /// A decimal number, parsed as `f64` (about 15 significant digits).
     #[serde(rename = "MonthlyChargesDB", skip_serializing_if = "Option::is_none")]
     pub monthly_charges_db: Option<f64>,
     /// The total monthly charges for Load Balancer
+    ///
+    /// A decimal number, parsed as `f64` (about 15 significant digits).
     #[serde(
         rename = "MonthlyChargesLoadBalancer",
         skip_serializing_if = "Option::is_none"
@@ -8158,6 +8224,8 @@ pub struct BillingModel {
     #[serde(rename = "MonthlyDBReplica", skip_serializing_if = "Option::is_none")]
     pub monthly_db_replica: Option<UsageBreakdown>,
     /// The total monthly charges for AI Gateway
+    ///
+    /// A decimal number, parsed as `f64` (about 15 significant digits).
     #[serde(
         rename = "MonthlyChargesAiGateway",
         skip_serializing_if = "Option::is_none"
@@ -8245,9 +8313,13 @@ pub struct BillingModel {
     )]
     pub minimum_monthly_commit: Option<f64>,
     /// The VAT rate for the user's account.
+    ///
+    /// A decimal number, parsed as `f64` (about 15 significant digits).
     #[serde(rename = "VATRate", skip_serializing_if = "Option::is_none")]
     pub vat_rate: Option<f64>,
     /// Next month VAT rate for the user's account.
+    ///
+    /// A decimal number, parsed as `f64` (about 15 significant digits).
     #[serde(rename = "NextMonthVATRate", skip_serializing_if = "Option::is_none")]
     pub next_month_vat_rate: Option<f64>,
     /// If an automatic payment method is configured, this will contain the image url of the payment method
@@ -8269,12 +8341,16 @@ pub struct BillingModel {
     )]
     pub automatic_payment_identifier: Option<String>,
     /// If an automatic payments are configured, this contains the payment amount that will be made during an automatic recharge
+    ///
+    /// A decimal number, parsed as `f64` (about 15 significant digits).
     #[serde(
         rename = "AutomaticPaymentAmount",
         skip_serializing_if = "Option::is_none"
     )]
     pub automatic_payment_amount: Option<f64>,
     /// If an automatic payments are configured, this contains the account balance amount that will trigger an automatic recharge
+    ///
+    /// A decimal number, parsed as `f64` (about 15 significant digits).
     #[serde(
         rename = "AutomaticRechargeTreshold",
         skip_serializing_if = "Option::is_none"
@@ -8317,18 +8393,24 @@ pub struct BillingModel {
     )]
     pub asia_oceania_discount: Option<i32>,
     /// Optimizer monthly price per pull zone for this account (unless overridden on pull zone level).
+    ///
+    /// A decimal number, parsed as `f64` (about 15 significant digits).
     #[serde(
         rename = "OptimizerMonthlyPrice",
         skip_serializing_if = "Option::is_none"
     )]
     pub optimizer_monthly_price: Option<f64>,
     /// DRM (Enterprise) base monthly price per video library.
+    ///
+    /// A decimal number, parsed as `f64` (about 15 significant digits).
     #[serde(
         rename = "DrmBaseMonthlyPrice",
         skip_serializing_if = "Option::is_none"
     )]
     pub drm_base_monthly_price: Option<f64>,
     /// DRM (Enterprise) cost per license or default pricing tier applied if null.
+    ///
+    /// A decimal number, parsed as `f64` (about 15 significant digits).
     #[serde(rename = "DrmCostPerLicense", skip_serializing_if = "Option::is_none")]
     pub drm_cost_per_license: Option<f64>,
 }
@@ -8405,6 +8487,8 @@ int_enum! {
 #[serde(default)]
 pub struct UsageBreakdown {
     /// The usage based charge in USD
+    ///
+    /// A decimal number, parsed as `f64` (about 15 significant digits).
     #[serde(rename = "Usage", skip_serializing_if = "Option::is_none")]
     pub usage: Option<f64>,
     /// The billed quantity for the related product
@@ -8435,6 +8519,7 @@ pub struct BillingSavedPaymentMethod {
 pub struct PaymentRequestModel {
     #[serde(rename = "Id", skip_serializing_if = "Option::is_none")]
     pub id: Option<i64>,
+    /// A decimal number, parsed as `f64` (about 15 significant digits).
     #[serde(rename = "Amount", skip_serializing_if = "Option::is_none")]
     pub amount: Option<f64>,
     #[serde(rename = "DateGenerated", skip_serializing_if = "Option::is_none")]
@@ -8459,8 +8544,10 @@ pub struct PaymentRequestModel {
         skip_serializing_if = "Option::is_none"
     )]
     pub bank_transfer_reference: Option<String>,
+    /// A decimal number, parsed as `f64` (about 15 significant digits).
     #[serde(rename = "TaxRate", skip_serializing_if = "Option::is_none")]
     pub tax_rate: Option<f64>,
+    /// A decimal number, parsed as `f64` (about 15 significant digits).
     #[serde(rename = "TaxedAmount", skip_serializing_if = "Option::is_none")]
     pub taxed_amount: Option<f64>,
 }
@@ -8472,6 +8559,8 @@ pub struct BillingSummaryItem {
     #[serde(rename = "PullZoneId", skip_serializing_if = "Option::is_none")]
     pub pull_zone_id: Option<i64>,
     /// The total credit amount used in this month by the Pull Zone
+    ///
+    /// A decimal number, parsed as `f64` (about 15 significant digits).
     #[serde(rename = "MonthlyUsage", skip_serializing_if = "Option::is_none")]
     pub monthly_usage: Option<f64>,
     /// The total monthly bandwidth used by the pull zone
@@ -8510,18 +8599,24 @@ pub struct ApiKeyModel {
 #[serde(default)]
 pub struct BillingAffiliateDetailsModel {
     /// The amount of affiliate credits on the account
+    ///
+    /// A decimal number, parsed as `f64` (about 15 significant digits).
     #[serde(rename = "AffiliateBalance", skip_serializing_if = "Option::is_none")]
     pub affiliate_balance: Option<f64>,
     /// The affiliate URL for the currently authenticated user
     #[serde(rename = "AffiliateUrl", skip_serializing_if = "Option::is_none")]
     pub affiliate_url: Option<String>,
     /// The bonus percentage given when claiming affiliate balance as bunny credits
+    ///
+    /// A decimal number, parsed as `f64` (about 15 significant digits).
     #[serde(
         rename = "ClaimBonusPercentage",
         skip_serializing_if = "Option::is_none"
     )]
     pub claim_bonus_percentage: Option<f64>,
     /// The smallest cash payout that can be requested
+    ///
+    /// A decimal number, parsed as `f64` (about 15 significant digits).
     #[serde(
         rename = "MinimumPayoutAmount",
         skip_serializing_if = "Option::is_none"

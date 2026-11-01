@@ -5852,6 +5852,40 @@
           }
         }
       },
+      "ThumbnailListResponseModel": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "url": {
+            "type": "string",
+            "nullable": true
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "StatusModelOfListOfString": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/StatusModel"
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "data": {
+                "type": "array",
+                "nullable": true,
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ]
+      },
       "LiveStreamModel": {
         "type": "object",
         "additionalProperties": false,
@@ -6063,6 +6097,101 @@
           7
         ]
       },
+      "PaginationListOfLiveStreamModel": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "totalItems": {
+            "type": "integer",
+            "description": "The total number of items that can be returned",
+            "format": "int64"
+          },
+          "currentPage": {
+            "type": "integer",
+            "description": "The current page of the response",
+            "format": "int64"
+          },
+          "itemsPerPage": {
+            "type": "integer",
+            "description": "The number of items returned per page",
+            "format": "int32"
+          },
+          "items": {
+            "type": "array",
+            "description": "The result items on the current result",
+            "nullable": true,
+            "items": {
+              "$ref": "#/components/schemas/LiveStreamModel"
+            }
+          }
+        }
+      },
+      "CreateLiveStreamModel": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "title": {
+            "type": "string",
+            "description": "The title of the live stream",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "description": "The description of the live stream",
+            "nullable": true
+          },
+          "collectionId": {
+            "type": "string",
+            "description": "The ID of the collection where the live stream belongs",
+            "nullable": true
+          },
+          "dvrEnabled": {
+            "type": "boolean",
+            "description": "Determines if DVR is enabled for the live stream"
+          },
+          "dvrWindowSeconds": {
+            "type": "integer",
+            "description": "The DVR window size in seconds, required when DvrEnabled is true, max is 12 hours",
+            "format": "int32",
+            "maximum": 43200,
+            "minimum": 1,
+            "nullable": true
+          },
+          "recordVod": {
+            "type": "boolean",
+            "description": "Determines if a VOD recording should be created for the live stream"
+          },
+          "scheduledStartTime": {
+            "type": "string",
+            "description": "The scheduled start time of the live stream (optional, UTC)",
+            "format": "date-time",
+            "nullable": true
+          },
+          "scheduledEndTime": {
+            "type": "string",
+            "description": "The scheduled end time of the live stream (optional, UTC)",
+            "format": "date-time",
+            "nullable": true
+          },
+          "public": {
+            "type": "boolean",
+            "description": "Determines if the live stream is publicly accessible, defaults to true"
+          },
+          "enableCountdown": {
+            "type": "boolean",
+            "description": "Determines if countdown should be shown in player before the stream start, if it was scheduled",
+            "nullable": true
+          },
+          "rtmpOutputs": {
+            "type": "array",
+            "description": "A list of up to 5 RTMP outputs that the incoming stream will be forwarded to",
+            "nullable": true,
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
       "LiveStreamPlayDataModel": {
         "type": "object",
         "additionalProperties": false,
@@ -6182,92 +6311,6 @@
           }
         }
       },
-      "StatusModelOfListOfString": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/StatusModel"
-          },
-          {
-            "type": "object",
-            "additionalProperties": false,
-            "properties": {
-              "data": {
-                "type": "array",
-                "nullable": true,
-                "items": {
-                  "type": "string"
-                }
-              }
-            }
-          }
-        ]
-      },
-      "CreateLiveStreamModel": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "title": {
-            "type": "string",
-            "description": "The title of the live stream",
-            "nullable": true
-          },
-          "description": {
-            "type": "string",
-            "description": "The description of the live stream",
-            "nullable": true
-          },
-          "collectionId": {
-            "type": "string",
-            "description": "The ID of the collection where the live stream belongs",
-            "nullable": true
-          },
-          "dvrEnabled": {
-            "type": "boolean",
-            "description": "Determines if DVR is enabled for the live stream"
-          },
-          "dvrWindowSeconds": {
-            "type": "integer",
-            "description": "The DVR window size in seconds, required when DvrEnabled is true, max is 12 hours",
-            "format": "int32",
-            "maximum": 43200,
-            "minimum": 1,
-            "nullable": true
-          },
-          "recordVod": {
-            "type": "boolean",
-            "description": "Determines if a VOD recording should be created for the live stream"
-          },
-          "scheduledStartTime": {
-            "type": "string",
-            "description": "The scheduled start time of the live stream (optional, UTC)",
-            "format": "date-time",
-            "nullable": true
-          },
-          "scheduledEndTime": {
-            "type": "string",
-            "description": "The scheduled end time of the live stream (optional, UTC)",
-            "format": "date-time",
-            "nullable": true
-          },
-          "public": {
-            "type": "boolean",
-            "description": "Determines if the live stream is publicly accessible, defaults to true"
-          },
-          "enableCountdown": {
-            "type": "boolean",
-            "description": "Determines if countdown should be shown in player before the stream start, if it was scheduled",
-            "nullable": true
-          },
-          "rtmpOutputs": {
-            "type": "array",
-            "description": "A list of up to 5 RTMP outputs that the incoming stream will be forwarded to",
-            "nullable": true,
-            "items": {
-              "type": "string"
-            }
-          }
-        }
-      },
       "UpdateLiveStreamModel": {
         "type": "object",
         "additionalProperties": false,
@@ -6331,49 +6374,6 @@
             "items": {
               "type": "string"
             }
-          }
-        }
-      },
-      "PaginationListOfLiveStreamModel": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "totalItems": {
-            "type": "integer",
-            "description": "The total number of items that can be returned",
-            "format": "int64"
-          },
-          "currentPage": {
-            "type": "integer",
-            "description": "The current page of the response",
-            "format": "int64"
-          },
-          "itemsPerPage": {
-            "type": "integer",
-            "description": "The number of items returned per page",
-            "format": "int32"
-          },
-          "items": {
-            "type": "array",
-            "description": "The result items on the current result",
-            "nullable": true,
-            "items": {
-              "$ref": "#/components/schemas/LiveStreamModel"
-            }
-          }
-        }
-      },
-      "ThumbnailListResponseModel": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "url": {
-            "type": "string",
-            "nullable": true
-          },
-          "timestamp": {
-            "type": "string",
-            "format": "date-time"
           }
         }
       }

@@ -147,7 +147,9 @@ impl ComputeClient {
         let request =
             self.transport
                 .request_with_query(reqwest::Method::GET, "/compute/script", query)?;
-        self.transport.json(request).await
+        self.transport
+            .json_list(request, crate::transport::ListShape::Page("Items"))
+            .await
     }
 
     /// Add Edge Script
@@ -273,7 +275,7 @@ impl ComputeClient {
         &self,
         id: i64,
         body: &UpsertEdgeScriptVariableModel,
-    ) -> crate::Result<EdgeScriptVariableModel> {
+    ) -> crate::Result<Option<EdgeScriptVariableModel>> {
         let request = self
             .transport
             .request(
@@ -309,7 +311,7 @@ impl ComputeClient {
         &self,
         id: i64,
         body: &EdgeScriptUpsertSecretModel,
-    ) -> crate::Result<EdgeScriptSecretModel> {
+    ) -> crate::Result<Option<EdgeScriptSecretModel>> {
         let request = self
             .transport
             .request(
@@ -411,7 +413,9 @@ impl ComputeClient {
             &format!("/compute/script/{}/releases", crate::transport::segment(id)),
             query,
         )?;
-        self.transport.json(request).await
+        self.transport
+            .json_list(request, crate::transport::ListShape::Page("Items"))
+            .await
     }
 
     /// Publish Release
@@ -486,6 +490,7 @@ pub struct EdgeScriptStatisticsModel {
     pub total_requests_served: Option<i64>,
     #[serde(rename = "TotalCpuUsed", skip_serializing_if = "Option::is_none")]
     pub total_cpu_used: Option<f64>,
+    /// A decimal number, parsed as `f64` (about 15 significant digits).
     #[serde(rename = "TotalMonthlyCost", skip_serializing_if = "Option::is_none")]
     pub total_monthly_cost: Option<f64>,
     #[serde(
@@ -544,6 +549,7 @@ pub struct EdgeScriptModel {
     pub repository_id: Option<i64>,
     #[serde(rename = "IntegrationId", skip_serializing_if = "Option::is_none")]
     pub integration_id: Option<i64>,
+    /// A decimal number, parsed as `f64` (about 15 significant digits).
     #[serde(rename = "MonthlyCost", skip_serializing_if = "Option::is_none")]
     pub monthly_cost: Option<f64>,
     #[serde(

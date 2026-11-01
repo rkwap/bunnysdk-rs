@@ -85,6 +85,39 @@ async fn resumes_from_server_offset_after_a_failed_chunk() {
 }
 
 #[tokio::test]
+async fn keeps_resuming_when_the_offset_check_also_fails() {
+    let server = MockServer::start().await;
+    mount_create(&server, "8").await;
+    patch("0", b"0123", "4").expect(1).mount(&server).await;
+    Mock::given(method("PATCH"))
+        .and(header("Upload-Offset", "4"))
+        .respond_with(ResponseTemplate::new(503))
+        .up_to_n_times(1)
+        .mount(&server)
+        .await;
+    // The first offset check fails too; the upload must not give up.
+    Mock::given(method("HEAD"))
+        .respond_with(ResponseTemplate::new(503))
+        .up_to_n_times(1)
+        .expect(1)
+        .mount(&server)
+        .await;
+    Mock::given(method("HEAD"))
+        .and(path("/tusupload/abc"))
+        .respond_with(ResponseTemplate::new(200).insert_header("Upload-Offset", "4"))
+        .expect(1)
+        .mount(&server)
+        .await;
+    patch("4", b"4567", "8").expect(1).mount(&server).await;
+
+    let options = TusUpload::new("My video", "video/mp4").chunk_size(4);
+    client(&server)
+        .upload_resumable(9, "vid-1", &b"01234567"[..], 8, &options)
+        .await
+        .unwrap();
+}
+
+#[tokio::test]
 async fn short_source_is_an_error() {
     let server = MockServer::start().await;
     mount_create(&server, "10").await;
