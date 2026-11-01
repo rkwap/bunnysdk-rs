@@ -1,0 +1,89 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  CARGO_TERM_COLOR: always
+  RUSTFLAGS: -Dwarnings
+  RUSTDOCFLAGS: -Dwarnings
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+      - uses: Swatinem/rust-cache@v2
+      - run: cargo fmt --all --check
+      - run: cargo clippy --workspace --all-targets --locked
+      - run: cargo test --locked
+      - run: cargo doc --no-deps --locked
+
+  # Generated code must match the vendored specs and the generator.
+  codegen:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt
+      - uses: Swatinem/rust-cache@v2
+      - run: cargo xtask codegen
+      - name: Check generated code is up to date
+        # `git status` also catches new, never-committed generated files.
+        run: |
+          git status --porcelain -- src/generated
+          test -z "$(git status --porcelain -- src/generated)"
+
+  # Each API feature must build on its own.
+  features:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - run: cargo check --lib --locked --no-default-features
+      - run: |
+          for feature in core compute shield stream containers database origin-errors partner storage logging; do
+            echo "::group::$feature"
+            cargo check --lib --locked --no-default-features --features "$feature"
+            echo "::endgroup::"
+          done
+
+  msrv:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@1.88
+      - uses: Swatinem/rust-cache@v2
+      - run: cargo check --lib --locked
+
+  # Runs against real bunny.net when the secrets are configured. GitHub only
+  # passes secrets to pull requests from this repository, never from forks.
+  live:
+    needs: test
+    runs-on: ubuntu-latest
+    # One live run at a time, so test resources aren't used concurrently.
+    concurrency: live-tests
+    env:
+      BUNNY_API_KEY: ${{ secrets.BUNNY_API_KEY }}
+      BUNNY_TEST_PULL_ZONE_ID: ${{ secrets.BUNNY_TEST_PULL_ZONE_ID }}
+      BUNNY_TEST_STORAGE_ZONE_ID: ${{ secrets.BUNNY_TEST_STORAGE_ZONE_ID }}
+      BUNNY_TEST_VIDEO_LIBRARY_ID: ${{ secrets.BUNNY_TEST_VIDEO_LIBRARY_ID }}
+      BUNNY_PARTNER_API_KEY: ${{ secrets.BUNNY_PARTNER_API_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - name: Live tests (each skips itself without its secrets)
+        if: env.BUNNY_API_KEY != '' || env.BUNNY_PARTNER_API_KEY != ''
+        run: cargo test --locked --test live -- --ignored --nocapture --test-threads=1

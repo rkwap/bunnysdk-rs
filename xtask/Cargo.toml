@@ -1,0 +1,9 @@
+[package]
+name = "xtask"
+version = "0.0.0"
+edition = "2024"
+publish = false
+
+[dependencies]
+heck = "0.5.0"
+serde_json = { version = "1", features = ["preserve_order"] }

@@ -1,0 +1,2773 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "bunny.net Partner Portal API",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "https://api.bunny.net",
+      "description": "bunny.net API Server"
+    }
+  ],
+  "security": [
+    {
+      "AccessKey": []
+    }
+  ],
+  "paths": {
+    "/partner/customers": {
+      "post": {
+        "tags": [
+          "Customers"
+        ],
+        "summary": "Create Customer",
+        "description": "Create a new customer under the authenticated partner and email them a set-password welcome link.",
+        "operationId": "CreatePartnerCustomerEndpoint_CreateCustomer",
+        "requestBody": {
+          "x-name": "request",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreatePartnerCustomerRequest"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "Customer created and welcome email sent.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreatePartnerCustomerResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Missing or invalid email address, or the welcome email could not be sent.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorData"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authenticated user is not a reseller or MSP partner."
+          }
+        },
+        "security": [
+          {
+            "AccessKey": [
+              "ResellerPartner",
+              "MSPPartner"
+            ]
+          },
+          {
+            "bearer": [
+              "ResellerPartner",
+              "MSPPartner"
+            ]
+          }
+        ]
+      },
+      "get": {
+        "tags": [
+          "Customers"
+        ],
+        "summary": "List Customers",
+        "description": "List the authenticated partner's assigned customers, newest assignment first.",
+        "operationId": "ListPartnerCustomersEndpoint_ListCustomers",
+        "responses": {
+          "200": {
+            "description": "All customers assigned to this partner.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PartnerCustomerListItemModel"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "The request authorization failed."
+          },
+          "403": {
+            "description": "Authenticated user is not a reseller or MSP partner."
+          }
+        },
+        "security": [
+          {
+            "AccessKey": [
+              "ResellerPartner",
+              "MSPPartner"
+            ]
+          },
+          {
+            "bearer": [
+              "ResellerPartner",
+              "MSPPartner"
+            ]
+          }
+        ]
+      }
+    },
+    "/partner/customer/{customerUserId}/audit/{date}": {
+      "get": {
+        "tags": [
+          "Audit Log"
+        ],
+        "summary": "Get Audit Log",
+        "description": "Get the audit log for one of the partner's customers. ResourceOwner identifies the customer each entry belongs to.",
+        "operationId": "GetPartnerAuditLogEndpoint_GetPartnerAuditLog",
+        "parameters": [
+          {
+            "name": "customerUserId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "x-position": 1
+          },
+          {
+            "name": "date",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "x-position": 2
+          },
+          {
+            "name": "Product",
+            "in": "query",
+            "style": "form",
+            "explode": true,
+            "schema": {
+              "type": "array",
+              "nullable": true,
+              "items": {
+                "type": "string"
+              }
+            },
+            "x-position": 3
+          },
+          {
+            "name": "ResourceType",
+            "in": "query",
+            "style": "form",
+            "explode": true,
+            "schema": {
+              "type": "array",
+              "nullable": true,
+              "items": {
+                "type": "string"
+              }
+            },
+            "x-position": 4
+          },
+          {
+            "name": "ResourceId",
+            "in": "query",
+            "style": "form",
+            "explode": true,
+            "schema": {
+              "type": "array",
+              "nullable": true,
+              "items": {
+                "type": "string"
+              }
+            },
+            "x-position": 5
+          },
+          {
+            "name": "ActorId",
+            "in": "query",
+            "style": "form",
+            "explode": true,
+            "schema": {
+              "type": "array",
+              "nullable": true,
+              "items": {
+                "type": "string"
+              }
+            },
+            "x-position": 6
+          },
+          {
+            "name": "Order",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/LogOrdering"
+            },
+            "x-position": 7
+          },
+          {
+            "name": "ContinuationToken",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "x-position": 8
+          },
+          {
+            "name": "Limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "maximum": 10000.0,
+              "minimum": 1.0
+            },
+            "x-position": 9
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The list of audit log entries.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetUserAuditLogResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request was invalid.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorData"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "The request authorization failed."
+          },
+          "403": {
+            "description": "Authenticated user is not a reseller or MSP partner, or the customer is not assigned to this partner."
+          }
+        },
+        "security": [
+          {
+            "AccessKey": [
+              "ResellerPartner",
+              "MSPPartner"
+            ]
+          },
+          {
+            "bearer": [
+              "ResellerPartner",
+              "MSPPartner"
+            ]
+          }
+        ]
+      }
+    },
+    "/partner/contract": {
+      "get": {
+        "tags": [
+          "Contract"
+        ],
+        "summary": "Get Contract",
+        "description": "Get the contract details for the authenticated partner.",
+        "operationId": "GetPartnerContractEndpoint_GetContract",
+        "responses": {
+          "200": {
+            "description": "Partner contract details.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PartnerCustomerContractModel"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The partner has no contract configured."
+          },
+          "401": {
+            "description": "The request authorization failed."
+          },
+          "403": {
+            "description": "The authenticated user is not a reseller or MSP partner."
+          }
+        },
+        "security": [
+          {
+            "AccessKey": [
+              "ResellerPartner",
+              "MSPPartner"
+            ]
+          },
+          {
+            "bearer": [
+              "ResellerPartner",
+              "MSPPartner"
+            ]
+          }
+        ]
+      }
+    },
+    "/partner/customer/{customerUserId}/billing": {
+      "get": {
+        "tags": [
+          "Billing"
+        ],
+        "summary": "Get Customer Billing",
+        "description": "Get a billing summary for the customer's account, including invoice history.",
+        "operationId": "GetPartnerCustomerBillingEndpoint_GetBilling",
+        "parameters": [
+          {
+            "name": "customerUserId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Billing view.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BillingModel"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Customer is not assigned to this partner."
+          }
+        },
+        "security": [
+          {
+            "AccessKey": [
+              "ResellerPartner",
+              "MSPPartner"
+            ]
+          },
+          {
+            "bearer": [
+              "ResellerPartner",
+              "MSPPartner"
+            ]
+          }
+        ]
+      }
+    },
+    "/partner/customer/{customerUserId}/billing/{billingRecordId}/pdf": {
+      "get": {
+        "tags": [
+          "Billing"
+        ],
+        "summary": "Download Invoice PDF",
+        "description": "Download the customer's invoice PDF for an existing billing record.",
+        "operationId": "GetPartnerCustomerBillingPdfEndpoint_GetBillingPdf",
+        "parameters": [
+          {
+            "name": "customerUserId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "x-position": 1
+          },
+          {
+            "name": "billingRecordId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "x-position": 2
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Invoice PDF stream."
+          },
+          "403": {
+            "description": "Customer is not assigned to this partner."
+          },
+          "404": {
+            "description": "Invoice not found."
+          },
+          "503": {
+            "description": "PDF generation failed."
+          }
+        },
+        "security": [
+          {
+            "AccessKey": [
+              "ResellerPartner",
+              "MSPPartner"
+            ]
+          },
+          {
+            "bearer": [
+              "ResellerPartner",
+              "MSPPartner"
+            ]
+          }
+        ]
+      }
+    },
+    "/partner/customer/{customerUserId}": {
+      "get": {
+        "tags": [
+          "Customers"
+        ],
+        "summary": "Get Customer Overview",
+        "description": "Get an overview of a customer: monthly usage snapshot, bandwidth trend, contract, and product summaries.",
+        "operationId": "GetPartnerCustomerOverviewEndpoint_GetOverview",
+        "parameters": [
+          {
+            "name": "customerUserId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Overview payload.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PartnerCustomerOverviewModel"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "The request authorization failed."
+          },
+          "403": {
+            "description": "Customer is not assigned to this partner."
+          },
+          "404": {
+            "description": "Customer user account no longer exists."
+          }
+        },
+        "security": [
+          {
+            "AccessKey": [
+              "ResellerPartner",
+              "MSPPartner"
+            ]
+          },
+          {
+            "bearer": [
+              "ResellerPartner",
+              "MSPPartner"
+            ]
+          }
+        ]
+      }
+    },
+    "/partner/customer/{customerUserId}/pricing": {
+      "get": {
+        "tags": [
+          "Pricing"
+        ],
+        "summary": "Get Customer Pricing",
+        "description": "Get the full pricing overview for a customer: effective prices versus list prices, custom overrides, and overrides expiring soon.",
+        "operationId": "GetPartnerCustomerPricingEndpoint_GetPricing",
+        "parameters": [
+          {
+            "name": "customerUserId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Pricing overview payload.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PartnerCustomerPricingModel"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "The request authorization failed."
+          },
+          "403": {
+            "description": "Customer is not assigned to this partner."
+          },
+          "404": {
+            "description": "Customer user account no longer exists."
+          }
+        },
+        "security": [
+          {
+            "AccessKey": [
+              "ResellerPartner",
+              "MSPPartner"
+            ]
+          },
+          {
+            "bearer": [
+              "ResellerPartner",
+              "MSPPartner"
+            ]
+          }
+        ]
+      }
+    },
+    "/partner/customer/{customerUserId}/products": {
+      "get": {
+        "tags": [
+          "Products"
+        ],
+        "summary": "List Customer Products",
+        "description": "List the customer's product enable/disable states, with resource counts per product.",
+        "operationId": "GetPartnerCustomerProductsEndpoint_GetProducts",
+        "parameters": [
+          {
+            "name": "customerUserId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Product listing.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PartnerCustomerProductStateModel"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Customer is not assigned to this partner."
+          }
+        },
+        "security": [
+          {
+            "AccessKey": [
+              "ResellerPartner",
+              "MSPPartner"
+            ]
+          },
+          {
+            "bearer": [
+              "ResellerPartner",
+              "MSPPartner"
+            ]
+          }
+        ]
+      }
+    },
+    "/partner/overview": {
+      "get": {
+        "tags": [
+          "Customers"
+        ],
+        "summary": "Get Partner Overview",
+        "description": "Get an overview of the partner's own account in the same shape as a customer overview: monthly usage snapshot, bandwidth trend, and product resource counts. Contract fields are always empty and every product is enabled.",
+        "operationId": "GetPartnerOverviewEndpoint_GetOverview",
+        "responses": {
+          "200": {
+            "description": "Overview payload.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PartnerCustomerOverviewModel"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "The request authorization failed."
+          },
+          "403": {
+            "description": "Authenticated user is not a reseller or MSP partner."
+          }
+        },
+        "security": [
+          {
+            "AccessKey": [
+              "ResellerPartner",
+              "MSPPartner"
+            ]
+          },
+          {
+            "bearer": [
+              "ResellerPartner",
+              "MSPPartner"
+            ]
+          }
+        ]
+      }
+    },
+    "/partner/pricing": {
+      "get": {
+        "tags": [
+          "Pricing"
+        ],
+        "summary": "Get Partner Pricing",
+        "description": "Get the full pricing overview for the authenticated partner: effective prices versus list prices, custom overrides, and overrides expiring soon.",
+        "operationId": "GetPartnerPricingEndpoint_GetPricing",
+        "responses": {
+          "200": {
+            "description": "Pricing overview payload.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PartnerCustomerPricingModel"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "The request authorization failed."
+          },
+          "403": {
+            "description": "The authenticated user is not a reseller or MSP partner."
+          },
+          "404": {
+            "description": "Partner user account not found."
+          }
+        },
+        "security": [
+          {
+            "AccessKey": [
+              "ResellerPartner",
+              "MSPPartner"
+            ]
+          },
+          {
+            "bearer": [
+              "ResellerPartner",
+              "MSPPartner"
+            ]
+          }
+        ]
+      }
+    },
+    "/partner/customers/invite": {
+      "post": {
+        "tags": [
+          "Customers"
+        ],
+        "summary": "Invite Customer",
+        "description": "Invite an existing bunny.net user to become a customer of the authenticated partner. An invitation email is sent, and the user is assigned once they accept while signed in.",
+        "operationId": "InvitePartnerCustomerEndpoint_Invite",
+        "requestBody": {
+          "x-name": "request",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/InvitePartnerCustomerRequest"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "Invitation email sent."
+          },
+          "400": {
+            "description": "Invalid request, or the address is not eligible to be invited.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorData"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authenticated user is not a reseller or MSP partner."
+          }
+        },
+        "security": [
+          {
+            "AccessKey": [
+              "ResellerPartner",
+              "MSPPartner"
+            ]
+          },
+          {
+            "bearer": [
+              "ResellerPartner",
+              "MSPPartner"
+            ]
+          }
+        ]
+      }
+    },
+    "/partner/customer/{customerUserId}/products/{productId}": {
+      "put": {
+        "tags": [
+          "Products"
+        ],
+        "summary": "Set Customer Product",
+        "description": "Enable or disable a product on this partner-customer relationship.",
+        "operationId": "PutPartnerCustomerProductEndpoint_SetProductEnabled",
+        "parameters": [
+          {
+            "name": "customerUserId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "x-position": 1
+          },
+          {
+            "name": "productId",
+            "in": "path",
+            "required": true,
+            "description": "1 = CDN\n2 = Database\n3 = DNS\n4 = Magic Containers\n5 = Optimizer\n6 = Edge Scripting\n7 = Shield\n8 = Storage\n9 = Stream",
+            "schema": {
+              "$ref": "#/components/schemas/PartnerCustomerProductType"
+            },
+            "x-position": 2
+          },
+          {
+            "name": "enabled",
+            "in": "query",
+            "schema": {
+              "type": "boolean",
+              "nullable": true
+            },
+            "x-position": 3
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Updated."
+          },
+          "400": {
+            "description": "Missing required 'enabled' query parameter, or unsupported product id."
+          },
+          "403": {
+            "description": "Customer is not assigned to this partner."
+          }
+        },
+        "security": [
+          {
+            "AccessKey": [
+              "ResellerPartner",
+              "MSPPartner"
+            ]
+          },
+          {
+            "bearer": [
+              "ResellerPartner",
+              "MSPPartner"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "ApiErrorData": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "ErrorKey": {
+            "type": "string",
+            "nullable": true
+          },
+          "Field": {
+            "type": "string",
+            "nullable": true
+          },
+          "Message": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "GetUserAuditLogResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "Logs": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "$ref": "#/components/schemas/UserAuditLog"
+            }
+          },
+          "HasMoreData": {
+            "type": "boolean"
+          },
+          "ContinuationToken": {
+            "type": "string",
+            "nullable": true
+          },
+          "StartToken": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "UserAuditLog": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "Timestamp": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "Product": {
+            "type": "string",
+            "nullable": true
+          },
+          "ResourceType": {
+            "type": "string",
+            "nullable": true
+          },
+          "ResourceId": {
+            "type": "string",
+            "nullable": true
+          },
+          "ResourceOwner": {
+            "type": "string",
+            "nullable": true
+          },
+          "Action": {
+            "type": "string",
+            "nullable": true
+          },
+          "ActorId": {
+            "type": "string",
+            "nullable": true
+          },
+          "ActorType": {
+            "type": "string",
+            "nullable": true
+          },
+          "Diff": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "LogOrdering": {
+        "type": "string",
+        "description": "",
+        "x-enumNames": [
+          "Ascending",
+          "Descending"
+        ],
+        "enum": [
+          "Ascending",
+          "Descending"
+        ]
+      },
+      "PartnerCustomerProductType": {
+        "type": "integer",
+        "description": "1 = CDN\n2 = Database\n3 = DNS\n4 = Magic Containers\n5 = Optimizer\n6 = Edge Scripting\n7 = Shield\n8 = Storage\n9 = Stream",
+        "x-enumNames": [
+          "Cdn",
+          "Database",
+          "Dns",
+          "MagicContainers",
+          "Optimizer",
+          "Scripting",
+          "Shield",
+          "Storage",
+          "Stream"
+        ],
+        "enum": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ]
+      },
+      "BillingModel": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "Balance": {
+            "type": "number",
+            "description": "The current account balance",
+            "format": "double"
+          },
+          "ThisMonthCharges": {
+            "type": "number",
+            "description": "The current account charges of the running month",
+            "format": "double"
+          },
+          "LastRechargeBalance": {
+            "type": "number",
+            "description": "Last recharge amount balance",
+            "format": "double"
+          },
+          "AvailableBalance": {
+            "type": "number",
+            "description": "The current account balance plus available (unexpired) coupon credit",
+            "format": "double"
+          },
+          "CouponBalance": {
+            "type": "number",
+            "description": "All available (unexpired) coupon money on the account",
+            "format": "decimal"
+          },
+          "MonthlyCouponUsage": {
+            "type": "number",
+            "description": "The total coupon credit used this month across all services",
+            "format": "decimal"
+          },
+          "BillingRecords": {
+            "type": "array",
+            "description": "The list of billing records for this account",
+            "nullable": true,
+            "items": {
+              "$ref": "#/components/schemas/BillingRecordModel"
+            }
+          },
+          "BillingHistoryChart": {
+            "type": "object",
+            "description": "The constructed billing history chart data",
+            "nullable": true,
+            "additionalProperties": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          "MonthlyChargesEUTraffic": {
+            "type": "number",
+            "description": "The total charges this month paid for European traffic",
+            "format": "double"
+          },
+          "MonthlyChargesUSTraffic": {
+            "type": "number",
+            "description": "The total charges this month paid for North American traffic",
+            "format": "double"
+          },
+          "MonthlyChargesASIATraffic": {
+            "type": "number",
+            "description": "The total charges this month paid for Asian and Oceanian traffic",
+            "format": "double"
+          },
+          "MonthlyChargesAFTraffic": {
+            "type": "number",
+            "description": "The total charges this month paid for African traffic",
+            "format": "double"
+          },
+          "MonthlyChargesSATraffic": {
+            "type": "number",
+            "description": "The total charges this month paid for South American traffic",
+            "format": "double"
+          },
+          "MonthlyChargesStorage": {
+            "type": "number",
+            "description": "The total charges this month paid for Edge Storage",
+            "format": "double"
+          },
+          "MonthlyChargesDNS": {
+            "type": "number",
+            "description": "The total monthly charges for Bunny DNS",
+            "format": "double"
+          },
+          "MonthlyChargesOptimizer": {
+            "type": "number",
+            "description": "The monthly charges caused by optimizer.",
+            "format": "double"
+          },
+          "MonthlyChargesTranscribe": {
+            "type": "number",
+            "description": "The total monthly charges for Bunny Stream Transcribe",
+            "format": "double"
+          },
+          "MonthlyChargesPremiumEncoding": {
+            "type": "number",
+            "description": "The total monthly charges for Bunny Stream Premium Encoding",
+            "format": "decimal"
+          },
+          "MonthlyChargesExtraPullZones": {
+            "type": "number",
+            "description": "The monthly charges caused by extra pull zones.",
+            "format": "double"
+          },
+          "MonthlyChargesExtraStorageZones": {
+            "type": "number",
+            "description": "The monthly charges caused by extra storage zones.",
+            "format": "double"
+          },
+          "MonthlyChargesExtraDnsZones": {
+            "type": "number",
+            "description": "The monthly charges caused by extra DNS zones.",
+            "format": "double"
+          },
+          "MonthlyChargesExtraVideoLibraries": {
+            "type": "number",
+            "description": "The monthly charges caused by extra video libraries.",
+            "format": "double"
+          },
+          "MonthlyChargesScripting": {
+            "type": "number",
+            "description": "The total monthly charges for Bunny Edge Scripting",
+            "format": "double"
+          },
+          "MonthlyChargesScriptingRequests": {
+            "type": "number",
+            "description": "The total monthly charges for Bunny Edge Scripting Requests",
+            "format": "double"
+          },
+          "MonthlyChargesScriptingCpu": {
+            "type": "number",
+            "description": "The total monthly charges for Bunny Edge Scripting CPU usage",
+            "format": "double"
+          },
+          "MonthlyChargesDrm": {
+            "type": "number",
+            "description": "The total monthly charges for DRM",
+            "format": "double"
+          },
+          "MonthlyChargesMagicContainers": {
+            "type": "number",
+            "description": "The total monthly charges for Magic Containers",
+            "format": "decimal"
+          },
+          "MonthlyMcCpu": {
+            "description": "The monthly charges and usage for Magic Containers CPU",
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/UsageBreakdown"
+              }
+            ]
+          },
+          "MonthlyMcMemory": {
+            "description": "The monthly charges and usage for Magic Containers Memory",
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/UsageBreakdown"
+              }
+            ]
+          },
+          "MonthlyMcIp": {
+            "description": "The monthly charges and usage for Magic Containers Anycast IP",
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/UsageBreakdown"
+              }
+            ]
+          },
+          "MonthlyMcIngressTraffic": {
+            "description": "The monthly charges and usage for Magic Containers Ingress Traffic",
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/UsageBreakdown"
+              }
+            ]
+          },
+          "MonthlyMcEgressTraffic": {
+            "description": "The monthly charges and usage for Magic Containers Egress Traffic",
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/UsageBreakdown"
+              }
+            ]
+          },
+          "MonthlyMcVolumes": {
+            "description": "The monthly charges and usage for Magic Containers Persistent Volumes",
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/UsageBreakdown"
+              }
+            ]
+          },
+          "MonthlyChargesShield": {
+            "type": "number",
+            "description": "The total monthly charges for Shield",
+            "format": "decimal"
+          },
+          "MonthlyChargesTaxes": {
+            "type": "number",
+            "description": "The total monthly charges for Taxes",
+            "format": "decimal"
+          },
+          "MonthlyChargesWebSockets": {
+            "type": "number",
+            "description": "The total monthly charges for WebSockets",
+            "format": "decimal"
+          },
+          "MonthlyChargesDB": {
+            "type": "number",
+            "description": "The total monthly charges for DB",
+            "format": "decimal"
+          },
+          "MonthlyChargesLoadBalancer": {
+            "type": "number",
+            "description": "The total monthly charges for Load Balancer",
+            "format": "decimal"
+          },
+          "MonthlyDBWrites": {
+            "description": "The monthly charges and usage for BunnyDB row writes",
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/UsageBreakdown"
+              }
+            ]
+          },
+          "MonthlyDBReads": {
+            "description": "The monthly charges and usage for BunnyDB row reads",
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/UsageBreakdown"
+              }
+            ]
+          },
+          "MonthlyDBStorage": {
+            "description": "The monthly charges and usage for BunnyDB storage",
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/UsageBreakdown"
+              }
+            ]
+          },
+          "MonthlyDBReplica": {
+            "description": "The monthly charges and usage for BunnyDB replica storage",
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/UsageBreakdown"
+              }
+            ]
+          },
+          "MonthlyChargesAiGateway": {
+            "type": "number",
+            "description": "The total monthly charges for AI Gateway",
+            "format": "decimal"
+          },
+          "MonthlyAiGatewayInputTokens": {
+            "description": "The monthly charges and usage for AI Gateway input tokens",
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/UsageBreakdown"
+              }
+            ]
+          },
+          "MonthlyAiGatewayOutputTokens": {
+            "description": "The monthly charges and usage for AI Gateway output tokens",
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/UsageBreakdown"
+              }
+            ]
+          },
+          "MonthlyAiGatewayCachedTokens": {
+            "description": "The monthly charges and usage for AI Gateway cached tokens",
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/UsageBreakdown"
+              }
+            ]
+          },
+          "MonthlyAiGatewayOtherCharges": {
+            "description": "The monthly AI Gateway charges that aren't for input, output or cached tokens, and the number of requests that had them",
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/UsageBreakdown"
+              }
+            ]
+          },
+          "MonthlyBandwidthUsed": {
+            "type": "integer",
+            "description": "Total bandwidth used by the account during this month.",
+            "format": "int64"
+          },
+          "MonthlyDnsSmartQueriesServed": {
+            "type": "integer",
+            "description": "Total number of Bunny DNS smart queries served this month.",
+            "format": "int64"
+          },
+          "MonthlyDnsNormalQueriesServed": {
+            "type": "integer",
+            "description": "Total number of Bunny DNS normal queries served this month.",
+            "format": "int64"
+          },
+          "MonthlyTranscriptionMinutes": {
+            "type": "integer",
+            "description": "Total minutes used for Bunny Stream Transcribe this month.",
+            "format": "int64"
+          },
+          "MonthlyPremiumEncodingBillableMinutes": {
+            "type": "integer",
+            "description": "Total billable minutes used for Bunny Stream Premium Encoding this month.",
+            "format": "int64"
+          },
+          "MonthlyDRMLicensesIssued": {
+            "type": "integer",
+            "description": "DRM (enterprise) licenses issued this month.",
+            "format": "int64"
+          },
+          "MonthlyScriptingRequests": {
+            "type": "integer",
+            "description": "Total number of edge script requests this month.",
+            "format": "int64"
+          },
+          "MonthlyScriptingCpuTime": {
+            "type": "integer",
+            "description": "Total edge script CPU time (milliseconds) used this month.",
+            "format": "int64"
+          },
+          "BillingEnabled": {
+            "type": "boolean",
+            "description": "Determines if billing is currently enabled for this user."
+          },
+          "MinimumMonthlyCommit": {
+            "type": "number",
+            "description": "Determines the minimum monthly commit of the user.",
+            "format": "double"
+          },
+          "VATRate": {
+            "type": "number",
+            "description": "The VAT rate for the user's account.",
+            "format": "decimal"
+          },
+          "NextMonthVATRate": {
+            "type": "number",
+            "description": "Next month VAT rate for the user's account.",
+            "format": "decimal"
+          },
+          "AutomaticPaymentImageUrl": {
+            "type": "string",
+            "description": "If an automatic payment method is configured, this will contain the image url of the payment method",
+            "nullable": true
+          },
+          "AutomaticPaymentCardType": {
+            "type": "string",
+            "description": "If an automatic payment method is configured with a credit card, this will contain the name of the payment credit card",
+            "nullable": true
+          },
+          "AutomaticPaymentIdentifier": {
+            "type": "string",
+            "description": "If an automatic payment method is configured, this will contain the identifier of the payment method",
+            "nullable": true
+          },
+          "AutomaticPaymentAmount": {
+            "type": "number",
+            "description": "If an automatic payments are configured, this contains the payment amount that will be made during an automatic recharge",
+            "format": "decimal"
+          },
+          "AutomaticRechargeTreshold": {
+            "type": "number",
+            "description": "If an automatic payments are configured, this contains the account balance amount that will trigger an automatic recharge",
+            "format": "decimal"
+          },
+          "AutomaticRechargeEnabled": {
+            "type": "boolean",
+            "description": "Determines if automatic recharge is currently enabled."
+          },
+          "AutomaticPaymentFailureCount": {
+            "type": "integer",
+            "description": "Determines the number of failed automatic recharges that the system made since the last successful payment.",
+            "format": "int32"
+          },
+          "SavedPaymentMethods": {
+            "type": "array",
+            "description": "Contains the list of saved payment methods on the user's account",
+            "nullable": true,
+            "items": {
+              "$ref": "#/components/schemas/BillingSavedPaymentMethod"
+            }
+          },
+          "EUUSDiscount": {
+            "type": "integer",
+            "description": "The account wide pricing discount for EU and US region.",
+            "format": "int32"
+          },
+          "SouthAmericaDiscount": {
+            "type": "integer",
+            "description": "The account wide pricing discount for South America region.",
+            "format": "int32"
+          },
+          "AfricaDiscount": {
+            "type": "integer",
+            "description": "The account wide pricing discount for Africa region.",
+            "format": "int32"
+          },
+          "AsiaOceaniaDiscount": {
+            "type": "integer",
+            "description": "The account wide pricing discount for Asia & Oceania region.",
+            "format": "int32"
+          },
+          "OptimizerMonthlyPrice": {
+            "type": "number",
+            "description": "Optimizer monthly price per pull zone for this account (unless overridden on pull zone level).",
+            "format": "decimal"
+          },
+          "DrmBaseMonthlyPrice": {
+            "type": "number",
+            "description": "DRM (Enterprise) base monthly price per video library.",
+            "format": "decimal"
+          },
+          "DrmCostPerLicense": {
+            "type": "number",
+            "description": "DRM (Enterprise) cost per license or default pricing tier applied if null.",
+            "format": "decimal",
+            "nullable": true
+          }
+        }
+      },
+      "BillingRecordModel": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "Id": {
+            "type": "integer",
+            "description": "The ID of the billing record",
+            "format": "int64"
+          },
+          "PaymentId": {
+            "type": "string",
+            "description": "The external ID of the payment",
+            "nullable": true
+          },
+          "Amount": {
+            "type": "number",
+            "description": "The amount linked to the record model",
+            "format": "double"
+          },
+          "Payer": {
+            "type": "string",
+            "description": "The payer reference that sent the payment",
+            "nullable": true
+          },
+          "Timestamp": {
+            "type": "string",
+            "description": "The date and time when the billing record was created",
+            "format": "date-time"
+          },
+          "Type": {
+            "description": "The type of the billing record\n\n0 = PayPal\n1 = Crypto\n2 = Credit Card\n3 = Monthly Usage\n4 = Refund\n5 = Coupon Code\n6 = Bank Transfer\n7 = Affiliate Credits",
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/BillingRecordType"
+              }
+            ]
+          },
+          "InvoiceAvailable": {
+            "type": "boolean",
+            "description": "Determines if an invoice is available"
+          },
+          "DocumentDownloadUrl": {
+            "type": "string",
+            "description": "The URL where the invoice or document can be downloaded. Null if this is not available.",
+            "nullable": true
+          },
+          "DetailedDocumentDownloadUrl": {
+            "type": "string",
+            "description": "The URL where the document with product usage breakdown can be downloaded. Null if this is not available.",
+            "nullable": true
+          }
+        }
+      },
+      "BillingRecordType": {
+        "type": "integer",
+        "description": "0 = PayPal\n1 = Crypto\n2 = Credit Card\n3 = Monthly Usage\n4 = Refund\n5 = Coupon Code\n6 = Bank Transfer\n7 = Affiliate Credits",
+        "x-enumNames": [
+          "PayPal",
+          "Crypto",
+          "CreditCard",
+          "MonthlyUsage",
+          "Refund",
+          "CouponCode",
+          "BankTransfer",
+          "AffiliateCredits"
+        ],
+        "enum": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ]
+      },
+      "UsageBreakdown": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "Usage": {
+            "type": "number",
+            "description": "The usage based charge in USD",
+            "format": "decimal"
+          },
+          "TotalUnits": {
+            "type": "integer",
+            "description": "The billed quantity for the related product",
+            "format": "int64"
+          },
+          "MeasuringUnit": {
+            "type": "string",
+            "description": "Measuring Unit for TotalUnits (e.g. Rows, GB, Seconds, Bytes, Block-seconds)",
+            "nullable": true
+          }
+        }
+      },
+      "BillingSavedPaymentMethod": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "Token": {
+            "type": "string",
+            "nullable": true
+          },
+          "ImageUrl": {
+            "type": "string",
+            "nullable": true
+          },
+          "ExpirationDate": {
+            "type": "string",
+            "nullable": true
+          },
+          "LastFour": {
+            "type": "string",
+            "nullable": true
+          },
+          "Email": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "CreatePartnerCustomerResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "CustomerUserId": {
+            "type": "string",
+            "description": "Id of the newly created customer user.",
+            "nullable": true
+          }
+        }
+      },
+      "CreatePartnerCustomerRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "Email"
+        ],
+        "properties": {
+          "Email": {
+            "type": "string",
+            "description": "Primary account email of the customer to create.",
+            "format": "email",
+            "minLength": 1
+          },
+          "FirstName": {
+            "type": "string",
+            "description": "Customer's first name.",
+            "nullable": true
+          },
+          "LastName": {
+            "type": "string",
+            "description": "Customer's last name.",
+            "nullable": true
+          },
+          "Country": {
+            "type": "string",
+            "description": "Customer's country.",
+            "nullable": true
+          },
+          "BillingEmail": {
+            "type": "string",
+            "description": "Email for receiving invoices and billing updates.",
+            "nullable": true
+          },
+          "CompanyName": {
+            "type": "string",
+            "description": "Customer's company name.",
+            "nullable": true
+          },
+          "CompanyVatNumber": {
+            "type": "string",
+            "description": "Customer's company VAT number.",
+            "nullable": true
+          },
+          "InternalNotes": {
+            "type": "string",
+            "description": "Internal notes about the customer, visible only to partner admins.",
+            "nullable": true
+          }
+        }
+      },
+      "PartnerCustomerContractModel": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "PartnerCustomerId": {
+            "type": "integer",
+            "description": "Id of the partner-customer relationship the contract applies to. Set for customer contracts, null for partner-level contracts",
+            "format": "int64",
+            "nullable": true
+          },
+          "ContractValue": {
+            "type": "number",
+            "description": "Total contract value over the agreed period",
+            "format": "decimal"
+          },
+          "MonthlyCommitmentValue": {
+            "type": "number",
+            "description": "Optional monthly commitment value displayed alongside usage charts. Null if no monthly commitment is agreed",
+            "format": "decimal",
+            "nullable": true
+          },
+          "ContractStartDate": {
+            "type": "string",
+            "description": "Start date of the contract",
+            "format": "date-time"
+          },
+          "ContractEndDate": {
+            "type": "string",
+            "description": "End date of the contract",
+            "format": "date-time"
+          },
+          "ContractBillingType": {
+            "description": "Billing arrangement agreed with the customer\n\n1 = Pay As You Go\n2 = Post Paid",
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/PartnerContractBillingType"
+              }
+            ]
+          },
+          "Currency": {
+            "description": "Currency of the contract\n\n0 = US Dollar\n1 = Euro",
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/PartnerCustomerContractCurrency"
+              }
+            ]
+          },
+          "UpdatedByUserId": {
+            "type": "string",
+            "description": "User id of the user updating this contract",
+            "nullable": true
+          },
+          "PartnerUserId": {
+            "type": "string",
+            "description": "User id of the partner this contract applies to. Set for partner-level contracts, null for customer contracts",
+            "nullable": true
+          }
+        }
+      },
+      "PartnerContractBillingType": {
+        "type": "integer",
+        "description": "1 = Pay As You Go\n2 = Post Paid",
+        "x-enumNames": [
+          "PayAsYouGo",
+          "PostPaidPayAsYouGo"
+        ],
+        "enum": [
+          1,
+          2
+        ]
+      },
+      "PartnerCustomerContractCurrency": {
+        "type": "integer",
+        "description": "0 = US Dollar\n1 = Euro",
+        "x-enumNames": [
+          "USD",
+          "EUR"
+        ],
+        "enum": [
+          0,
+          1
+        ]
+      },
+      "PartnerCustomerOverviewModel": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "MonthlyBandwidthUsedBytes": {
+            "type": "integer",
+            "description": "Bandwidth served to the customer in the current month",
+            "format": "int64"
+          },
+          "MonthlyRequestCount": {
+            "type": "integer",
+            "description": "Total pull-zone requests served to the customer in the current month",
+            "format": "int64"
+          },
+          "TotalStorageUsedBytes": {
+            "type": "integer",
+            "description": "Storage currently used across all of the customer's storage zones",
+            "format": "int64"
+          },
+          "MonthlyCostUsd": {
+            "type": "number",
+            "description": "Accrued cost for the current calendar month",
+            "format": "double"
+          },
+          "ContractValue": {
+            "type": "number",
+            "description": "Contract value agreed with the partner.",
+            "format": "decimal",
+            "nullable": true
+          },
+          "ContractCurrency": {
+            "description": "Currency of the contract value.\n\n0 = US Dollar\n1 = Euro",
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/PartnerCustomerContractCurrency"
+              }
+            ]
+          },
+          "BandwidthUsedChart": {
+            "type": "object",
+            "description": "Daily bandwidth used over the last 7 days",
+            "nullable": true,
+            "additionalProperties": {
+              "type": "number",
+              "format": "double"
+            }
+          },
+          "Products": {
+            "type": "array",
+            "description": "Enable/disable state and resource count for each product the customer can use",
+            "nullable": true,
+            "items": {
+              "$ref": "#/components/schemas/PartnerCustomerProductStateModel"
+            }
+          }
+        }
+      },
+      "PartnerCustomerProductStateModel": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "ProductId": {
+            "description": "The product this state applies to\n\n1 = CDN\n2 = Database\n3 = DNS\n4 = Magic Containers\n5 = Optimizer\n6 = Edge Scripting\n7 = Shield\n8 = Storage\n9 = Stream",
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/PartnerCustomerProductType"
+              }
+            ]
+          },
+          "IsEnabled": {
+            "type": "boolean",
+            "description": "Whether the partner has enabled this product for the customer"
+          },
+          "ResourceCount": {
+            "type": "integer",
+            "description": "Number of resources the customer currently has for this product",
+            "format": "int32"
+          }
+        }
+      },
+      "PartnerCustomerPricingModel": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "CustomOverrideCount": {
+            "type": "integer",
+            "description": "Number of active custom pricing rows the customer has",
+            "format": "int32"
+          },
+          "ExpiringSoon": {
+            "type": "array",
+            "description": "Time-limited custom pricing rows that revert to list pricing soon",
+            "nullable": true,
+            "items": {
+              "$ref": "#/components/schemas/ExpiringOverrideModel"
+            }
+          },
+          "CdnStandardTier": {
+            "description": "CDN Standard tier price per GB and PoP configuration",
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/CdnTierPricingModel"
+              }
+            ]
+          },
+          "CdnVolumeTier": {
+            "description": "CDN Volume tier price per GB and PoP configuration",
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/CdnTierPricingModel"
+              }
+            ]
+          },
+          "CdnStandardTierDiscount": {
+            "description": "Per-region discount applied to the CDN Standard tier",
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/CdnStandardTierDiscountModel"
+              }
+            ]
+          },
+          "CdnVolumeTierPricing": {
+            "description": "Tiered $/GB CDN Volume pricing based on total account traffic",
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/CdnVolumeTierPricingModel"
+              }
+            ]
+          },
+          "Storage": {
+            "description": "Edge and Standard storage pricing per TB per month",
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/StoragePricingModel"
+              }
+            ]
+          },
+          "Optimizer": {
+            "description": "Optimizer price per zone per month",
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/OptimizerPricingModel"
+              }
+            ]
+          },
+          "ExtraZones": {
+            "description": "Free zone allowances and extra-zone pricing",
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/ExtraZonePricingModel"
+              }
+            ]
+          },
+          "BunnyShield": {
+            "description": "Bunny Shield tier pricing",
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/BunnyShieldPricingModel"
+              }
+            ]
+          },
+          "Drm": {
+            "description": "DRM base and per-license pricing",
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/DrmPricingModel"
+              }
+            ]
+          },
+          "Transcribing": {
+            "description": "Transcribing price per minute (flat or tiered)",
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/TieredUnitPriceModel"
+              }
+            ]
+          },
+          "PremiumEncoding": {
+            "description": "Premium encoding price per normalized minute",
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/TieredUnitPriceModel"
+              }
+            ]
+          },
+          "EdgeScripting": {
+            "description": "Edge Scripting request and CPU pricing",
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/EdgeScriptingPricingModel"
+              }
+            ]
+          },
+          "WebSockets": {
+            "description": "WebSockets price per 1M connection minutes (flat or tiered)",
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/TieredUnitPriceModel"
+              }
+            ]
+          },
+          "BunnyDb": {
+            "description": "BunnyDB (database) pricing for its consumption sub-products",
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/BunnyDbPricingModel"
+              }
+            ]
+          }
+        }
+      },
+      "ExpiringOverrideModel": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "ProductId": {
+            "description": "Product the override applies to\n\n<details>\n<summary>Show all 151 values</summary>\n\n| Value | Name |\n|---|---|\n| `1000` | CDN |\n| `1100` | CDN Standard Tier |\n| `1101` | CDN Standard Tier - Europe Traffic |\n| `1102` | CDN Standard Tier - North America Traffic |\n| `1103` | CDN Standard Tier - Asia & Oceania Traffic |\n| `1104` | CDN Standard Tier - Middle East & Africa Traffic |\n| `1105` | CDN Standard Tier - South America Traffic |\n| `1106` | CDN Standard Tier - Uncategorized Traffic |\n| `1200` | CDN Standard Tier (Stream) |\n| `1201` | CDN Standard Tier (Stream) - Europe Traffic |\n| `1202` | CDN Standard Tier (Stream) - North America Traffic |\n| `1203` | CDN Standard Tier (Stream) - Asia & Oceania Traffic |\n| `1204` | CDN Standard Tier (Stream) - Middle East & Africa Traffic |\n| `1205` | CDN Standard Tier (Stream) - South America Traffic |\n| `1206` | CDN Standard Tier (Stream) - Uncategorized Traffic |\n| `1300` | CDN Volume Tier |\n| `1301` | CDN Volume Tier - Europe Traffic |\n| `1302` | CDN Volume Tier - North America Traffic |\n| `1303` | CDN Volume Tier - Asia & Oceania Traffic |\n| `1304` | CDN Volume Tier - Middle East & Africa Traffic |\n| `1305` | CDN Volume Tier - South America Traffic |\n| `1306` | CDN Volume Tier - Uncategorized Traffic |\n| `1400` | CDN Volume Tier (Stream) |\n| `1401` | CDN Volume Tier (Stream) - Europe Traffic |\n| `1402` | CDN Volume Tier (Stream) - North America Traffic |\n| `1403` | CDN Volume Tier (Stream) - Asia & Oceania Traffic |\n| `1404` | CDN Volume Tier (Stream) - Middle East & Africa Traffic |\n| `1405` | CDN Volume Tier (Stream) - South America Traffic |\n| `1406` | CDN Volume Tier (Stream) - Uncategorized Traffic |\n| `1500` | CDN Standard Tier (Storage) |\n| `1501` | CDN Standard Tier (Storage) - Europe Traffic |\n| `1502` | CDN Standard Tier (Storage) - North America Traffic |\n| `1503` | CDN Standard Tier (Storage) - Asia & Oceania Traffic |\n| `1504` | CDN Standard Tier (Storage) - Middle East & Africa Traffic |\n| `1505` | CDN Standard Tier (Storage) - South America Traffic |\n| `1506` | CDN Standard Tier (Storage) - Uncategorized Traffic |\n| `1510` | CDN Volume Tier (Storage) |\n| `1511` | CDN Volume Tier (Storage) - Europe Traffic |\n| `1512` | CDN Volume Tier (Storage) - North America Traffic |\n| `1513` | CDN Volume Tier (Storage) - Asia & Oceania Traffic |\n| `1514` | CDN Volume Tier (Storage) - Middle East & Africa Traffic |\n| `1515` | CDN Volume Tier (Storage) - South America Traffic |\n| `1516` | CDN Volume Tier (Storage) - Uncategorized Traffic |\n| `1600` | CDN WebSockets Tier 1000 |\n| `1605` | CDN WebSockets Tier 2500 |\n| `1610` | CDN WebSockets Tier 5000 |\n| `1615` | CDN WebSockets Tier 10000 |\n| `1620` | CDN WebSockets Tier 25000 |\n| `1630` | CDN WebSockets (Consumption Based) |\n| `1700` | CDN Standard Tier (Magic Containers) |\n| `1701` | CDN Standard Tier (Magic Containers) - Europe Traffic |\n| `1702` | CDN Standard Tier (Magic Containers) - North America Traffic |\n| `1703` | CDN Standard Tier (Magic Containers) - Asia & Oceania Traffic |\n| `1704` | CDN Standard Tier (Magic Containers) - Middle East & Africa Traffic |\n| `1705` | CDN Standard Tier (Magic Containers) - South America Traffic |\n| `1706` | CDN Standard Tier (Magic Containers) - Uncategorized Traffic |\n| `1710` | CDN Volume Tier (Magic Containers) |\n| `1711` | CDN Volume Tier (Magic Containers) - Europe Traffic |\n| `1712` | CDN Volume Tier (Magic Containers) - North America Traffic |\n| `1713` | CDN Volume Tier (Magic Containers) - Asia & Oceania Traffic |\n| `1714` | CDN Volume Tier (Magic Containers) - Middle East & Africa Traffic |\n| `1715` | CDN Volume Tier (Magic Containers) - South America Traffic |\n| `1716` | CDN Volume Tier (Magic Containers) - Uncategorized Traffic |\n| `1800` | CDN Standard Tier (Edge Scripting) |\n| `1801` | CDN Standard Tier (Edge Scripting) - Europe Traffic |\n| `1802` | CDN Standard Tier (Edge Scripting) - North America Traffic |\n| `1803` | CDN Standard Tier (Edge Scripting) - Asia & Oceania Traffic |\n| `1804` | CDN Standard Tier (Edge Scripting) - Middle East & Africa Traffic |\n| `1805` | CDN Standard Tier (Edge Scripting) - South America Traffic |\n| `1806` | CDN Standard Tier (Edge Scripting) - Uncategorized Traffic |\n| `1810` | CDN Volume Tier (Edge Scripting) |\n| `1811` | CDN Volume Tier (Edge Scripting) - Europe Traffic |\n| `1812` | CDN Volume Tier (Edge Scripting) - North America Traffic |\n| `1813` | CDN Volume Tier (Edge Scripting) - Asia & Oceania Traffic |\n| `1814` | CDN Volume Tier (Edge Scripting) - Middle East & Africa Traffic |\n| `1815` | CDN Volume Tier (Edge Scripting) - South America Traffic |\n| `1816` | CDN Volume Tier (Edge Scripting) - Uncategorized Traffic |\n| `2000` | Storage |\n| `2100` | Storage Standard Tier |\n| `2200` | Storage SSD Tier |\n| `2300` | Storage Standard Tier (Stream) |\n| `2400` | Storage SSD Tier (Stream) |\n| `3000` | DNS |\n| `3100` | DNS Smart Queries |\n| `3200` | DNS Standard Queries |\n| `4000` | Stream |\n| `4100` | Transcribing |\n| `4200` | Premium Encoding |\n| `4300` | DRM Base |\n| `4400` | DRM License Issued |\n| `4501` | Live Encoding SD |\n| `4502` | Live Encoding HD |\n| `4503` | Live Encoding 4K |\n| `5000` | Edge Scripting CDN |\n| `5100` | Edge Scripting DNS |\n| `5200` | Edge Scripting CDN Requests |\n| `5300` | Edge Scripting CDN CPU |\n| `6000` | Optimizer |\n| `6100` | Optimizer_Burrow_TunneledTraffic |\n| `7000` | Extra Zones |\n| `7001` | Extra Zones CDN |\n| `7002` | Extra Zones Stream |\n| `7003` | Extra Zones Storage |\n| `7004` | Extra Zones DNS |\n| `8000` | Monthly Commitment |\n| `9000` | Top-Up |\n| `10000` | Magic Containers |\n| `10100` | Magic Containers CPU |\n| `10200` | Magic Containers RAM |\n| `10300` | Magic Containers IP |\n| `10301` | Magic Containers Anycast IP |\n| `10400` | Magic Containers Traffic |\n| `10401` | Magic Containers Anycast Traffic |\n| `10410` | Magic Containers Anycast Ingress Traffic |\n| `10411` | Magic Containers Anycast Ingress - Europe Traffic |\n| `10412` | Magic Containers Anycast Ingress - North America Traffic |\n| `10413` | Magic Containers Anycast Ingress - Asia Traffic |\n| `10414` | Magic Containers Anycast Ingress - Australia Traffic |\n| `10415` | Magic Containers Anycast Ingress - Africa Traffic |\n| `10416` | Magic Containers Anycast Ingress - South America Traffic |\n| `10417` | Magic Containers Anycast Ingress - Uncategorized Traffic |\n| `10420` | Magic Containers Egress Traffic |\n| `10421` | Magic Containers Egress - Europe Traffic |\n| `10422` | Magic Containers Egress - North America Traffic |\n| `10423` | Magic Containers Egress - Asia Traffic |\n| `10424` | Magic Containers Egress - Australia Traffic |\n| `10425` | Magic Containers Egress - Africa Traffic |\n| `10426` | Magic Containers Egress - South America Traffic |\n| `10427` | Magic Containers Egress - Uncategorized Traffic |\n| `10500` | Magic Containers Volumes |\n| `10510` | Magic Containers Persistent Volumes |\n| `11000` | Shield |\n| `11005` | Shield Basic Overages |\n| `11100` | Shield Advanced Monthly Plan |\n| `11105` | Shield Advanced Overages |\n| `11110` | Shield Business Monthly Plan |\n| `11115` | Shield Business Overages |\n| `11120` | Shield Enterprise Monthly Plan |\n| `11125` | Shield Enterprise Overages |\n| `12000` | Bunny Database |\n| `12100` | Bunny Database Storage |\n| `12200` | Bunny Database Replica Storage |\n| `12300` | Bunny Database Row Reads |\n| `12400` | Bunny Database Row Writes |\n| `13000` | CDN Load Balancer Monthly Fee |\n| `13100` | CDN Load Balancer Request Overages |\n| `14000` | AiGateway |\n| `14100` | AiGateway_InputTokens |\n| `14200` | AiGateway_OutputTokens |\n| `14300` | AiGateway_CachedTokens |\n| `14400` | AiGateway_Other |\n\n</details>",
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/BalanceAdjustmentSource"
+              }
+            ]
+          },
+          "ProductName": {
+            "type": "string",
+            "description": "Human-readable product name, e.g. \"DNS\"",
+            "nullable": true
+          },
+          "Label": {
+            "type": "string",
+            "description": "Override label / description, e.g. \"Standard Queries\"",
+            "nullable": true
+          },
+          "PricePerUnit": {
+            "type": "number",
+            "description": "Overridden flat price per unit. Null when the override is tiered (see Tiers)",
+            "format": "decimal",
+            "nullable": true
+          },
+          "Tiers": {
+            "type": "array",
+            "description": "Pricing tiers, populated when the override is tiered; null for a flat override",
+            "nullable": true,
+            "items": {
+              "$ref": "#/components/schemas/PricingTierModel"
+            }
+          },
+          "ValidTo": {
+            "type": "string",
+            "description": "Date the override reverts to list pricing",
+            "format": "date-time"
+          },
+          "DaysLeft": {
+            "type": "integer",
+            "description": "Whole days remaining until the override expires",
+            "format": "int32"
+          }
+        }
+      },
+      "BalanceAdjustmentSource": {
+        "type": "integer",
+        "description": "1000 = CDN\n1100 = CDN Standard Tier\n1101 = CDN Standard Tier - Europe Traffic\n1102 = CDN Standard Tier - North America Traffic\n1103 = CDN Standard Tier - Asia & Oceania Traffic\n1104 = CDN Standard Tier - Middle East & Africa Traffic\n1105 = CDN Standard Tier - South America Traffic\n1106 = CDN Standard Tier - Uncategorized Traffic\n1200 = CDN Standard Tier (Stream)\n1201 = CDN Standard Tier (Stream) - Europe Traffic\n1202 = CDN Standard Tier (Stream) - North America Traffic\n1203 = CDN Standard Tier (Stream) - Asia & Oceania Traffic\n1204 = CDN Standard Tier (Stream) - Middle East & Africa Traffic\n1205 = CDN Standard Tier (Stream) - South America Traffic\n1206 = CDN Standard Tier (Stream) - Uncategorized Traffic\n1300 = CDN Volume Tier\n1301 = CDN Volume Tier - Europe Traffic\n1302 = CDN Volume Tier - North America Traffic\n1303 = CDN Volume Tier - Asia & Oceania Traffic\n1304 = CDN Volume Tier - Middle East & Africa Traffic\n1305 = CDN Volume Tier - South America Traffic\n1306 = CDN Volume Tier - Uncategorized Traffic\n1400 = CDN Volume Tier (Stream)\n1401 = CDN Volume Tier (Stream) - Europe Traffic\n1402 = CDN Volume Tier (Stream) - North America Traffic\n1403 = CDN Volume Tier (Stream) - Asia & Oceania Traffic\n1404 = CDN Volume Tier (Stream) - Middle East & Africa Traffic\n1405 = CDN Volume Tier (Stream) - South America Traffic\n1406 = CDN Volume Tier (Stream) - Uncategorized Traffic\n1500 = CDN Standard Tier (Storage)\n1501 = CDN Standard Tier (Storage) - Europe Traffic\n1502 = CDN Standard Tier (Storage) - North America Traffic\n1503 = CDN Standard Tier (Storage) - Asia & Oceania Traffic\n1504 = CDN Standard Tier (Storage) - Middle East & Africa Traffic\n1505 = CDN Standard Tier (Storage) - South America Traffic\n1506 = CDN Standard Tier (Storage) - Uncategorized Traffic\n1510 = CDN Volume Tier (Storage)\n1511 = CDN Volume Tier (Storage) - Europe Traffic\n1512 = CDN Volume Tier (Storage) - North America Traffic\n1513 = CDN Volume Tier (Storage) - Asia & Oceania Traffic\n1514 = CDN Volume Tier (Storage) - Middle East & Africa Traffic\n1515 = CDN Volume Tier (Storage) - South America Traffic\n1516 = CDN Volume Tier (Storage) - Uncategorized Traffic\n1600 = CDN WebSockets Tier 1000\n1605 = CDN WebSockets Tier 2500\n1610 = CDN WebSockets Tier 5000\n1615 = CDN WebSockets Tier 10000\n1620 = CDN WebSockets Tier 25000\n1630 = CDN WebSockets (Consumption Based)\n1700 = CDN Standard Tier (Magic Containers)\n1701 = CDN Standard Tier (Magic Containers) - Europe Traffic\n1702 = CDN Standard Tier (Magic Containers) - North America Traffic\n1703 = CDN Standard Tier (Magic Containers) - Asia & Oceania Traffic\n1704 = CDN Standard Tier (Magic Containers) - Middle East & Africa Traffic\n1705 = CDN Standard Tier (Magic Containers) - South America Traffic\n1706 = CDN Standard Tier (Magic Containers) - Uncategorized Traffic\n1710 = CDN Volume Tier (Magic Containers)\n1711 = CDN Volume Tier (Magic Containers) - Europe Traffic\n1712 = CDN Volume Tier (Magic Containers) - North America Traffic\n1713 = CDN Volume Tier (Magic Containers) - Asia & Oceania Traffic\n1714 = CDN Volume Tier (Magic Containers) - Middle East & Africa Traffic\n1715 = CDN Volume Tier (Magic Containers) - South America Traffic\n1716 = CDN Volume Tier (Magic Containers) - Uncategorized Traffic\n1800 = CDN Standard Tier (Edge Scripting)\n1801 = CDN Standard Tier (Edge Scripting) - Europe Traffic\n1802 = CDN Standard Tier (Edge Scripting) - North America Traffic\n1803 = CDN Standard Tier (Edge Scripting) - Asia & Oceania Traffic\n1804 = CDN Standard Tier (Edge Scripting) - Middle East & Africa Traffic\n1805 = CDN Standard Tier (Edge Scripting) - South America Traffic\n1806 = CDN Standard Tier (Edge Scripting) - Uncategorized Traffic\n1810 = CDN Volume Tier (Edge Scripting)\n1811 = CDN Volume Tier (Edge Scripting) - Europe Traffic\n1812 = CDN Volume Tier (Edge Scripting) - North America Traffic\n1813 = CDN Volume Tier (Edge Scripting) - Asia & Oceania Traffic\n1814 = CDN Volume Tier (Edge Scripting) - Middle East & Africa Traffic\n1815 = CDN Volume Tier (Edge Scripting) - South America Traffic\n1816 = CDN Volume Tier (Edge Scripting) - Uncategorized Traffic\n2000 = Storage\n2100 = Storage Standard Tier\n2200 = Storage SSD Tier\n2300 = Storage Standard Tier (Stream)\n2400 = Storage SSD Tier (Stream)\n3000 = DNS\n3100 = DNS Smart Queries\n3200 = DNS Standard Queries\n4000 = Stream\n4100 = Transcribing\n4200 = Premium Encoding\n4300 = DRM Base\n4400 = DRM License Issued\n4501 = Live Encoding SD\n4502 = Live Encoding HD\n4503 = Live Encoding 4K\n5000 = Edge Scripting CDN\n5100 = Edge Scripting DNS\n5200 = Edge Scripting CDN Requests\n5300 = Edge Scripting CDN CPU\n6000 = Optimizer\n6100 = Optimizer_Burrow_TunneledTraffic\n7000 = Extra Zones\n7001 = Extra Zones CDN\n7002 = Extra Zones Stream\n7003 = Extra Zones Storage\n7004 = Extra Zones DNS\n8000 = Monthly Commitment\n9000 = Top-Up\n10000 = Magic Containers\n10100 = Magic Containers CPU\n10200 = Magic Containers RAM\n10300 = Magic Containers IP\n10301 = Magic Containers Anycast IP\n10400 = Magic Containers Traffic\n10401 = Magic Containers Anycast Traffic\n10410 = Magic Containers Anycast Ingress Traffic\n10411 = Magic Containers Anycast Ingress - Europe Traffic\n10412 = Magic Containers Anycast Ingress - North America Traffic\n10413 = Magic Containers Anycast Ingress - Asia Traffic\n10414 = Magic Containers Anycast Ingress - Australia Traffic\n10415 = Magic Containers Anycast Ingress - Africa Traffic\n10416 = Magic Containers Anycast Ingress - South America Traffic\n10417 = Magic Containers Anycast Ingress - Uncategorized Traffic\n10420 = Magic Containers Egress Traffic\n10421 = Magic Containers Egress - Europe Traffic\n10422 = Magic Containers Egress - North America Traffic\n10423 = Magic Containers Egress - Asia Traffic\n10424 = Magic Containers Egress - Australia Traffic\n10425 = Magic Containers Egress - Africa Traffic\n10426 = Magic Containers Egress - South America Traffic\n10427 = Magic Containers Egress - Uncategorized Traffic\n10500 = Magic Containers Volumes\n10510 = Magic Containers Persistent Volumes\n11000 = Shield\n11005 = Shield Basic Overages\n11100 = Shield Advanced Monthly Plan\n11105 = Shield Advanced Overages\n11110 = Shield Business Monthly Plan\n11115 = Shield Business Overages\n11120 = Shield Enterprise Monthly Plan\n11125 = Shield Enterprise Overages\n12000 = Bunny Database\n12100 = Bunny Database Storage\n12200 = Bunny Database Replica Storage\n12300 = Bunny Database Row Reads\n12400 = Bunny Database Row Writes\n13000 = CDN Load Balancer Monthly Fee\n13100 = CDN Load Balancer Request Overages\n14000 = AiGateway\n14100 = AiGateway_InputTokens\n14200 = AiGateway_OutputTokens\n14300 = AiGateway_CachedTokens\n14400 = AiGateway_Other",
+        "x-enumNames": [
+          "CDN",
+          "CDN_Standard_Tier",
+          "CDN_Standard_Tier_EU_Traffic",
+          "CDN_Standard_Tier_NA_Traffic",
+          "CDN_Standard_Tier_APAC_Traffic",
+          "CDN_Standard_Tier_AF_Traffic",
+          "CDN_Standard_Tier_SA_Traffic",
+          "CDN_Standard_Tier_Uncategorized",
+          "CDN_Standard_Tier_Stream",
+          "CDN_Standard_Tier_Stream_EU_Traffic",
+          "CDN_Standard_Tier_Stream_NA_Traffic",
+          "CDN_Standard_Tier_Stream_APAC_Traffic",
+          "CDN_Standard_Tier_Stream_AF_Traffic",
+          "CDN_Standard_Tier_Stream_SA_Traffic",
+          "CDN_Standard_Tier_Stream_Uncategorized",
+          "CDN_Volume_Tier",
+          "CDN_Volume_Tier_EU_Traffic",
+          "CDN_Volume_Tier_NA_Traffic",
+          "CDN_Volume_Tier_APAC_Traffic",
+          "CDN_Volume_Tier_AF_Traffic",
+          "CDN_Volume_Tier_SA_Traffic",
+          "CDN_Volume_Tier_Uncategorized",
+          "CDN_Volume_Tier_Stream",
+          "CDN_Volume_Tier_Stream_EU_Traffic",
+          "CDN_Volume_Tier_Stream_NA_Traffic",
+          "CDN_Volume_Tier_Stream_APAC_Traffic",
+          "CDN_Volume_Tier_Stream_AF_Traffic",
+          "CDN_Volume_Tier_Stream_SA_Traffic",
+          "CDN_Volume_Tier_Stream_Uncategorized",
+          "CDN_Standard_Tier_Storage",
+          "CDN_Standard_Tier_Storage_EU_Traffic",
+          "CDN_Standard_Tier_Storage_NA_Traffic",
+          "CDN_Standard_Tier_Storage_APAC_Traffic",
+          "CDN_Standard_Tier_Storage_AF_Traffic",
+          "CDN_Standard_Tier_Storage_SA_Traffic",
+          "CDN_Standard_Tier_Storage_Uncategorized",
+          "CDN_Volume_Tier_Storage",
+          "CDN_Volume_Tier_Storage_EU_Traffic",
+          "CDN_Volume_Tier_Storage_NA_Traffic",
+          "CDN_Volume_Tier_Storage_APAC_Traffic",
+          "CDN_Volume_Tier_Storage_AF_Traffic",
+          "CDN_Volume_Tier_Storage_SA_Traffic",
+          "CDN_Volume_Tier_Storage_Uncategorized",
+          "CDN_WebSockets_Tier1000",
+          "CDN_WebSockets_Tier2500",
+          "CDN_WebSockets_Tier5000",
+          "CDN_WebSockets_Tier10000",
+          "CDN_WebSockets_Tier25000",
+          "CDN_WebSockets_ConsumptionBased",
+          "CDN_Standard_Tier_MagicContainers",
+          "CDN_Standard_Tier_MagicContainers_EU_Traffic",
+          "CDN_Standard_Tier_MagicContainers_NA_Traffic",
+          "CDN_Standard_Tier_MagicContainers_APAC_Traffic",
+          "CDN_Standard_Tier_MagicContainers_AF_Traffic",
+          "CDN_Standard_Tier_MagicContainers_SA_Traffic",
+          "CDN_Standard_Tier_MagicContainers_Uncategorized",
+          "CDN_Volume_Tier_MagicContainers",
+          "CDN_Volume_Tier_MagicContainers_EU_Traffic",
+          "CDN_Volume_Tier_MagicContainers_NA_Traffic",
+          "CDN_Volume_Tier_MagicContainers_APAC_Traffic",
+          "CDN_Volume_Tier_MagicContainers_AF_Traffic",
+          "CDN_Volume_Tier_MagicContainers_SA_Traffic",
+          "CDN_Volume_Tier_MagicContainers_Uncategorized",
+          "CDN_Standard_Tier_Scripting",
+          "CDN_Standard_Tier_Scripting_EU_Traffic",
+          "CDN_Standard_Tier_Scripting_NA_Traffic",
+          "CDN_Standard_Tier_Scripting_APAC_Traffic",
+          "CDN_Standard_Tier_Scripting_AF_Traffic",
+          "CDN_Standard_Tier_Scripting_SA_Traffic",
+          "CDN_Standard_Tier_Scripting_Uncategorized",
+          "CDN_Volume_Tier_Scripting",
+          "CDN_Volume_Tier_Scripting_EU_Traffic",
+          "CDN_Volume_Tier_Scripting_NA_Traffic",
+          "CDN_Volume_Tier_Scripting_APAC_Traffic",
+          "CDN_Volume_Tier_Scripting_AF_Traffic",
+          "CDN_Volume_Tier_Scripting_SA_Traffic",
+          "CDN_Volume_Tier_Scripting_Uncategorized",
+          "Storage",
+          "Storage_Standard_Tier",
+          "Storage_SSD_Tier",
+          "Storage_Standard_Tier_Stream",
+          "Storage_SSD_Tier_Stream",
+          "DNS",
+          "DNS_Smart_Queries",
+          "DNS_Standard_Queries",
+          "Stream",
+          "Transcribing",
+          "PremiumEncoding",
+          "DRM_Base",
+          "DRM_LicenseIssued",
+          "LiveEncoding_SD",
+          "LiveEncoding_HD",
+          "LiveEncoding_4K",
+          "Scripting_CDN",
+          "Scripting_DNS",
+          "Scripting_CDN_Requests",
+          "Scripting_CDN_CPU",
+          "Optimizer",
+          "Optimizer_Burrow_TunneledTraffic",
+          "ExtraZones",
+          "ExtraZones_CDN",
+          "ExtraZones_Stream",
+          "ExtraZones_Storage",
+          "ExtraZones_DNS",
+          "MonthlyCommitment",
+          "TopUp",
+          "MagicContainers",
+          "MagicContainers_CPU",
+          "MagicContainers_RAM",
+          "MagicContainers_IP",
+          "MagicContainers_AnycastIP",
+          "MagicContainers_Traffic",
+          "MagicContainers_AnycastTraffic",
+          "MagicContainers_AnycastIngressTraffic",
+          "MagicContainers_AnycastIngress_EU_Traffic",
+          "MagicContainers_AnycastIngress_NA_Traffic",
+          "MagicContainers_AnycastIngress_ASIA_Traffic",
+          "MagicContainers_AnycastIngress_Australia_Traffic",
+          "MagicContainers_AnycastIngress_AF_Traffic",
+          "MagicContainers_AnycastIngress_SA_Traffic",
+          "MagicContainers_AnycastIngress_Uncategorized",
+          "MagicContainers_EgressTraffic",
+          "MagicContainers_Egress_EU_Traffic",
+          "MagicContainers_Egress_NA_Traffic",
+          "MagicContainers_Egress_ASIA_Traffic",
+          "MagicContainers_Egress_Australia_Traffic",
+          "MagicContainers_Egress_AF_Traffic",
+          "MagicContainers_Egress_SA_Traffic",
+          "MagicContainers_Egress_Uncategorized",
+          "MagicContainers_Volumes",
+          "MagicContainers_PersistentVolumes",
+          "Shield",
+          "ShieldBasicOverages",
+          "ShieldAdvancedMonthlyPlan",
+          "ShieldAdvancedOverages",
+          "ShieldBusinessMonthlyPlan",
+          "ShieldBusinessOverages",
+          "ShieldEnterpriseMonthlyPlan",
+          "ShieldEnterpriseOverages",
+          "BunnyDB",
+          "BunnyDB_Storage",
+          "BunnyDB_ReplicaStorage",
+          "BunnyDB_RowReads",
+          "BunnyDB_RowWrites",
+          "CDN_LoadBalancer_MonthlyFee",
+          "CDN_LoadBalancer_RequestOverages",
+          "AiGateway",
+          "AiGateway_InputTokens",
+          "AiGateway_OutputTokens",
+          "AiGateway_CachedTokens",
+          "AiGateway_Other"
+        ],
+        "enum": [
+          1000,
+          1100,
+          1101,
+          1102,
+          1103,
+          1104,
+          1105,
+          1106,
+          1200,
+          1201,
+          1202,
+          1203,
+          1204,
+          1205,
+          1206,
+          1300,
+          1301,
+          1302,
+          1303,
+          1304,
+          1305,
+          1306,
+          1400,
+          1401,
+          1402,
+          1403,
+          1404,
+          1405,
+          1406,
+          1500,
+          1501,
+          1502,
+          1503,
+          1504,
+          1505,
+          1506,
+          1510,
+          1511,
+          1512,
+          1513,
+          1514,
+          1515,
+          1516,
+          1600,
+          1605,
+          1610,
+          1615,
+          1620,
+          1630,
+          1700,
+          1701,
+          1702,
+          1703,
+          1704,
+          1705,
+          1706,
+          1710,
+          1711,
+          1712,
+          1713,
+          1714,
+          1715,
+          1716,
+          1800,
+          1801,
+          1802,
+          1803,
+          1804,
+          1805,
+          1806,
+          1810,
+          1811,
+          1812,
+          1813,
+          1814,
+          1815,
+          1816,
+          2000,
+          2100,
+          2200,
+          2300,
+          2400,
+          3000,
+          3100,
+          3200,
+          4000,
+          4100,
+          4200,
+          4300,
+          4400,
+          4501,
+          4502,
+          4503,
+          5000,
+          5100,
+          5200,
+          5300,
+          6000,
+          6100,
+          7000,
+          7001,
+          7002,
+          7003,
+          7004,
+          8000,
+          9000,
+          10000,
+          10100,
+          10200,
+          10300,
+          10301,
+          10400,
+          10401,
+          10410,
+          10411,
+          10412,
+          10413,
+          10414,
+          10415,
+          10416,
+          10417,
+          10420,
+          10421,
+          10422,
+          10423,
+          10424,
+          10425,
+          10426,
+          10427,
+          10500,
+          10510,
+          11000,
+          11005,
+          11100,
+          11105,
+          11110,
+          11115,
+          11120,
+          11125,
+          12000,
+          12100,
+          12200,
+          12300,
+          12400,
+          13000,
+          13100,
+          14000,
+          14100,
+          14200,
+          14300,
+          14400
+        ]
+      },
+      "PricingTierModel": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "ThresholdFrom": {
+            "type": "integer",
+            "description": "Inclusive lower bound of the tier, in product units",
+            "format": "int64"
+          },
+          "ThresholdTo": {
+            "type": "integer",
+            "description": "Exclusive upper bound of the tier, in product units. Null for the unbounded top tier",
+            "format": "int64",
+            "nullable": true
+          },
+          "PricePerUnit": {
+            "type": "number",
+            "description": "Price per unit within this tier",
+            "format": "decimal"
+          },
+          "TierOrder": {
+            "type": "integer",
+            "description": "Tier ordering, ascending",
+            "format": "int32"
+          },
+          "Description": {
+            "type": "string",
+            "description": "Optional tier description",
+            "nullable": true
+          }
+        }
+      },
+      "CdnTierPricingModel": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "PricePerGb": {
+            "type": "number",
+            "description": "Effective price per GB",
+            "format": "double"
+          },
+          "DefaultPricePerGb": {
+            "type": "number",
+            "description": "Public list price per GB",
+            "format": "double"
+          },
+          "IsOverridden": {
+            "type": "boolean",
+            "description": "Whether the customer has an explicit price override"
+          },
+          "EnabledPops": {
+            "type": "string",
+            "description": "Comma-separated enabled PoP codes, if configured",
+            "nullable": true
+          },
+          "DisabledPops": {
+            "type": "string",
+            "description": "Comma-separated disabled PoP codes, if configured",
+            "nullable": true
+          },
+          "ExtraPops": {
+            "type": "string",
+            "description": "Comma-separated extra PoP codes, if configured (Volume tier only)",
+            "nullable": true
+          }
+        }
+      },
+      "CdnStandardTierDiscountModel": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "NorthAmericaEuropePercent": {
+            "type": "number",
+            "description": "Discount % for North America / Europe",
+            "format": "double"
+          },
+          "AsiaOceaniaPercent": {
+            "type": "number",
+            "description": "Discount % for Asia & Oceania",
+            "format": "double"
+          },
+          "SouthAmericaPercent": {
+            "type": "number",
+            "description": "Discount % for South America",
+            "format": "double"
+          },
+          "AfricaPercent": {
+            "type": "number",
+            "description": "Discount % for Africa",
+            "format": "double"
+          }
+        }
+      },
+      "CdnVolumeTierPricingModel": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "Under100TbPerGb": {
+            "type": "number",
+            "description": "Price per GB for the <100TB tier. Null means list pricing",
+            "format": "double",
+            "nullable": true
+          },
+          "From100TbPerGb": {
+            "type": "number",
+            "description": "Price per GB for the 100TB-500TB tier. Null means list pricing",
+            "format": "double",
+            "nullable": true
+          },
+          "From500TbPerGb": {
+            "type": "number",
+            "description": "Price per GB for the 500TB-1PB tier. Null means list pricing",
+            "format": "double",
+            "nullable": true
+          },
+          "From1000TbPerGb": {
+            "type": "number",
+            "description": "Price per GB for the 1PB-2PB tier. Null means list pricing",
+            "format": "double",
+            "nullable": true
+          },
+          "From2000TbPerGb": {
+            "type": "number",
+            "description": "Price per GB for the >2PB tier. Null means list pricing",
+            "format": "double",
+            "nullable": true
+          }
+        }
+      },
+      "StoragePricingModel": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "DiscountPercent": {
+            "type": "number",
+            "description": "Storage discount percentage",
+            "format": "double"
+          },
+          "EdgePerTbMonth": {
+            "type": "number",
+            "description": "Effective edge storage price per TB per month",
+            "format": "double"
+          },
+          "DefaultEdgePerTbMonth": {
+            "type": "number",
+            "description": "Public list edge storage price per TB per month",
+            "format": "double"
+          },
+          "EdgeIsOverridden": {
+            "type": "boolean",
+            "description": "Whether edge storage has an explicit price override"
+          },
+          "StandardPerTbMonth": {
+            "type": "number",
+            "description": "Effective standard storage price per TB per month",
+            "format": "double"
+          },
+          "DefaultStandardPerTbMonth": {
+            "type": "number",
+            "description": "Public list standard storage price per TB per month",
+            "format": "double"
+          },
+          "StandardIsOverridden": {
+            "type": "boolean",
+            "description": "Whether standard storage has an explicit price override"
+          }
+        }
+      },
+      "OptimizerPricingModel": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "PerZoneMonth": {
+            "type": "number",
+            "description": "Effective Optimizer price per zone per month",
+            "format": "decimal"
+          },
+          "DefaultPerZoneMonth": {
+            "type": "number",
+            "description": "Public list Optimizer price per zone per month",
+            "format": "decimal"
+          },
+          "IsOverridden": {
+            "type": "boolean",
+            "description": "Whether the price differs from the list price"
+          }
+        }
+      },
+      "ExtraZonePricingModel": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "FreePullZones": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "ExtraPullZonePrice": {
+            "type": "number",
+            "format": "decimal",
+            "nullable": true
+          },
+          "FreeStorageZones": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "ExtraStorageZonePrice": {
+            "type": "number",
+            "format": "decimal",
+            "nullable": true
+          },
+          "FreeDnsZones": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "ExtraDnsZonePrice": {
+            "type": "number",
+            "format": "decimal",
+            "nullable": true
+          },
+          "FreeVideoLibraries": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "ExtraVideoLibraryPrice": {
+            "type": "number",
+            "format": "decimal",
+            "nullable": true
+          }
+        }
+      },
+      "BunnyShieldPricingModel": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "Basic": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/BunnyShieldTierModel"
+              }
+            ]
+          },
+          "Advanced": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/BunnyShieldTierModel"
+              }
+            ]
+          },
+          "Business": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/BunnyShieldTierModel"
+              }
+            ]
+          },
+          "Enterprise": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/BunnyShieldTierModel"
+              }
+            ]
+          }
+        }
+      },
+      "BunnyShieldTierModel": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "MonthlyCost": {
+            "type": "number",
+            "description": "Monthly subscription cost for the tier",
+            "format": "decimal"
+          },
+          "DefaultMonthlyCost": {
+            "type": "number",
+            "description": "Public list monthly subscription cost",
+            "format": "decimal"
+          },
+          "OveragesCostPerMillion": {
+            "type": "number",
+            "description": "Overage cost per 1M requests",
+            "format": "decimal"
+          },
+          "DefaultOveragesCostPerMillion": {
+            "type": "number",
+            "description": "Public list overage cost per 1M requests",
+            "format": "decimal"
+          },
+          "IncludedRequests": {
+            "type": "integer",
+            "description": "Requests included in the tier before overages apply",
+            "format": "int64"
+          }
+        }
+      },
+      "DrmPricingModel": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "BaseFeePerLibraryMonth": {
+            "type": "number",
+            "description": "Effective DRM base fee per library per month",
+            "format": "decimal"
+          },
+          "DefaultBaseFeePerLibraryMonth": {
+            "type": "number",
+            "description": "Public list DRM base fee per library per month",
+            "format": "decimal"
+          },
+          "LicenseCost": {
+            "type": "number",
+            "description": "Effective per-license cost, if overridden",
+            "format": "decimal",
+            "nullable": true
+          },
+          "DefaultLicenseCost": {
+            "type": "number",
+            "description": "Public list per-license cost",
+            "format": "decimal"
+          }
+        }
+      },
+      "TieredUnitPriceModel": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "PricePerUnit": {
+            "type": "number",
+            "description": "Effective flat price per unit. Null when the customer is on tiered pricing (see Tiers)",
+            "format": "decimal",
+            "nullable": true
+          },
+          "DefaultPricePerUnit": {
+            "type": "number",
+            "description": "Public list price per unit. Null when there is no known list price for this product",
+            "format": "decimal",
+            "nullable": true
+          },
+          "Unit": {
+            "type": "string",
+            "description": "The unit the price applies to, e.g. \"minute\" or \"1M queries\"",
+            "nullable": true
+          },
+          "IsOverridden": {
+            "type": "boolean",
+            "description": "Whether the customer has an explicit override (flat or tiered)"
+          },
+          "Tiers": {
+            "type": "array",
+            "description": "Pricing tiers, populated when the customer is on tiered pricing for this product",
+            "nullable": true,
+            "items": {
+              "$ref": "#/components/schemas/PricingTierModel"
+            }
+          }
+        }
+      },
+      "EdgeScriptingPricingModel": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "RequestsPerMillion": {
+            "type": "number",
+            "description": "Effective price per 1M requests",
+            "format": "decimal"
+          },
+          "DefaultRequestsPerMillion": {
+            "type": "number",
+            "description": "Public list price per 1M requests",
+            "format": "decimal"
+          },
+          "RequestsIsOverridden": {
+            "type": "boolean",
+            "description": "Whether requests pricing is overridden"
+          },
+          "CpuPer1000Seconds": {
+            "type": "number",
+            "description": "Effective CPU price per 1000 seconds",
+            "format": "decimal"
+          },
+          "DefaultCpuPer1000Seconds": {
+            "type": "number",
+            "description": "Public list CPU price per 1000 seconds",
+            "format": "decimal"
+          },
+          "CpuIsOverridden": {
+            "type": "boolean",
+            "description": "Whether CPU pricing is overridden"
+          }
+        }
+      },
+      "BunnyDbPricingModel": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "ColdStorage": {
+            "description": "Cold storage price per GB per month",
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/TieredUnitPriceModel"
+              }
+            ]
+          },
+          "ActiveStorage": {
+            "description": "Active (replica) storage price per GB per month",
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/TieredUnitPriceModel"
+              }
+            ]
+          },
+          "RowReads": {
+            "description": "Row reads price per billion reads",
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/TieredUnitPriceModel"
+              }
+            ]
+          },
+          "RowWrites": {
+            "description": "Row writes price per million writes",
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/TieredUnitPriceModel"
+              }
+            ]
+          }
+        }
+      },
+      "InvitePartnerCustomerRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "Email"
+        ],
+        "properties": {
+          "Email": {
+            "type": "string",
+            "description": "Email of the existing bunny.net user to invite as a customer.",
+            "format": "email",
+            "minLength": 1
+          }
+        }
+      },
+      "PartnerCustomerListItemModel": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "Id": {
+            "type": "integer",
+            "description": "Primary key of the partner-customer relationship row",
+            "format": "int64"
+          },
+          "CustomerUserId": {
+            "type": "string",
+            "description": "User id of the customer",
+            "nullable": true
+          },
+          "Email": {
+            "type": "string",
+            "description": "Email of the customer",
+            "nullable": true
+          },
+          "CompanyName": {
+            "type": "string",
+            "description": "Company name of the customer, if set on their account",
+            "nullable": true
+          },
+          "ContractBillingType": {
+            "description": "Billing type agreed in the contract with the partner. Null if no contract is set\n\n1 = Pay As You Go\n2 = Post Paid",
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/PartnerContractBillingType"
+              }
+            ]
+          },
+          "ContractValue": {
+            "type": "number",
+            "description": "Contract value agreed with the partner.",
+            "format": "decimal",
+            "nullable": true
+          },
+          "Currency": {
+            "description": "Currency of the contract value.\n\n0 = US Dollar\n1 = Euro",
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/PartnerCustomerContractCurrency"
+              }
+            ]
+          },
+          "ContractStartDate": {
+            "type": "string",
+            "description": "Contract start date.",
+            "format": "date-time",
+            "nullable": true
+          },
+          "ContractEndDate": {
+            "type": "string",
+            "description": "Contract end date.",
+            "format": "date-time",
+            "nullable": true
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "AccessKey": {
+        "type": "apiKey",
+        "description": "API Access Key authorization header",
+        "name": "AccessKey",
+        "in": "header"
+      },
+      "bearer": {
+        "type": "apiKey",
+        "description": "Bearer token authorization header",
+        "name": "Authorization",
+        "in": "header"
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "Customers"
+    },
+    {
+      "name": "Audit Log"
+    },
+    {
+      "name": "Contract"
+    },
+    {
+      "name": "Billing"
+    },
+    {
+      "name": "Pricing"
+    },
+    {
+      "name": "Products"
+    }
+  ]
+}

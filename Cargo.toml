@@ -1,0 +1,58 @@
+[package]
+name = "bunnysdk"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.88"
+description = "Unofficial async Rust SDK for the bunny.net APIs: CDN, DNS, Storage, Stream, Shield, Edge Scripting, Magic Containers, Database"
+license = "MIT"
+repository = "https://github.com/rkwap/bunnysdk-rs"
+documentation = "https://docs.rs/bunnysdk"
+readme = "README.md"
+keywords = ["bunny", "bunnycdn", "cdn", "storage", "api"]
+categories = ["api-bindings", "web-programming::http-client"]
+exclude = ["specs/", "xtask/", ".github/", ".cargo/", ".gitattributes"]
+
+# One feature per API. All are on by default; disable the ones you don't use
+# to cut compile time: `default-features = false, features = ["storage"]`.
+[features]
+default = [
+    "core",
+    "compute",
+    "shield",
+    "stream",
+    "containers",
+    "database",
+    "origin-errors",
+    "partner",
+    "storage",
+    "logging",
+]
+core = []
+compute = []
+shield = []
+stream = []
+containers = []
+database = []
+origin-errors = []
+partner = []
+storage = []
+logging = []
+
+[dependencies]
+base64 = "0.23"
+bytes = "1"
+percent-encoding = "2"
+reqwest = { version = "0.13", features = ["json", "stream"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+sha2 = "0.11"
+thiserror = "2"
+tokio = { version = "1", features = ["fs", "io-util", "time"] }
+tracing = "0.1"
+
+[dev-dependencies]
+tokio = { version = "1", features = ["fs", "macros", "rt-multi-thread"] }
+wiremock = "0.6"
+
+[workspace]
+members = ["xtask"]

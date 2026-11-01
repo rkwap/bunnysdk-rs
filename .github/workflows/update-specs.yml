@@ -1,0 +1,115 @@
+name: Update specs
+
+# Weekly: download bunny.net's official OpenAPI specs, regenerate the code,
+# build and test it, and open (or update) a pull request with the changes.
+#
+# Needs: Settings > Actions > General > "Allow GitHub Actions to create and
+# approve pull requests". PRs opened with the workflow token do not trigger
+# other workflows, so this job runs the checks itself and reports them in the PR.
+
+on:
+  schedule:
+    - cron: "17 4 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency: update-specs
+
+env:
+  CARGO_TERM_COLOR: always
+  BRANCH: specs/update
+  BOT_EMAIL: 41898282+github-actions[bot]@users.noreply.github.com
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # The branch is rebuilt from main each run, so don't overwrite fixes a
+      # maintainer pushed to an open PR; they land first.
+      - name: Check the PR branch for manual commits
+        id: guard
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          skip=false
+          if [ "$(gh pr view "$BRANCH" --json state -q .state 2>/dev/null)" = "OPEN" ]; then
+            authors=$(git log "origin/main..origin/$BRANCH" --format=%ae | sort -u | grep -vxF "$BOT_EMAIL" || true)
+            if [ -n "$authors" ]; then
+              echo "::warning::$BRANCH has commits by: $authors. Merge or close its PR; the specs will be refreshed on the next run."
+              skip=true
+            fi
+          fi
+          echo "skip=$skip" >> "$GITHUB_OUTPUT"
+
+      - uses: dtolnay/rust-toolchain@stable
+        if: steps.guard.outputs.skip == 'false'
+        with:
+          components: rustfmt, clippy
+      - uses: Swatinem/rust-cache@v2
+        if: steps.guard.outputs.skip == 'false'
+
+      - run: cargo xtask update-specs
+        if: steps.guard.outputs.skip == 'false'
+
+      - name: Regenerate code
+        id: codegen
+        if: steps.guard.outputs.skip == 'false'
+        continue-on-error: true
+        run: cargo xtask codegen
+
+      - name: Detect changes
+        id: diff
+        if: steps.guard.outputs.skip == 'false'
+        run: |
+          # Includes untracked files, e.g. the first spec of a new API.
+          if [ -z "$(git status --porcelain -- specs src/generated)" ]; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Build and test
+        id: test
+        if: steps.diff.outputs.changed == 'true' && steps.codegen.outcome == 'success'
+        continue-on-error: true
+        run: |
+          cargo clippy --all-targets -- -D warnings
+          cargo test
+
+      - name: Open or update pull request
+        if: steps.diff.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          CODEGEN: ${{ steps.codegen.outcome }}
+          TESTS: ${{ steps.test.outcome }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "$BOT_EMAIL"
+          git checkout -B "$BRANCH"
+          git add specs src/generated
+          git commit -m "Update bunny.net OpenAPI specs"
+          git push --force origin "$BRANCH"
+
+          body=$(printf '%s\n' \
+            "Weekly refresh of the official bunny.net OpenAPI specs." \
+            "" \
+            "| Step | Result |" \
+            "|---|---|" \
+            "| \`cargo xtask codegen\` | $CODEGEN |" \
+            "| clippy + tests | ${TESTS:-skipped} |" \
+            "" \
+            "Review the spec diff for breaking changes. If codegen failed (e.g. a new" \
+            "duplicate method name), add an override in \`xtask/src/main.rs\`.")
+
+          if [ "$(gh pr view "$BRANCH" --json state -q .state 2>/dev/null)" = "OPEN" ]; then
+            gh pr edit "$BRANCH" --body "$body"
+          else
+            gh pr create --head "$BRANCH" --title "Update bunny.net OpenAPI specs" --body "$body"
+          fi
