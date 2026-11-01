@@ -395,5 +395,7 @@ fn every_client_has_a_default_base_url() {
     assert!(bunnysdk::compute::ComputeClient::new("key").is_ok());
     assert!(bunnysdk::origin_errors::OriginErrorsClient::new("key").is_ok());
     assert_eq!(bunnysdk::partner::BASE_URL, "https://api.bunny.net");
+    // A required query parameter defaults to the spec's minimum, not 0.
+    assert_eq!(bunnysdk::database::ListDatabasesQuery::default().page, 1);
     assert!(bunnysdk::database::DatabaseClient::new("").is_err());
 }

@@ -445,6 +445,10 @@ impl<'a> Generator<'a> {
             let qname = self.unique(&format!("{pascal}Query"));
             let mut fields = String::new();
             let mut idents = HashSet::new();
+            // `Default` values: the spec's default (or minimum) for required
+            // parameters, so `&Default::default()` makes a valid request.
+            let mut defaults = Vec::new();
+            let mut custom_default = false;
             for p in query {
                 let json_name = p["name"].as_str().ok_or("query parameter without name")?;
                 let mut ident = field_ident(json_name);
@@ -461,7 +465,16 @@ impl<'a> Generator<'a> {
                 if required {
                     writeln!(fields, "    #[serde(rename = {json_name:?})]")?;
                     writeln!(fields, "    pub {ident}: {ty},")?;
+                    let (inner, _) = unwrap_nullable(&schema);
+                    match default_literal(&inner) {
+                        Some(value) => {
+                            custom_default = true;
+                            defaults.push(format!("{ident}: {value}"));
+                        }
+                        None => defaults.push(format!("{ident}: Default::default()")),
+                    }
                 } else {
+                    defaults.push(format!("{ident}: None"));
                     writeln!(
                         fields,
                         "    #[serde(rename = {json_name:?}, skip_serializing_if = \"Option::is_none\")]"
@@ -469,14 +482,30 @@ impl<'a> Generator<'a> {
                     writeln!(fields, "    pub {ident}: Option<{ty}>,")?;
                 }
             }
+            let derives = if custom_default {
+                "Debug, Clone, PartialEq, Serialize"
+            } else {
+                "Debug, Clone, Default, PartialEq, Serialize"
+            };
             writeln!(
                 self.types,
                 "/// Query parameters for [`{client}::{name}`].\n\
-                 #[derive(Debug, Clone, Default, PartialEq, Serialize)]\n\
+                 #[derive({derives})]\n\
                  pub struct {qname} {{\n{fields}}}\n",
                 client = self.spec.client,
                 name = name.trim_start_matches("r#"),
             )?;
+            if custom_default {
+                writeln!(
+                    self.types,
+                    "impl Default for {qname} {{\n\
+                     fn default() -> Self {{\n\
+                     Self {{ {} }}\n\
+                     }}\n\
+                     }}\n",
+                    defaults.join(", ")
+                )?;
+            }
             args.push(format!("query: &{qname}"));
             Some(qname)
         };
@@ -957,6 +986,25 @@ fn enum_names(s: &Value) -> Option<Vec<String>> {
         .map(|v| v.as_i64().and_then(|v| by_value.get(&v).cloned()))
         .collect();
     names
+}
+
+/// A Rust literal for a scalar schema's `default`, or for an integer's
+/// positive `minimum` (where the type's zero default would be invalid).
+fn default_literal(s: &Value) -> Option<String> {
+    match (s.get("type").and_then(Value::as_str), s.get("default")) {
+        (Some("string"), Some(Value::String(v))) => Some(format!("{v:?}.into()")),
+        (Some("boolean"), Some(Value::Bool(v))) => Some(v.to_string()),
+        (Some("integer"), Some(Value::Number(v))) if v.is_i64() || v.is_u64() => {
+            Some(v.to_string())
+        }
+        (Some("number"), Some(Value::Number(v))) => Some(format!("{:?}", v.as_f64()?)),
+        (Some("integer"), None) => s
+            .get("minimum")
+            .and_then(Value::as_i64)
+            .filter(|min| *min > 0)
+            .map(|min| min.to_string()),
+        _ => None,
+    }
 }
 
 fn int_type(s: &Value) -> &'static str {

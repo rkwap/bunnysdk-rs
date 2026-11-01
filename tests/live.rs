@@ -94,15 +94,18 @@ impl Checks {
         }
     }
 
-    /// Like [`Checks::run`], but a 404 (feature not enabled on the account) is fine.
-    async fn run_allow_404<T>(
+    /// Like [`Checks::run`], but these statuses are fine too: the resource
+    /// or feature doesn't exist on this account (e.g. 404, or 403 for a
+    /// feature that isn't enabled).
+    async fn run_allowing<T>(
         &mut self,
+        statuses: &[u16],
         what: &str,
         call: impl Future<Output = bunnysdk::Result<T>>,
     ) -> Option<T> {
         match call.await {
-            Err(e) if e.is_not_found() => {
-                println!("ok   {}: {what} (404: {e})", self.api);
+            Err(e) if e.status().is_some_and(|s| statuses.contains(&s)) => {
+                println!("ok   {}: {what} ({e})", self.api);
                 None
             }
             other => self.run(what, async { other }).await,
@@ -240,7 +243,8 @@ async fn compute_read_only() {
         .await;
     if let Some(id) = scripts.and_then(|s| s.items?.into_iter().find_map(|s| s.id)) {
         c.run("get_edge_script", compute.get_edge_script(id)).await;
-        c.run("get_active_release", compute.get_active_release(id))
+        // Scripts that were never published have no active release.
+        c.run_allowing(&[404], "get_active_release", compute.get_active_release(id))
             .await;
     }
     c.finish();
@@ -349,14 +353,15 @@ async fn logging_and_origin_errors() {
         limit: Some(5),
         ..Default::default()
     };
-    c.run_allow_404("get_logs (v2)", logging.get_logs(pull_zone, &query))
+    c.run_allowing(&[404], "get_logs (v2)", logging.get_logs(pull_zone, &query))
         .await;
     let date = format!("{month:02}-{day:02}-{:02}", year % 100);
     let raw = bunnysdk::logging::RawLogQuery {
         end: Some(5),
         ..Default::default()
     };
-    c.run_allow_404(
+    c.run_allowing(
+        &[404],
         "get_raw_logs (v1)",
         logging.get_raw_logs(pull_zone, &date, &raw),
     )
@@ -364,7 +369,8 @@ async fn logging_and_origin_errors() {
 
     let origin = bunnysdk::origin_errors::OriginErrorsClient::with_config(&key, config()).unwrap();
     let date = format!("{month:02}-{day:02}-{year}");
-    c.run_allow_404(
+    c.run_allowing(
+        &[404],
         "origin_errors::get_origin_errors",
         origin.get_origin_errors(pull_zone, &date),
     )
@@ -418,7 +424,9 @@ async fn stream_roundtrip() {
         stream.get_collection_list(library_id, &Default::default()),
     )
     .await;
-    c.run_allow_404(
+    // 403 when live streaming isn't enabled for the library.
+    c.run_allowing(
+        &[403, 404],
         "list_live_streams",
         stream.list_live_streams(library_id, &Default::default()),
     )

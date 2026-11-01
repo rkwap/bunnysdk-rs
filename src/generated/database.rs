@@ -1810,7 +1810,7 @@ pub struct GetOptimalSingleRegionConfigQuery {
 }
 
 /// Query parameters for [`DatabaseClient::list_databases`].
-#[derive(Debug, Clone, Default, PartialEq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Serialize)]
 pub struct ListDatabasesQuery {
     /// Search over the group name
     #[serde(rename = "search", skip_serializing_if = "Option::is_none")]
@@ -1820,6 +1820,16 @@ pub struct ListDatabasesQuery {
     /// Items per page. Defaults to 50; `0` is rejected.
     #[serde(rename = "per_page", skip_serializing_if = "Option::is_none")]
     pub per_page: Option<u32>,
+}
+
+impl Default for ListDatabasesQuery {
+    fn default() -> Self {
+        Self {
+            search: None,
+            page: 1,
+            per_page: None,
+        }
+    }
 }
 
 /// Query parameters for [`DatabaseClient::get_database_usage`].
