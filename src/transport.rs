@@ -3,9 +3,12 @@
 use std::time::{Duration, Instant};
 
 use bytes::Bytes;
+use percent_encoding::{AsciiSet, NON_ALPHANUMERIC, utf8_percent_encode};
 use reqwest::header::{CONTENT_TYPE, HeaderValue, RETRY_AFTER, USER_AGENT};
-use reqwest::{Method, RequestBuilder, Response, StatusCode};
+use reqwest::{Method, RequestBuilder, Response, StatusCode, Url};
+use serde::Serialize;
 use serde::de::DeserializeOwned;
+use serde_json::Value;
 
 use crate::config::Config;
 use crate::error::{ApiError, Error, Result, truncate};
@@ -13,6 +16,45 @@ use crate::error::{ApiError, Error, Result, truncate};
 const CONNECT_TIMEOUT: Duration = Duration::from_secs(10);
 const MAX_BACKOFF: Duration = Duration::from_secs(10);
 const MAX_RETRY_AFTER: Duration = Duration::from_secs(60);
+
+/// Characters left as-is in a URL path segment (RFC 3986 unreserved).
+pub(crate) const SEGMENT: &AsciiSet = &NON_ALPHANUMERIC
+    .remove(b'-')
+    .remove(b'.')
+    .remove(b'_')
+    .remove(b'~');
+
+/// Percent-encodes a value for use as one URL path segment.
+pub(crate) fn segment(value: impl std::fmt::Display) -> String {
+    utf8_percent_encode(&value.to_string(), SEGMENT).to_string()
+}
+
+/// Turns a serializable query struct into `key=value` pairs.
+/// `None` fields are skipped and arrays become repeated keys.
+fn query_pairs<Q: Serialize>(query: &Q) -> Result<Vec<(String, String)>> {
+    let value = serde_json::to_value(query)
+        .map_err(|e| Error::InvalidInput(format!("invalid query parameters: {e}")))?;
+    let Value::Object(map) = value else {
+        return Err(Error::InvalidInput(
+            "query parameters must be a struct".into(),
+        ));
+    };
+    let scalar = |v: Value| match v {
+        Value::String(s) => s,
+        other => other.to_string(),
+    };
+    let mut pairs = Vec::new();
+    for (key, value) in map {
+        match value {
+            Value::Null => {}
+            Value::Array(items) => {
+                pairs.extend(items.into_iter().map(|item| (key.clone(), scalar(item))));
+            }
+            other => pairs.push((key, scalar(other))),
+        }
+    }
+    Ok(pairs)
+}
 
 #[derive(Debug, Clone)]
 pub(crate) struct Transport {
@@ -63,10 +105,49 @@ impl Transport {
 
     /// Starts a request to `path` (which must begin with `/`), with auth headers set.
     pub(crate) fn request(&self, method: Method, path: &str) -> RequestBuilder {
-        self.http
-            .request(method, format!("{}{}", self.base_url, path))
+        self.authorize(
+            self.http
+                .request(method, format!("{}{}", self.base_url, path)),
+        )
+    }
+
+    /// Like [`Transport::request`], with query parameters from a serializable struct.
+    pub(crate) fn request_with_query<Q: Serialize>(
+        &self,
+        method: Method,
+        path: &str,
+        query: &Q,
+    ) -> Result<RequestBuilder> {
+        let mut url = Url::parse(&format!("{}{}", self.base_url, path))
+            .map_err(|e| Error::InvalidInput(format!("invalid request path {path:?}: {e}")))?;
+        let pairs = query_pairs(query)?;
+        if !pairs.is_empty() {
+            url.query_pairs_mut().extend_pairs(pairs);
+        }
+        Ok(self.authorize(self.http.request(method, url)))
+    }
+
+    fn authorize(&self, request: RequestBuilder) -> RequestBuilder {
+        request
             .header("AccessKey", self.access_key.clone())
             .header(USER_AGENT, self.user_agent.clone())
+    }
+
+    /// Starts a request to an absolute URL without the `AccessKey` header
+    /// (for endpoints that authenticate differently, like TUS uploads).
+    pub(crate) fn request_without_key(&self, method: Method, url: Url) -> RequestBuilder {
+        self.http
+            .request(method, url)
+            .header(USER_AGENT, self.user_agent.clone())
+    }
+
+    /// The API key, for computing signatures. Never log it.
+    pub(crate) fn api_key(&self) -> &str {
+        self.access_key.to_str().unwrap_or_default()
+    }
+
+    pub(crate) fn base_url(&self) -> &str {
+        &self.base_url
     }
 
     /// Sends a request, retrying when allowed. Non-success statuses become [`Error::Api`].
@@ -138,6 +219,12 @@ impl Transport {
     pub(crate) async fn bytes(&self, request: RequestBuilder) -> Result<Bytes> {
         Ok(self.send(request).await?.bytes().await?)
     }
+
+    /// Sends a request and returns the response body as text.
+    pub(crate) async fn text(&self, request: RequestBuilder) -> Result<String> {
+        let body = self.bytes(request).await?;
+        Ok(String::from_utf8_lossy(&body).into_owned())
+    }
 }
 
 fn decode_json<T: DeserializeOwned>(status: u16, content_type: String, body: &[u8]) -> Result<T> {
@@ -147,11 +234,21 @@ fn decode_json<T: DeserializeOwned>(status: u16, content_type: String, body: &[u
     } else {
         body
     };
-    serde_json::from_slice(input).map_err(|source| Error::Decode {
-        status,
-        content_type,
-        body: truncate(&String::from_utf8_lossy(body), 200),
-        source,
+    serde_json::from_slice(input).or_else(|source| {
+        // Core API list endpoints are documented as returning an array, but
+        // return `{ "Items": [...], ... }` when a page number is given.
+        if let Ok(Value::Object(mut page)) = serde_json::from_slice::<Value>(input)
+            && let Some(items @ Value::Array(_)) = page.remove("Items")
+            && let Ok(decoded) = serde_json::from_value(items)
+        {
+            return Ok(decoded);
+        }
+        Err(Error::Decode {
+            status,
+            content_type,
+            body: truncate(&String::from_utf8_lossy(body), 200),
+            source,
+        })
     })
 }
 
@@ -233,11 +330,54 @@ mod tests {
     }
 
     #[test]
+    fn paginated_object_decodes_as_list() {
+        let body = br#"{"Items":[1,2],"CurrentPage":1,"TotalItems":2,"HasMoreItems":false}"#;
+        let items: Vec<u32> = decode_json(200, "application/json".into(), body).unwrap();
+        assert_eq!(items, [1, 2]);
+    }
+
+    #[test]
     fn html_body_is_a_decode_error() {
         let err =
             decode_json::<Vec<u32>>(200, "text/html".into(), b"<html>login</html>").unwrap_err();
         assert!(matches!(err, Error::Decode { status: 200, .. }));
         assert!(err.to_string().contains("text/html"));
+    }
+
+    #[test]
+    fn query_pairs_skip_none_and_repeat_arrays() {
+        #[derive(Serialize)]
+        struct Q {
+            page: Option<i32>,
+            search: Option<String>,
+            #[serde(rename = "Tags")]
+            tags: Vec<String>,
+            flag: bool,
+        }
+        let mut pairs = query_pairs(&Q {
+            page: Some(2),
+            search: None,
+            tags: vec!["a".into(), "b c".into()],
+            flag: true,
+        })
+        .unwrap();
+        pairs.sort();
+        let expect = [
+            ("Tags", "a"),
+            ("Tags", "b c"),
+            ("flag", "true"),
+            ("page", "2"),
+        ];
+        assert_eq!(
+            pairs,
+            expect.map(|(k, v)| (k.to_owned(), v.to_owned())).to_vec()
+        );
+    }
+
+    #[test]
+    fn segment_encodes_reserved_characters() {
+        assert_eq!(segment("a b/c?d"), "a%20b%2Fc%3Fd");
+        assert_eq!(segment(42), "42");
     }
 
     #[test]

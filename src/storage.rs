@@ -20,7 +20,6 @@ use std::fmt;
 use std::str::FromStr;
 
 use bytes::Bytes;
-use percent_encoding::{AsciiSet, NON_ALPHANUMERIC, utf8_percent_encode};
 use reqwest::header::CONTENT_TYPE;
 use reqwest::{Body, Method};
 use serde::Deserialize;
@@ -28,14 +27,7 @@ use sha2::{Digest, Sha256};
 
 use crate::config::Config;
 use crate::error::{Error, Result};
-use crate::transport::Transport;
-
-/// Characters left as-is in a path segment (RFC 3986 unreserved).
-const SEGMENT: &AsciiSet = &NON_ALPHANUMERIC
-    .remove(b'-')
-    .remove(b'.')
-    .remove(b'_')
-    .remove(b'~');
+use crate::transport::{Transport, segment};
 
 /// The primary region of a storage zone, which decides the API hostname.
 ///
@@ -316,16 +308,16 @@ impl StorageClient {
     /// Builds `/{zone}/{segments...}`, percent-encoding each segment and
     /// keeping a trailing `/` for directories.
     fn url_path(&self, path: &str, allow_root: bool) -> Result<String> {
-        let mut out = format!("/{}", utf8_percent_encode(&self.zone, SEGMENT));
+        let mut out = format!("/{}", segment(&self.zone));
         let mut segments = 0;
-        for segment in path.split('/').filter(|s| !s.is_empty()) {
-            if segment == "." || segment == ".." {
+        for part in path.split('/').filter(|s| !s.is_empty()) {
+            if part == "." || part == ".." {
                 return Err(Error::InvalidInput(format!(
                     "path {path:?} must not contain '.' or '..'"
                 )));
             }
             out.push('/');
-            out.extend(utf8_percent_encode(segment, SEGMENT));
+            out.push_str(&segment(part));
             segments += 1;
         }
         if segments == 0 && !allow_root {

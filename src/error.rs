@@ -34,6 +34,10 @@ pub enum Error {
     /// An argument or setting was rejected before any request was sent.
     #[error("invalid input: {0}")]
     InvalidInput(String),
+
+    /// Reading local data failed (e.g. the file being uploaded).
+    #[error("I/O error: {0}")]
+    Io(#[from] std::io::Error),
 }
 
 impl Error {
@@ -43,7 +47,7 @@ impl Error {
             Error::Api(e) => Some(e.status),
             Error::Http(e) => e.status().map(|s| s.as_u16()),
             Error::Decode { status, .. } => Some(*status),
-            Error::InvalidInput(_) => None,
+            Error::InvalidInput(_) | Error::Io(_) => None,
         }
     }
 
@@ -111,12 +115,26 @@ pub(crate) fn truncate(text: &str, max: usize) -> String {
 }
 
 impl ApiError {
+    /// An error with just a status and message.
+    #[cfg_attr(not(feature = "stream"), allow(dead_code))]
+    pub(crate) fn new(status: u16, message: impl Into<String>) -> Self {
+        ApiError {
+            status,
+            message: message.into(),
+            error_key: None,
+            field: None,
+            validation_errors: Vec::new(),
+            body: String::new(),
+        }
+    }
+
     /// Builds an error from a non-success response body.
     ///
     /// bunny.net APIs use several error formats; the first match wins:
     /// - RFC 7807 `{ title, detail, errors[] }` (Magic Containers, Shield)
     /// - `{ ErrorKey, Field, Message }` (Core, Compute, Storage `{ HttpCode, Message }`)
     /// - `{ success, message, statusCode }` (Stream)
+    /// - `{ error: { code, message, details[] } }` (Logging)
     ///
     /// Ported from the official bunny.net TypeScript client (MIT, BunnyWay d.o.o.).
     pub(crate) fn from_body(status: u16, body: &[u8]) -> Self {
@@ -138,13 +156,25 @@ impl ApiError {
         };
 
         if let Some(obj) = obj {
-            let s = |key: &str| {
-                obj.get(key)
-                    .and_then(Value::as_str)
-                    .filter(|s| !s.is_empty())
-                    .map(str::to_owned)
-            };
-            if let Some(msg) = s("detail").or_else(|| s("title")) {
+            let s = |key: &str| text_field(obj, key);
+            let logging = obj.get("error").filter(|e| e.is_object());
+            if let Some(msg) = logging.and_then(|e| text_field(e, "message")) {
+                // Logging API: { error: { code, message, details: [..] } }
+                let inner = logging.expect("checked above");
+                err.message = msg;
+                err.error_key = text_field(inner, "code");
+                err.validation_errors = inner
+                    .get("details")
+                    .and_then(Value::as_array)
+                    .into_iter()
+                    .flatten()
+                    .filter_map(Value::as_str)
+                    .map(|d| ValidationError {
+                        field: None,
+                        message: d.to_owned(),
+                    })
+                    .collect();
+            } else if let Some(msg) = s("detail").or_else(|| s("title")) {
                 err.message = msg;
                 if let Some(list) = obj.get("errors") {
                     err.validation_errors =
@@ -181,9 +211,31 @@ impl ApiError {
     }
 }
 
+/// A non-empty string field of a JSON object.
+fn text_field(obj: &Value, key: &str) -> Option<String> {
+    obj.get(key)
+        .and_then(Value::as_str)
+        .filter(|s| !s.is_empty())
+        .map(str::to_owned)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn logging_format() {
+        let e = ApiError::from_body(
+            400,
+            br#"{"error":{"code":"invalid_request","message":"One or more query parameters are invalid.","details":["limit must be between 1 and 10000."]}}"#,
+        );
+        assert_eq!(e.message, "One or more query parameters are invalid.");
+        assert_eq!(e.error_key.as_deref(), Some("invalid_request"));
+        assert_eq!(
+            e.validation_errors[0].message,
+            "limit must be between 1 and 10000."
+        );
+    }
 
     #[test]
     fn core_format() {

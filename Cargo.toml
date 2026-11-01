@@ -9,8 +9,34 @@ repository = "https://github.com/rkwap/bunnysdk-rs"
 readme = "README.md"
 keywords = ["bunny", "bunnycdn", "cdn", "storage", "api"]
 categories = ["api-bindings", "web-programming::http-client"]
+exclude = ["specs/", "xtask/", ".github/"]
+
+# One feature per API. All are on by default; disable the ones you don't use
+# to cut compile time: `default-features = false, features = ["storage"]`.
+[features]
+default = [
+    "core",
+    "compute",
+    "shield",
+    "stream",
+    "containers",
+    "database",
+    "origin-errors",
+    "storage",
+    "logging",
+]
+core = []
+compute = []
+shield = []
+stream = []
+containers = []
+database = []
+origin-errors = []
+storage = []
+logging = []
 
 [dependencies]
+base64 = "0.23"
 bytes = "1"
 percent-encoding = "2"
 reqwest = { version = "0.13", features = ["json", "stream"] }
@@ -18,9 +44,12 @@ serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 sha2 = "0.11"
 thiserror = "2"
-tokio = { version = "1", features = ["time"] }
+tokio = { version = "1", features = ["fs", "io-util", "time"] }
 tracing = "0.1"
 
 [dev-dependencies]
 tokio = { version = "1", features = ["fs", "macros", "rt-multi-thread"] }
 wiremock = "0.6"
+
+[workspace]
+members = ["xtask"]
