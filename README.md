@@ -2,49 +2,79 @@
 
 Async Rust SDK for the [bunny.net](https://bunny.net) APIs.
 
-- Typed errors: every API error format becomes one `ApiError { status, message, field, validation_errors, .. }`
-- Sensible defaults: idle timeout, rustls TLS, opt-in retries for 429 / 5xx
-- Bring your own `reqwest::Client` if you need proxies or custom TLS
-- No secrets in logs: requests are traced (method, path, status, time) without keys or bodies
+- **Complete:** 320 endpoints across 9 APIs, most generated from bunny.net's official OpenAPI specs.
+- **Kept current:** a weekly job refreshes the specs, regenerates, tests, and opens a PR.
+- **Typed errors:** bunny.net's five error formats become one `ApiError { status, message, field, validation_errors, .. }`.
+- **Robust decoding:** enums have an `Other(..)` variant and unknown fields are ignored, so API additions don't break you.
+- **Sensible defaults:** idle timeout, rustls TLS, opt-in retries for 429 / 5xx. Bring your own `reqwest::Client` if needed.
+- **No secrets in logs:** requests are traced (method, path, status, time) without keys or bodies.
 
-## Status
+## APIs
 
-| API | Module | Status |
-|---|---|---|
-| Edge Storage | `storage` | ✅ |
-| Core (pull zones, DNS, storage zones, …) | — | planned (generated from the official OpenAPI spec) |
-| Stream | — | planned |
-| Shield, Edge Scripting, Magic Containers, Database, Origin Errors | — | planned |
+| Module | API | Authenticates with | Source |
+|---|---|---|---|
+| `core` | Pull zones, DNS, storage zones, video libraries, billing, statistics, … | account API key | generated |
+| `compute` | Edge Scripting | account API key | generated |
+| `shield` | WAF, rate limits, bot detection, access lists | account API key | generated |
+| `containers` | Magic Containers | account API key | generated |
+| `database` | Managed libSQL databases | account API key | generated |
+| `origin_errors` | Origin error logs | account API key | generated |
+| `logging` | CDN request logs (v2 JSON, v1 raw) | account API key | hand-written |
+| `stream` | Videos, collections, captions + resumable TUS uploads | video library API key | generated + hand-written |
+| `storage` | Edge Storage files | storage zone password | hand-written |
 
-## Usage
+Each module is a Cargo feature (`origin-errors` for `origin_errors`), all on by default.
+
+## Install
 
 ```toml
 [dependencies]
 bunnysdk = { git = "https://github.com/rkwap/bunnysdk-rs" }
 tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
+
+# Or only what you use, for faster builds:
+# bunnysdk = { git = "...", default-features = false, features = ["core", "storage"] }
 ```
 
+Minimum supported Rust version: 1.88.
+
+## Usage
+
+### Core
+
 ```rust
-use bunnysdk::storage::{Region, StorageClient};
+use bunnysdk::core::{CoreClient, ListPullZonesQuery, PullZoneSettingsModel};
 
 #[tokio::main]
 async fn main() -> bunnysdk::Result<()> {
-    // Storage uses the storage zone password, not the account API key.
-    let storage = StorageClient::new("my-zone", "zone-password", Region::NewYork)?;
+    let core = CoreClient::new("account-api-key")?;
 
-    storage.upload("docs/hello.txt", "hello").await?;   // sends a SHA-256 checksum
-    for object in storage.list("docs").await? {
-        println!("{} ({} bytes)", object.object_name, object.length);
+    for zone in core.list_pull_zones(&ListPullZonesQuery::default()).await? {
+        println!("{:?} {:?}", zone.id, zone.name);
     }
 
-    match storage.download("docs/missing.txt").await {
-        Ok(bytes) => println!("{} bytes", bytes.len()),
-        Err(e) if e.is_not_found() => println!("not found"),
-        Err(e) => return Err(e),
-    }
-
-    storage.delete("docs/").await?; // trailing slash deletes the directory
+    // Updates send only the fields you set.
+    let settings = PullZoneSettingsModel {
+        origin_url: Some("https://origin.example.com".into()),
+        ..Default::default()
+    };
+    core.update_pull_zone(123, &settings).await?;
     Ok(())
+}
+```
+
+Generated types follow the API reference: fields the spec doesn't mark as required are `Option`s,
+query parameters are a `...Query` struct (`&Default::default()` when you need none), and each
+method's docs show its HTTP route.
+
+### Errors
+
+```rust
+match core.get_pull_zone(123, &Default::default()).await {
+    Ok(zone) => println!("{:?}", zone.name),
+    Err(e) if e.is_not_found() => println!("no such pull zone"),
+    Err(bunnysdk::Error::Api(e)) => println!("{} ({}): {:?}", e.message, e.status, e.field),
+    Err(e) => return Err(e),
 }
 ```
 
@@ -52,46 +82,104 @@ async fn main() -> bunnysdk::Result<()> {
 
 ```rust
 use std::time::Duration;
-use bunnysdk::{Config, storage::{Region, StorageClient}};
+use bunnysdk::{Config, core::CoreClient};
 
 let config = Config::new()
     .timeout(Duration::from_secs(60)) // idle timeout; default 30s
     .max_retries(3);                  // default 0
-let storage = StorageClient::with_config("my-zone", "zone-password", Region::Frankfurt, config)?;
+let core = CoreClient::with_config("account-api-key", config)?;
 ```
 
-### Large files
+`Config` also takes `base_url`, `user_agent`, and `http_client` (your own `bunnysdk::reqwest::Client`).
+
+### Edge Storage
 
 ```rust
-// Stream an upload from disk.
+use bunnysdk::storage::{Region, StorageClient};
+
+let storage = StorageClient::new("my-zone", "zone-password", Region::NewYork)?;
+storage.upload("docs/hello.txt", "hello").await?;   // sends a SHA-256 checksum
+let files = storage.list("docs").await?;
+let data = storage.download("docs/hello.txt").await?;
+storage.delete("docs/").await?;                       // trailing slash: whole directory
+
+// Large files: stream from disk / read in chunks.
 let file = tokio::fs::File::open("video.mp4").await?;
 storage.upload_with("videos/video.mp4", bunnysdk::reqwest::Body::from(file), Default::default()).await?;
-
-// Stream a download.
 let mut download = storage.download_stream("videos/video.mp4").await?;
-while let Some(chunk) = download.chunk().await? {
-    // write chunk
-}
+while let Some(chunk) = download.chunk().await? { /* write chunk */ }
 ```
 
-## Development
+### Stream
+
+```rust
+use std::time::Duration;
+use bunnysdk::stream::{CreateVideoModel, StreamClient, TusUpload};
+
+let stream = StreamClient::new("library-api-key")?;
+let video = stream
+    .create_video(42, &CreateVideoModel { title: "Intro".into(), ..Default::default() })
+    .await?;
+
+// Resumable upload in 8 MiB chunks; a failed chunk resumes from the server's offset.
+stream
+    .upload_file_resumable(42, &video.guid, "intro.mp4", &TusUpload::new("Intro", "video/mp4"))
+    .await?;
+
+// Or presign, and let a browser upload directly with tus-js-client.
+let auth = stream.tus_authorization(42, &video.guid, Duration::from_secs(3600));
+// serde_json::to_string(&auth) -> {"endpoint", "libraryId", "videoId", "expires", "signature"}
+```
+
+### Logging
+
+```rust
+use bunnysdk::logging::{LogQuery, LoggingClient};
+
+let logging = LoggingClient::new("account-api-key")?;
+let page = logging
+    .get_logs(1337, &LogQuery { status: Some("5xx".into()), ..Default::default() })
+    .await?;
+```
+
+## How it's built
+
+```
+specs/*.json          official OpenAPI specs (vendored)
+xtask/                cargo xtask update-specs | codegen
+src/generated/*.rs    generated clients + types (do not edit)
+src/{storage,logging,stream_upload}.rs   hand-written
+src/{transport,error,config,macros}.rs   shared runtime
+```
 
 ```sh
-cargo test                                   # unit + mock-server tests
-cargo test --test live -- --ignored          # live tests, needs the env vars below
+cargo xtask update-specs   # download the latest specs
+cargo xtask codegen        # regenerate src/generated
 ```
 
-Live tests need a **dedicated test storage zone** and only touch files under `bunnysdk-ci/`:
+Method names come from each operation's summary or operationId. When two operations would get the
+same name, codegen stops and asks for an override in `xtask/src/main.rs`.
 
-| Variable | Value |
+### CI
+
+- **CI** (`ci.yml`): fmt, clippy, tests, docs, generated code up to date, each feature alone, MSRV,
+  and live smoke tests when secrets are set.
+- **Update specs** (`update-specs.yml`): weekly; opens a PR with new specs and regenerated code,
+  reporting codegen and test results. Enable *Settings → Actions → General → Allow GitHub Actions
+  to create and approve pull requests*.
+
+### Live tests
+
+Ignored by default; CI runs them when these repository secrets exist:
+
+| Secret | Used by |
 |---|---|
-| `BUNNY_STORAGE_ZONE` | storage zone name |
-| `BUNNY_STORAGE_PASSWORD` | storage zone password |
-| `BUNNY_STORAGE_REGION` | region code: `de`, `uk`, `ny`, `la`, `sg`, `se`, `br`, `jh`, `syd` (default `de`) |
+| `BUNNY_API_KEY` | read-only Core calls |
+| `BUNNY_STORAGE_ZONE`, `BUNNY_STORAGE_PASSWORD`, `BUNNY_STORAGE_REGION` | storage round-trip in a **dedicated test zone**, under `bunnysdk-ci/` only |
 
-In CI, add them as repository secrets; the live job is skipped when they are missing.
-
-Minimum supported Rust version: 1.88.
+```sh
+BUNNY_API_KEY=... cargo test --test live -- --ignored
+```
 
 ## License
 

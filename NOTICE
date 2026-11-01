@@ -3,6 +3,10 @@ bunnysdk-rs includes logic adapted from the official bunny.net TypeScript client
 MIT License:
 
   - Normalisation of bunny.net API error responses (src/error.rs)
+  - The list of official OpenAPI spec URLs (xtask/src/main.rs)
+
+The files in specs/ are bunny.net's published OpenAPI documents
+(copyright BunnyWay d.o.o.), included to generate src/generated/.
 
 MIT License
 

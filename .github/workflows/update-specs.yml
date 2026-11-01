@@ -1,0 +1,88 @@
+name: Update specs
+
+# Weekly: download bunny.net's official OpenAPI specs, regenerate the code,
+# build and test it, and open (or update) a pull request with the changes.
+#
+# Needs: Settings > Actions > General > "Allow GitHub Actions to create and
+# approve pull requests". PRs opened with the workflow token do not trigger
+# other workflows, so this job runs the checks itself and reports them in the PR.
+
+on:
+  schedule:
+    - cron: "17 4 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency: update-specs
+
+env:
+  CARGO_TERM_COLOR: always
+  BRANCH: specs/update
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+      - uses: Swatinem/rust-cache@v2
+
+      - run: cargo xtask update-specs
+
+      - name: Regenerate code
+        id: codegen
+        continue-on-error: true
+        run: cargo xtask codegen
+
+      - name: Detect changes
+        id: diff
+        run: |
+          if git diff --quiet -- specs src/generated; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Build and test
+        id: test
+        if: steps.diff.outputs.changed == 'true' && steps.codegen.outcome == 'success'
+        continue-on-error: true
+        run: |
+          cargo clippy --all-targets -- -D warnings
+          cargo test
+
+      - name: Open or update pull request
+        if: steps.diff.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          CODEGEN: ${{ steps.codegen.outcome }}
+          TESTS: ${{ steps.test.outcome }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -B "$BRANCH"
+          git add specs src/generated
+          git commit -m "Update bunny.net OpenAPI specs"
+          git push --force origin "$BRANCH"
+
+          body=$(printf '%s\n' \
+            "Weekly refresh of the official bunny.net OpenAPI specs." \
+            "" \
+            "| Step | Result |" \
+            "|---|---|" \
+            "| \`cargo xtask codegen\` | $CODEGEN |" \
+            "| clippy + tests | ${TESTS:-skipped} |" \
+            "" \
+            "Review the spec diff for breaking changes. If codegen failed (e.g. a new" \
+            "duplicate method name), add an override in \`xtask/src/main.rs\`.")
+
+          if [ "$(gh pr view "$BRANCH" --json state -q .state 2>/dev/null)" = "OPEN" ]; then
+            gh pr edit "$BRANCH" --body "$body"
+          else
+            gh pr create --head "$BRANCH" --title "Update bunny.net OpenAPI specs" --body "$body"
+          fi
