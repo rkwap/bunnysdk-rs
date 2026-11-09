@@ -87,7 +87,7 @@ impl ContainersClient {
 
     /// Get Application Statistics Charts
     ///
-    /// Retrieves historical charts for an application over a specified time period: CPU, RAM and traffic per pod with the pod's region, latency, instances, active regions, and usage and capacity per volume with the volume's region.
+    /// Retrieves historical charts for an application over a specified time period: CPU, RAM, traffic and ephemeral storage usage and limit per pod with the pod's region, instances in total and per region, active regions, usage and capacity per volume with the volume's region and pods, and the rolling updates of the period per region.
     ///
     /// Returns: Application statistics charts were successfully retrieved.
     ///
@@ -1436,6 +1436,7 @@ pub struct ContainerRegistryRequest {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub r#type: Option<RegistryType>,
     /// The registry's host, with an optional port (e.g. "registry.example.com" or "registry.example.com:5000").
+    /// An https:// prefix and a namespace path ("rg.fr-par.scw.cloud/my-namespace") are dropped; http:// is refused.
     /// Required for the Oci type and ignored for the others.
     #[serde(rename = "hostName", skip_serializing_if = "Option::is_none")]
     pub host_name: Option<String>,
@@ -2727,28 +2728,42 @@ pub struct StatisticsCharts {
     pub active_regions_chart: Option<std::collections::HashMap<String, i32>>,
     #[serde(rename = "instancesChart", skip_serializing_if = "Option::is_none")]
     pub instances_chart: Option<std::collections::HashMap<String, i32>>,
+    #[serde(
+        rename = "instancesSplitChart",
+        skip_serializing_if = "Option::is_none"
+    )]
+    pub instances_split_chart: Option<std::collections::HashMap<String, StatisticsRegionalChart>>,
     #[serde(rename = "cpuUsageSplitChart", skip_serializing_if = "Option::is_none")]
     pub cpu_usage_split_chart: Option<std::collections::HashMap<String, StatisticsRegionalChart>>,
     #[serde(rename = "ramUsageSplitChart", skip_serializing_if = "Option::is_none")]
     pub ram_usage_split_chart: Option<std::collections::HashMap<String, StatisticsRegionalChart>>,
     #[serde(rename = "trafficSplitChart", skip_serializing_if = "Option::is_none")]
     pub traffic_split_chart: Option<std::collections::HashMap<String, StatisticsRegionalChart>>,
-    #[serde(rename = "latencyChart", skip_serializing_if = "Option::is_none")]
-    pub latency_chart: Option<std::collections::HashMap<String, f64>>,
-    #[serde(rename = "targetLatencyChart", skip_serializing_if = "Option::is_none")]
-    pub target_latency_chart: Option<std::collections::HashMap<String, f64>>,
+    #[serde(
+        rename = "ephemeralStorageSplitUsageChart",
+        skip_serializing_if = "Option::is_none"
+    )]
+    pub ephemeral_storage_split_usage_chart:
+        Option<std::collections::HashMap<String, StatisticsRegionalChart>>,
+    #[serde(
+        rename = "ephemeralStorageSplitLimitChart",
+        skip_serializing_if = "Option::is_none"
+    )]
+    pub ephemeral_storage_split_limit_chart:
+        Option<std::collections::HashMap<String, StatisticsRegionalChart>>,
     #[serde(
         rename = "volumesSplitUsageChart",
         skip_serializing_if = "Option::is_none"
     )]
-    pub volumes_split_usage_chart:
-        Option<std::collections::HashMap<String, StatisticsRegionalChart>>,
+    pub volumes_split_usage_chart: Option<std::collections::HashMap<String, StatisticsVolumeChart>>,
     #[serde(
         rename = "volumesSplitCapacityChart",
         skip_serializing_if = "Option::is_none"
     )]
     pub volumes_split_capacity_chart:
-        Option<std::collections::HashMap<String, StatisticsRegionalChart>>,
+        Option<std::collections::HashMap<String, StatisticsVolumeChart>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub releases: Option<Vec<StatisticsRelease>>,
 }
 
 /// One pod's or volume's chart and the region it is in.
@@ -2759,6 +2774,61 @@ pub struct StatisticsRegionalChart {
     pub region: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub chart: Option<std::collections::HashMap<String, f64>>,
+}
+
+/// A rolling update of a deploy that finished in a region, or was rolled back there, with the images the
+/// region runs from then on; none for rolling updates recorded before the images were.
+#[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
+#[serde(default)]
+pub struct StatisticsRelease {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub time: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub region: Option<String>,
+    #[serde(rename = "operationType", skip_serializing_if = "Option::is_none")]
+    pub operation_type: Option<String>,
+    #[serde(rename = "rolledBack", skip_serializing_if = "Option::is_none")]
+    pub rolled_back: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub images: Option<Vec<StatisticsReleaseImage>>,
+}
+
+/// One container's image: namespace/name, tag and digest, the digest empty when it was not resolved.
+#[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
+#[serde(default)]
+pub struct StatisticsReleaseImage {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub container: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub image: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub tag: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub digest: Option<String>,
+}
+
+/// One volume's chart, the region it lives in and the pods it was attached to.
+#[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
+#[serde(default)]
+pub struct StatisticsVolumeChart {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub region: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub chart: Option<std::collections::HashMap<String, f64>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub pods: Option<Vec<StatisticsVolumePod>>,
+}
+
+/// A pod a volume was attached to, from the first to the last stamp of the chart it held the volume in.
+#[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
+#[serde(default)]
+pub struct StatisticsVolumePod {
+    #[serde(rename = "podId", skip_serializing_if = "Option::is_none")]
+    pub pod_id: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub from: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub to: Option<String>,
 }
 
 #[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
