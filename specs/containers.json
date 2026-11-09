@@ -2,7 +2,7 @@
   "openapi": "3.0.4",
   "info": {
     "title": "Public API",
-    "description": "Public API endpoints for user consumption. Release version: v1.11.0.2",
+    "description": "Public API endpoints for user consumption. Release version: v1.11.1.0",
     "version": "1.0"
   },
   "servers": [
@@ -54,7 +54,7 @@
             }
           },
           "409": {
-            "description": "Application is suspended or has no containers.",
+            "description": "Application is suspended, has no containers, or has a container without an image.",
             "content": {
               "application/json": {
                 "schema": {
@@ -248,7 +248,7 @@
           "Applications"
         ],
         "summary": "Get Application Statistics Charts",
-        "description": "Retrieves historical charts for an application over a specified time period: CPU, RAM and traffic per pod with the pod's region, latency, instances, active regions, and usage and capacity per volume with the volume's region.",
+        "description": "Retrieves historical charts for an application over a specified time period: CPU, RAM, traffic and ephemeral storage usage and limit per pod with the pod's region, instances in total and per region, active regions, usage and capacity per volume with the volume's region and pods, and the rolling updates of the period per region.",
         "operationId": "GetApplicationStatisticsCharts",
         "parameters": [
           {
@@ -4834,9 +4834,9 @@
             "$ref": "#/components/schemas/RegistryType"
           },
           "hostName": {
-            "maxLength": 253,
+            "maxLength": 2048,
             "type": "string",
-            "description": "The registry's host, with an optional port (e.g. \"registry.example.com\" or \"registry.example.com:5000\").\nRequired for the Oci type and ignored for the others.",
+            "description": "The registry's host, with an optional port (e.g. \"registry.example.com\" or \"registry.example.com:5000\").\nAn https:// prefix and a namespace path (\"rg.fr-par.scw.cloud/my-namespace\") are dropped; http:// is refused.\nRequired for the Oci type and ignored for the others.",
             "nullable": true
           },
           "passwordCredentials": {
@@ -7018,6 +7018,12 @@
               "format": "int32"
             }
           },
+          "instancesSplitChart": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/components/schemas/StatisticsRegionalChart"
+            }
+          },
           "cpuUsageSplitChart": {
             "type": "object",
             "additionalProperties": {
@@ -7036,30 +7042,34 @@
               "$ref": "#/components/schemas/StatisticsRegionalChart"
             }
           },
-          "latencyChart": {
+          "ephemeralStorageSplitUsageChart": {
             "type": "object",
             "additionalProperties": {
-              "type": "number",
-              "format": "double"
+              "$ref": "#/components/schemas/StatisticsRegionalChart"
             }
           },
-          "targetLatencyChart": {
+          "ephemeralStorageSplitLimitChart": {
             "type": "object",
             "additionalProperties": {
-              "type": "number",
-              "format": "double"
+              "$ref": "#/components/schemas/StatisticsRegionalChart"
             }
           },
           "volumesSplitUsageChart": {
             "type": "object",
             "additionalProperties": {
-              "$ref": "#/components/schemas/StatisticsRegionalChart"
+              "$ref": "#/components/schemas/StatisticsVolumeChart"
             }
           },
           "volumesSplitCapacityChart": {
             "type": "object",
             "additionalProperties": {
-              "$ref": "#/components/schemas/StatisticsRegionalChart"
+              "$ref": "#/components/schemas/StatisticsVolumeChart"
+            }
+          },
+          "releases": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/StatisticsRelease"
             }
           }
         },
@@ -7081,6 +7091,92 @@
         },
         "additionalProperties": false,
         "description": "One pod's or volume's chart and the region it is in."
+      },
+      "StatisticsRelease": {
+        "type": "object",
+        "properties": {
+          "time": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "region": {
+            "type": "string"
+          },
+          "operationType": {
+            "type": "string"
+          },
+          "rolledBack": {
+            "type": "boolean"
+          },
+          "images": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/StatisticsReleaseImage"
+            }
+          }
+        },
+        "additionalProperties": false,
+        "description": "A rolling update of a deploy that finished in a region, or was rolled back there, with the images the\nregion runs from then on; none for rolling updates recorded before the images were."
+      },
+      "StatisticsReleaseImage": {
+        "type": "object",
+        "properties": {
+          "container": {
+            "type": "string"
+          },
+          "image": {
+            "type": "string"
+          },
+          "tag": {
+            "type": "string"
+          },
+          "digest": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false,
+        "description": "One container's image: namespace/name, tag and digest, the digest empty when it was not resolved."
+      },
+      "StatisticsVolumeChart": {
+        "type": "object",
+        "properties": {
+          "region": {
+            "type": "string"
+          },
+          "chart": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "number",
+              "format": "double"
+            }
+          },
+          "pods": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/StatisticsVolumePod"
+            }
+          }
+        },
+        "additionalProperties": false,
+        "description": "One volume's chart, the region it lives in and the pods it was attached to."
+      },
+      "StatisticsVolumePod": {
+        "type": "object",
+        "properties": {
+          "podId": {
+            "type": "string"
+          },
+          "from": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "to": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "additionalProperties": false,
+        "description": "A pod a volume was attached to, from the first to the last stamp of the chart it held the volume in."
       },
       "StickySessionSettings": {
         "required": [

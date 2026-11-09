@@ -8,7 +8,7 @@
       "url": "https://bunny.net/",
       "email": "support@bunny.net"
     },
-    "version": "0.0.151"
+    "version": "0.0.153"
   },
   "servers": [
     {
@@ -1717,7 +1717,7 @@
             "AccessKey": []
           }
         ],
-        "x-required-permission": "EdgeDatabase.Read"
+        "x-required-permission": "Database.Read"
       },
       "post": {
         "tags": [
@@ -1806,7 +1806,7 @@
             "AccessKey": []
           }
         ],
-        "x-required-permission": "EdgeDatabase.Create"
+        "x-required-permission": "Database.Create"
       }
     },
     "/v2/databases/{db_id}": {
@@ -1887,7 +1887,7 @@
             "AccessKey": []
           }
         ],
-        "x-required-permission": "EdgeDatabase.Read"
+        "x-required-permission": "Database.Read"
       },
       "delete": {
         "tags": [
@@ -1968,7 +1968,7 @@
             "AccessKey": []
           }
         ],
-        "x-required-permission": "EdgeDatabase.Delete"
+        "x-required-permission": "Database.Delete"
       },
       "patch": {
         "tags": [
@@ -2069,7 +2069,7 @@
             "AccessKey": []
           }
         ],
-        "x-required-permission": "EdgeDatabase.Manage"
+        "x-required-permission": "Database.Manage"
       }
     },
     "/v2/databases/{db_id}/usage": {
@@ -2152,7 +2152,7 @@
             "AccessKey": []
           }
         ],
-        "x-required-permission": "EdgeDatabase.Read"
+        "x-required-permission": "Database.Read"
       }
     },
     "/v2/databases/active_usage": {
@@ -2284,7 +2284,7 @@
             "AccessKey": []
           }
         ],
-        "x-required-permission": "EdgeDatabase.Read"
+        "x-required-permission": "Database.Read"
       }
     },
     "/v2/databases/{db_id}/auth/generate": {
@@ -2377,7 +2377,7 @@
             "AccessKey": []
           }
         ],
-        "x-required-permission": "EdgeDatabase.Manage"
+        "x-required-permission": "Database.Manage"
       }
     },
     "/v2/databases/{db_id}/auth/revoke": {
@@ -2433,7 +2433,7 @@
             "AccessKey": []
           }
         ],
-        "x-required-permission": "EdgeDatabase.Manage"
+        "x-required-permission": "Database.Manage"
       }
     }
   },
