@@ -65,13 +65,15 @@
           {
             "AccessKey": [
               "ResellerPartner",
-              "MSPPartner"
+              "MSPPartner",
+              "SubuserPartnerPortal"
             ]
           },
           {
             "bearer": [
               "ResellerPartner",
-              "MSPPartner"
+              "MSPPartner",
+              "SubuserPartnerPortal"
             ]
           }
         ]
@@ -108,13 +110,15 @@
           {
             "AccessKey": [
               "ResellerPartner",
-              "MSPPartner"
+              "MSPPartner",
+              "SubuserPartnerPortal"
             ]
           },
           {
             "bearer": [
               "ResellerPartner",
-              "MSPPartner"
+              "MSPPartner",
+              "SubuserPartnerPortal"
             ]
           }
         ]
@@ -265,13 +269,15 @@
           {
             "AccessKey": [
               "ResellerPartner",
-              "MSPPartner"
+              "MSPPartner",
+              "SubuserPartnerPortal"
             ]
           },
           {
             "bearer": [
               "ResellerPartner",
-              "MSPPartner"
+              "MSPPartner",
+              "SubuserPartnerPortal"
             ]
           }
         ]
@@ -310,13 +316,15 @@
           {
             "AccessKey": [
               "ResellerPartner",
-              "MSPPartner"
+              "MSPPartner",
+              "SubuserPartnerPortal"
             ]
           },
           {
             "bearer": [
               "ResellerPartner",
-              "MSPPartner"
+              "MSPPartner",
+              "SubuserPartnerPortal"
             ]
           }
         ]
@@ -360,13 +368,15 @@
           {
             "AccessKey": [
               "ResellerPartner",
-              "MSPPartner"
+              "MSPPartner",
+              "SubuserPartnerPortal"
             ]
           },
           {
             "bearer": [
               "ResellerPartner",
-              "MSPPartner"
+              "MSPPartner",
+              "SubuserPartnerPortal"
             ]
           }
         ]
@@ -419,13 +429,15 @@
           {
             "AccessKey": [
               "ResellerPartner",
-              "MSPPartner"
+              "MSPPartner",
+              "SubuserPartnerPortal"
             ]
           },
           {
             "bearer": [
               "ResellerPartner",
-              "MSPPartner"
+              "MSPPartner",
+              "SubuserPartnerPortal"
             ]
           }
         ]
@@ -475,13 +487,15 @@
           {
             "AccessKey": [
               "ResellerPartner",
-              "MSPPartner"
+              "MSPPartner",
+              "SubuserPartnerPortal"
             ]
           },
           {
             "bearer": [
               "ResellerPartner",
-              "MSPPartner"
+              "MSPPartner",
+              "SubuserPartnerPortal"
             ]
           }
         ]
@@ -531,13 +545,15 @@
           {
             "AccessKey": [
               "ResellerPartner",
-              "MSPPartner"
+              "MSPPartner",
+              "SubuserPartnerPortal"
             ]
           },
           {
             "bearer": [
               "ResellerPartner",
-              "MSPPartner"
+              "MSPPartner",
+              "SubuserPartnerPortal"
             ]
           }
         ]
@@ -584,13 +600,15 @@
           {
             "AccessKey": [
               "ResellerPartner",
-              "MSPPartner"
+              "MSPPartner",
+              "SubuserPartnerPortal"
             ]
           },
           {
             "bearer": [
               "ResellerPartner",
-              "MSPPartner"
+              "MSPPartner",
+              "SubuserPartnerPortal"
             ]
           }
         ]
@@ -626,13 +644,15 @@
           {
             "AccessKey": [
               "ResellerPartner",
-              "MSPPartner"
+              "MSPPartner",
+              "SubuserPartnerPortal"
             ]
           },
           {
             "bearer": [
               "ResellerPartner",
-              "MSPPartner"
+              "MSPPartner",
+              "SubuserPartnerPortal"
             ]
           }
         ]
@@ -671,13 +691,15 @@
           {
             "AccessKey": [
               "ResellerPartner",
-              "MSPPartner"
+              "MSPPartner",
+              "SubuserPartnerPortal"
             ]
           },
           {
             "bearer": [
               "ResellerPartner",
-              "MSPPartner"
+              "MSPPartner",
+              "SubuserPartnerPortal"
             ]
           }
         ]
@@ -725,13 +747,15 @@
           {
             "AccessKey": [
               "ResellerPartner",
-              "MSPPartner"
+              "MSPPartner",
+              "SubuserPartnerPortal"
             ]
           },
           {
             "bearer": [
               "ResellerPartner",
-              "MSPPartner"
+              "MSPPartner",
+              "SubuserPartnerPortal"
             ]
           }
         ]
@@ -790,13 +814,15 @@
           {
             "AccessKey": [
               "ResellerPartner",
-              "MSPPartner"
+              "MSPPartner",
+              "SubuserPartnerPortal"
             ]
           },
           {
             "bearer": [
               "ResellerPartner",
-              "MSPPartner"
+              "MSPPartner",
+              "SubuserPartnerPortal"
             ]
           }
         ]

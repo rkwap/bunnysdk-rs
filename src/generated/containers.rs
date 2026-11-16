@@ -872,7 +872,7 @@ impl ContainersClient {
 
     /// Delete All Volume Instances
     ///
-    /// Deletes all volume instances for a volume template. All instances must be detached before deletion.
+    /// Deletes a volume template and all its instances. The volume must be detached from the application and all instances must be detached before deletion.
     ///
     /// Returns: Volume instances were deleted.
     ///
@@ -1190,6 +1190,11 @@ pub struct Application {
     pub network_settings: Option<NetworkLimits>,
     #[serde(rename = "repositorySettings", skip_serializing_if = "Option::is_none")]
     pub repository_settings: Option<RepositorySettings>,
+    #[serde(
+        rename = "terminationGracePeriodSeconds",
+        skip_serializing_if = "Option::is_none"
+    )]
+    pub termination_grace_period_seconds: Option<i64>,
 }
 
 str_enum! {

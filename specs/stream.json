@@ -9,7 +9,7 @@
       "url": "https://docs.bunny.net",
       "email": "support@bunny.net"
     },
-    "version": "1.6.21"
+    "version": "1.6.22"
   },
   "servers": [
     {
@@ -398,6 +398,16 @@
           },
           "500": {
             "description": "Internal Server Error"
+          },
+          "404": {
+            "description": "The requested video library was not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StatusModel"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -480,6 +490,16 @@
           },
           "500": {
             "description": "Internal Server Error"
+          },
+          "404": {
+            "description": "The requested video library was not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StatusModel"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -1778,7 +1798,7 @@
           {
             "name": "orderBy",
             "in": "query",
-            "description": "The field to order results by. Possible values: date, title — any other value falls back to date.",
+            "description": "The field to order results by. Possible values: date (newest first), title (A-Z), size (largest first), duration (longest first) — any other value falls back to date. If size or duration ordering is not available for the library, the request returns 400 Bad Request.",
             "schema": {
               "type": "string",
               "default": "date",
@@ -1799,7 +1819,7 @@
             }
           },
           "400": {
-            "description": "Search is not available for this library",
+            "description": "Search, or ordering by size or duration, is not available for this library",
             "content": {
               "application/json": {
                 "schema": {
@@ -1823,6 +1843,16 @@
           },
           "503": {
             "description": "The search database is temporarily unavailable, retry the request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StatusModel"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The requested video library was not found.",
             "content": {
               "application/json": {
                 "schema": {
@@ -1912,6 +1942,16 @@
           },
           "500": {
             "description": "Internal Server Error"
+          },
+          "404": {
+            "description": "The requested video library was not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StatusModel"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -2975,7 +3015,7 @@
           "OEmbed"
         ],
         "summary": "Get oEmbed data",
-        "description": "Implements the oEmbed specification (oembed.com) for bunny.net video embed URLs, allowing third-party sites and tools to auto-generate an embeddable player for a pasted video link. url must be a bunny.net player URL for an existing video — either the legacy player (e.g. \"https://iframe.mediadelivery.net/embed/{libraryId}/{videoId}\") or the new player (e.g. \"https://player.mediadelivery.net/embed/{libraryId}/{videoId}\") — not an arbitrary link. Only the library ID and video ID segments are read, so /play/ URLs are accepted as well as /embed/ ones. For private libraries, the request must satisfy the library's referer restrictions and, separately, a valid token and expires pair if token authentication is enabled — one does not substitute for the other.",
+        "description": "Implements the oEmbed specification (oembed.com) for bunny.net video embed URLs, allowing third-party sites and tools to auto-generate an embeddable player for a pasted video link. url must be a bunny.net player URL for an existing video — either the legacy player (e.g. \"https://iframe.mediadelivery.net/embed/{libraryId}/{videoId}\") or the new player (e.g. \"https://player.mediadelivery.net/embed/{libraryId}/{videoId}\") — not an arbitrary link. Only the library ID and video ID segments are read, so /play/ URLs are accepted as well as /embed/ ones. The returned embed uses the same player host as the url, so a legacy link embeds the legacy player and a new player link embeds the new player. For private libraries, the request must satisfy the library's referer restrictions and, separately, a valid token and expires pair if token authentication is enabled — one does not substitute for the other.",
         "operationId": "OEmbed_GetOEmbed",
         "parameters": [
           {

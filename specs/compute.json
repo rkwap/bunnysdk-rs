@@ -2059,7 +2059,7 @@
             "format": "date-time"
           },
           "ScriptType": {
-            "description": "0 = DNS\n1 = CDN\n2 = Middleware",
+            "description": "0 = DNS\n1 = Standalone\n2 = Middleware",
             "oneOf": [
               {
                 "$ref": "#/components/schemas/EdgeScriptTypes"
@@ -2133,7 +2133,7 @@
       },
       "EdgeScriptTypes": {
         "type": "integer",
-        "description": "0 = DNS\n1 = CDN\n2 = Middleware",
+        "description": "0 = DNS\n1 = Standalone\n2 = Middleware",
         "x-enumNames": [
           "DNS",
           "CDN",
@@ -2305,7 +2305,7 @@
             "nullable": true
           },
           "ScriptType": {
-            "description": "0 = DNS\n1 = CDN\n2 = Middleware",
+            "description": "0 = DNS\n1 = Standalone\n2 = Middleware",
             "oneOf": [
               {
                 "$ref": "#/components/schemas/EdgeScriptTypes"
@@ -2566,7 +2566,7 @@
             "nullable": true
           },
           "ScriptType": {
-            "description": "0 = DNS\n1 = CDN\n2 = Middleware",
+            "description": "0 = DNS\n1 = Standalone\n2 = Middleware",
             "oneOf": [
               {
                 "$ref": "#/components/schemas/EdgeScriptTypes"
