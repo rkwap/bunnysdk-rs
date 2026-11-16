@@ -531,6 +531,76 @@ impl ShieldClient {
         self.transport.text(request).await
     }
 
+    /// Get metrics for a specific WAF Rule within the specified Shield Zone
+    ///
+    /// `GET /shield/metrics/shield-zone/{shieldZoneId}/waf-rule/{ruleId}`
+    pub async fn get_waf_rule_metrics(
+        &self,
+        shield_zone_id: i32,
+        rule_id: &str,
+    ) -> crate::Result<GetWafRuleMetricsResponse> {
+        let request = self.transport.request(
+            reqwest::Method::GET,
+            &format!(
+                "/shield/metrics/shield-zone/{}/waf-rule/{}",
+                crate::transport::segment(shield_zone_id),
+                crate::transport::segment(rule_id)
+            ),
+        );
+        self.transport.json(request).await
+    }
+
+    /// Get upload scanning metrics for the specified Shield Zone
+    ///
+    /// `GET /shield/metrics/shield-zone/{shieldZoneId}/upload-scanning`
+    pub async fn get_shield_zone_upload_scanning_metrics(
+        &self,
+        shield_zone_id: i32,
+    ) -> crate::Result<GetShieldZoneUploadScanningMetricsResponse> {
+        let request = self.transport.request(
+            reqwest::Method::GET,
+            &format!(
+                "/shield/metrics/shield-zone/{}/upload-scanning",
+                crate::transport::segment(shield_zone_id)
+            ),
+        );
+        self.transport.json(request).await
+    }
+
+    /// Get aggregated rate limit metrics for the specified Shield Zone
+    ///
+    /// `GET /shield/metrics/rate-limits/{shieldZoneId}`
+    pub async fn get_shield_zone_rate_limit_metrics(
+        &self,
+        shield_zone_id: i32,
+    ) -> crate::Result<GetShieldZoneRatelimitMetricsResponse> {
+        let request = self.transport.request(
+            reqwest::Method::GET,
+            &format!(
+                "/shield/metrics/rate-limits/{}",
+                crate::transport::segment(shield_zone_id)
+            ),
+        );
+        self.transport.json(request).await
+    }
+
+    /// Get detailed metrics for the specified Rate Limit
+    ///
+    /// `GET /shield/metrics/rate-limit/{id}`
+    pub async fn get_rate_limit_metrics(
+        &self,
+        id: i32,
+    ) -> crate::Result<GetRatelimitMetricsResponse> {
+        let request = self.transport.request(
+            reqwest::Method::GET,
+            &format!(
+                "/shield/metrics/rate-limit/{}",
+                crate::transport::segment(id)
+            ),
+        );
+        self.transport.json(request).await
+    }
+
     /// Get the overage breakdown for the specified Shield Zone for a given month, segmented by billing plan changes
     ///
     /// `GET /shield/metrics/overages/{shieldZoneId}`
@@ -586,59 +656,6 @@ impl ShieldClient {
         self.transport.json(request).await
     }
 
-    /// Get aggregated rate limit metrics for the specified Shield Zone
-    ///
-    /// `GET /shield/metrics/rate-limits/{shieldZoneId}`
-    pub async fn get_shield_zone_rate_limit_metrics(
-        &self,
-        shield_zone_id: i32,
-    ) -> crate::Result<GetShieldZoneRatelimitMetricsResponse> {
-        let request = self.transport.request(
-            reqwest::Method::GET,
-            &format!(
-                "/shield/metrics/rate-limits/{}",
-                crate::transport::segment(shield_zone_id)
-            ),
-        );
-        self.transport.json(request).await
-    }
-
-    /// Get detailed metrics for the specified Rate Limit
-    ///
-    /// `GET /shield/metrics/rate-limit/{id}`
-    pub async fn get_rate_limit_metrics(
-        &self,
-        id: i32,
-    ) -> crate::Result<GetRatelimitMetricsResponse> {
-        let request = self.transport.request(
-            reqwest::Method::GET,
-            &format!(
-                "/shield/metrics/rate-limit/{}",
-                crate::transport::segment(id)
-            ),
-        );
-        self.transport.json(request).await
-    }
-
-    /// Get metrics for a specific WAF Rule within the specified Shield Zone
-    ///
-    /// `GET /shield/metrics/shield-zone/{shieldZoneId}/waf-rule/{ruleId}`
-    pub async fn get_waf_rule_metrics(
-        &self,
-        shield_zone_id: i32,
-        rule_id: &str,
-    ) -> crate::Result<GetWafRuleMetricsResponse> {
-        let request = self.transport.request(
-            reqwest::Method::GET,
-            &format!(
-                "/shield/metrics/shield-zone/{}/waf-rule/{}",
-                crate::transport::segment(shield_zone_id),
-                crate::transport::segment(rule_id)
-            ),
-        );
-        self.transport.json(request).await
-    }
-
     /// Get bot detection metrics for the specified Shield Zone
     ///
     /// `GET /shield/metrics/shield-zone/{shieldZoneId}/bot-detection`
@@ -650,23 +667,6 @@ impl ShieldClient {
             reqwest::Method::GET,
             &format!(
                 "/shield/metrics/shield-zone/{}/bot-detection",
-                crate::transport::segment(shield_zone_id)
-            ),
-        );
-        self.transport.json(request).await
-    }
-
-    /// Get upload scanning metrics for the specified Shield Zone
-    ///
-    /// `GET /shield/metrics/shield-zone/{shieldZoneId}/upload-scanning`
-    pub async fn get_shield_zone_upload_scanning_metrics(
-        &self,
-        shield_zone_id: i32,
-    ) -> crate::Result<GetShieldZoneUploadScanningMetricsResponse> {
-        let request = self.transport.request(
-            reqwest::Method::GET,
-            &format!(
-                "/shield/metrics/shield-zone/{}/upload-scanning",
                 crate::transport::segment(shield_zone_id)
             ),
         );
@@ -1028,6 +1028,36 @@ impl ShieldClient {
         self.transport.json(request).await
     }
 
+    /// Retrieve all available WAF profiles
+    ///
+    /// `GET /shield/waf/profiles`
+    pub async fn list_waf_profiles(&self) -> crate::Result<GetWafProfilesResponse> {
+        let request = self
+            .transport
+            .request(reqwest::Method::GET, "/shield/waf/profiles");
+        self.transport.json(request).await
+    }
+
+    /// Retrieve all available WAF enum mappings
+    ///
+    /// `GET /shield/waf/enums`
+    pub async fn get_waf_enum_mappings(&self) -> crate::Result<GetWafEnumsResponse> {
+        let request = self
+            .transport
+            .request(reqwest::Method::GET, "/shield/waf/enums");
+        self.transport.json(request).await
+    }
+
+    /// Retrieve the default WAF engine configuration
+    ///
+    /// `GET /shield/waf/engine-config`
+    pub async fn get_waf_engine_configuration(&self) -> crate::Result<GetWafEngineConfigResponse> {
+        let request = self
+            .transport
+            .request(reqwest::Method::GET, "/shield/waf/engine-config");
+        self.transport.json(request).await
+    }
+
     /// Retrieve custom WAF rules configured for the specified Shield Zone
     ///
     /// `GET /shield/waf/custom-rules/{shieldZoneId}`
@@ -1118,36 +1148,6 @@ impl ShieldClient {
             .json(body);
         self.transport.json(request).await
     }
-
-    /// Retrieve all available WAF profiles
-    ///
-    /// `GET /shield/waf/profiles`
-    pub async fn list_waf_profiles(&self) -> crate::Result<GetWafProfilesResponse> {
-        let request = self
-            .transport
-            .request(reqwest::Method::GET, "/shield/waf/profiles");
-        self.transport.json(request).await
-    }
-
-    /// Retrieve all available WAF enum mappings
-    ///
-    /// `GET /shield/waf/enums`
-    pub async fn get_waf_enum_mappings(&self) -> crate::Result<GetWafEnumsResponse> {
-        let request = self
-            .transport
-            .request(reqwest::Method::GET, "/shield/waf/enums");
-        self.transport.json(request).await
-    }
-
-    /// Retrieve the default WAF engine configuration
-    ///
-    /// `GET /shield/waf/engine-config`
-    pub async fn get_waf_engine_configuration(&self) -> crate::Result<GetWafEngineConfigResponse> {
-        let request = self
-            .transport
-            .request(reqwest::Method::GET, "/shield/waf/engine-config");
-        self.transport.json(request).await
-    }
 }
 
 #[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
@@ -1232,23 +1232,17 @@ int_enum! {
     }
 }
 
-/// Represents detailed information about an access list and its configuration.
 #[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
 #[serde(default)]
 pub struct AccessListDetails {
-    /// The unique identifier of the access list.
     #[serde(rename = "listId")]
     pub list_id: i64,
-    /// The unique identifier of the access list configuration.
     #[serde(rename = "configurationId")]
     pub configuration_id: i64,
-    /// The display name of the access list.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub name: Option<String>,
-    /// Optional description of the access list's purpose or contents.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub description: Option<String>,
-    /// Indicates whether the access list is currently enabled and active.
     #[serde(rename = "isEnabled")]
     pub is_enabled: bool,
     pub r#type: AccessListType,
@@ -1257,13 +1251,10 @@ pub struct AccessListDetails {
     pub action: AccessListAction,
     #[serde(rename = "requiredPlan", skip_serializing_if = "Option::is_none")]
     pub required_plan: Option<ShieldPlanType>,
-    /// The total number of entries currently in the access list.
     #[serde(rename = "entryCount")]
     pub entry_count: i64,
-    /// How frequently the list is updated from its source. Only applicable to managed lists.
     #[serde(rename = "updateFrequency", skip_serializing_if = "Option::is_none")]
     pub update_frequency: Option<String>,
-    /// The timestamp when the access list was last updated.
     #[serde(rename = "lastUpdated")]
     pub last_updated: String,
 }
@@ -1285,39 +1276,30 @@ int_enum! {
     }
 }
 
-/// Response containing comprehensive access list information for a Shield Zone, including both managed and custom lists.
 #[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
 #[serde(default)]
 pub struct AccessListsDetailsResponse {
-    /// List of curated threat lists maintained by Bunny Shield with automatic updates.
     #[serde(rename = "managedLists", skip_serializing_if = "Option::is_none")]
     pub managed_lists: Option<Vec<AccessListDetails>>,
-    /// List of custom access lists created and maintained by the user.
     #[serde(rename = "customLists", skip_serializing_if = "Option::is_none")]
     pub custom_lists: Option<Vec<AccessListDetails>>,
-    /// Total number of entries across all custom access lists for this Shield Zone.
     #[serde(rename = "customEntryCount", skip_serializing_if = "Option::is_none")]
     pub custom_entry_count: Option<i32>,
-    /// Maximum number of entries allowed across all custom access lists based on the Shield plan.
     #[serde(rename = "customEntryLimit", skip_serializing_if = "Option::is_none")]
     pub custom_entry_limit: Option<i32>,
-    /// Current number of custom access lists for this Shield Zone.
     #[serde(rename = "customListCount", skip_serializing_if = "Option::is_none")]
     pub custom_list_count: Option<i32>,
-    /// Maximum number of custom access lists allowed based on the Shield plan.
     #[serde(rename = "customListLimit", skip_serializing_if = "Option::is_none")]
     pub custom_list_limit: Option<i32>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub error: Option<GenericRequestResponse>,
 }
 
-/// Global API Guardian configuration for a shield zone.
 #[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
 #[serde(default)]
 pub struct ApiGuardianConfigurationDetails {
     #[serde(rename = "shieldZoneId", skip_serializing_if = "Option::is_none")]
     pub shield_zone_id: Option<i32>,
-    /// Whether API Guardian is enabled for this shield zone. When disabled, no requests are inspected.
     #[serde(rename = "isEnabled", skip_serializing_if = "Option::is_none")]
     pub is_enabled: Option<bool>,
     #[serde(rename = "executionMode", skip_serializing_if = "Option::is_none")]
@@ -1329,28 +1311,21 @@ pub struct ApiGuardianConfigurationDetails {
         skip_serializing_if = "Option::is_none"
     )]
     pub unmatched_path_action: Option<UnmatchedPathAction>,
-    /// The `info.title` field from the uploaded OpenAPI specification.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub title: Option<String>,
-    /// The `info.version` field from the uploaded OpenAPI specification.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub version: Option<String>,
-    /// Plan limit: maximum number of endpoints that can be defined in the specification.
     #[serde(rename = "maxEndpoints", skip_serializing_if = "Option::is_none")]
     pub max_endpoints: Option<i32>,
-    /// Plan limit: maximum number of properties a single schema object may declare.
     #[serde(rename = "maxFieldsPerType", skip_serializing_if = "Option::is_none")]
     pub max_fields_per_type: Option<i32>,
-    /// Plan limit: maximum depth of nested `$ref`, `items`, and `properties` chains.
     #[serde(rename = "maxNestingDepth", skip_serializing_if = "Option::is_none")]
     pub max_nesting_depth: Option<i32>,
-    /// Plan limit: combined node count across all `components/schemas` entries.
     #[serde(
         rename = "maxTotalSchemaNodes",
         skip_serializing_if = "Option::is_none"
     )]
     pub max_total_schema_nodes: Option<i32>,
-    /// Plan limit: combined character length of all `pattern` regex strings in the specification.
     #[serde(
         rename = "maxTotalRegexLength",
         skip_serializing_if = "Option::is_none"
@@ -1362,12 +1337,10 @@ pub struct ApiGuardianConfigurationDetails {
     pub updated_at: Option<String>,
 }
 
-/// The full API Guardian state for a shield zone: global configuration and all endpoints.
 #[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
 #[serde(default)]
 pub struct ApiGuardianConfigurationResponse {
     pub configuration: ApiGuardianConfigurationDetails,
-    /// All endpoints discovered from the uploaded OpenAPI specification.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub endpoints: Option<Vec<ApiGuardianEndpointDetails>>,
 }
@@ -1395,7 +1368,6 @@ pub struct ApiGuardianEndpointActivity {
     pub failed_authentication_enforcement: Option<i32>,
 }
 
-/// All parameters defined in the OAS operation, grouped by location (path, query, header, cookie).
 #[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
 #[serde(default)]
 pub struct ApiGuardianEndpointDetailsAvailableParameters {
@@ -1409,8 +1381,6 @@ pub struct ApiGuardianEndpointDetailsAvailableParameters {
     pub cookie: Option<Vec<String>>,
 }
 
-/// Parameters selected for XSS/SQLi injection detection, grouped by location.
-/// Null if not configured. Subset of BunnyNet.Shield.Api.Services.Shield.ApiGuardian.Models.ApiGuardianEndpointDetails.AvailableParameters.
 #[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
 #[serde(default)]
 pub struct ApiGuardianEndpointDetailsInjectionDetectionParameters {
@@ -1424,8 +1394,6 @@ pub struct ApiGuardianEndpointDetailsInjectionDetectionParameters {
     pub cookie: Option<Vec<String>>,
 }
 
-/// Detailed view of a single API Guardian endpoint, including its validation settings,
-/// authentication requirements, and rate limiting configuration.
 #[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
 #[serde(default)]
 pub struct ApiGuardianEndpointDetails {
@@ -1436,73 +1404,57 @@ pub struct ApiGuardianEndpointDetails {
     pub api_guardian_endpoint_id: Option<i64>,
     #[serde(rename = "shieldZoneId", skip_serializing_if = "Option::is_none")]
     pub shield_zone_id: Option<i32>,
-    /// The HTTP method (e.g. "GET", "POST").
     #[serde(rename = "requestMethod", skip_serializing_if = "Option::is_none")]
     pub request_method: Option<String>,
-    /// The OAS path template (e.g. "/pets/{petId}").
     #[serde(rename = "requestPath", skip_serializing_if = "Option::is_none")]
     pub request_path: Option<String>,
-    /// Whether inbound request bodies are validated against the OAS request body schema.
     #[serde(
         rename = "validateRequestBodySchema",
         skip_serializing_if = "Option::is_none"
     )]
     pub validate_request_body_schema: Option<bool>,
-    /// Whether outbound response bodies are validated against the OAS response schema.
     #[serde(
         rename = "validateResponseBodySchema",
         skip_serializing_if = "Option::is_none"
     )]
     pub validate_response_body_schema: Option<bool>,
-    /// Whether authentication credentials are enforced.
     #[serde(
         rename = "validateAuthorization",
         skip_serializing_if = "Option::is_none"
     )]
     pub validate_authorization: Option<bool>,
-    /// Whether this endpoint is active. Disabled endpoints are not enforced.
     #[serde(rename = "isEnabled", skip_serializing_if = "Option::is_none")]
     pub is_enabled: Option<bool>,
-    /// Authentication schemes required by this endpoint, derived from the OAS security requirements.
-    /// Null when the endpoint has no security requirements.
     #[serde(rename = "authSchemes", skip_serializing_if = "Option::is_none")]
     pub auth_schemes: Option<Vec<AuthSchemeDetails>>,
-    /// The request body schema rendered as YAML for display purposes. Null if no request body is defined.
     #[serde(
         rename = "requestBodySchemaYaml",
         skip_serializing_if = "Option::is_none"
     )]
     pub request_body_schema_yaml: Option<String>,
-    /// Response body schemas keyed by HTTP status code, rendered as YAML. Null if no response schemas are defined.
     #[serde(
         rename = "responseBodySchemasYaml",
         skip_serializing_if = "Option::is_none"
     )]
     pub response_body_schemas_yaml: Option<std::collections::HashMap<String, String>>,
-    /// All parameters defined in the OAS operation, grouped by location (path, query, header, cookie).
     #[serde(
         rename = "availableParameters",
         skip_serializing_if = "Option::is_none"
     )]
     pub available_parameters: Option<ApiGuardianEndpointDetailsAvailableParameters>,
-    /// Parameters selected for XSS/SQLi injection detection, grouped by location.
-    /// Null if not configured. Subset of BunnyNet.Shield.Api.Services.Shield.ApiGuardian.Models.ApiGuardianEndpointDetails.AvailableParameters.
     #[serde(
         rename = "injectionDetectionParameters",
         skip_serializing_if = "Option::is_none"
     )]
     pub injection_detection_parameters:
         Option<ApiGuardianEndpointDetailsInjectionDetectionParameters>,
-    /// Whether XSS detection is enabled for the selected parameters.
     #[serde(rename = "detectParameterXss", skip_serializing_if = "Option::is_none")]
     pub detect_parameter_xss: Option<bool>,
-    /// Whether SQL injection detection is enabled for the selected parameters.
     #[serde(
         rename = "detectParameterSqli",
         skip_serializing_if = "Option::is_none"
     )]
     pub detect_parameter_sqli: Option<bool>,
-    /// Whether per-endpoint rate limiting is active.
     #[serde(
         rename = "rateLimitingEnabled",
         skip_serializing_if = "Option::is_none"
@@ -1510,7 +1462,6 @@ pub struct ApiGuardianEndpointDetails {
     pub rate_limiting_enabled: Option<bool>,
     #[serde(rename = "rateLimitingType", skip_serializing_if = "Option::is_none")]
     pub rate_limiting_type: Option<ApiGuardianRateLimitType>,
-    /// Maximum number of requests allowed within the rate limiting timeframe before blocking.
     #[serde(
         rename = "rateLimitingRequestCount",
         skip_serializing_if = "Option::is_none"
@@ -1611,7 +1562,6 @@ str_enum! {
 }
 
 str_enum! {
-    /// Where an authentication credential is transmitted in the HTTP request.
     AuthLocation {
         Header = "Header",
         Query = "Query",
@@ -1619,29 +1569,22 @@ str_enum! {
     }
 }
 
-/// Describes a single authentication scheme required by an endpoint,
-/// as extracted from the OpenAPI specification's securitySchemes.
 #[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
 #[serde(default)]
 pub struct AuthSchemeDetails {
-    /// The OpenAPI security scheme reference name (e.g. "bearerAuth", "apiKey").
     #[serde(rename = "schemeName", skip_serializing_if = "Option::is_none")]
     pub scheme_name: Option<String>,
     #[serde(rename = "schemeType", skip_serializing_if = "Option::is_none")]
     pub scheme_type: Option<AuthSchemeType>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub location: Option<AuthLocation>,
-    /// The name of the header, query parameter, or cookie that carries the credential
-    /// (e.g. "Authorization", "X-API-Key").
     #[serde(rename = "credentialName", skip_serializing_if = "Option::is_none")]
     pub credential_name: Option<String>,
-    /// For HTTP auth schemes, the scheme name (e.g. "bearer", "basic"). Null for non-HTTP schemes.
     #[serde(rename = "httpScheme", skip_serializing_if = "Option::is_none")]
     pub http_scheme: Option<String>,
 }
 
 str_enum! {
-    /// The type of security scheme as defined in the OpenAPI specification.
     AuthSchemeType {
         ApiKey = "ApiKey",
         Http = "Http",
@@ -1825,21 +1768,16 @@ pub struct ConfigVariableValueMinimal {
     pub value_encoded: Option<String>,
 }
 
-/// Request model for creating a new custom access list.
 #[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
 #[serde(default)]
 pub struct CreateCustomAccessListRequest {
-    /// The display name for the new access list.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub name: Option<String>,
-    /// Optional description of the access list's purpose or contents.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub description: Option<String>,
     pub r#type: AccessListType,
-    /// The initial content for the access list with entries separated by newlines.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub content: Option<String>,
-    /// SHA-256 checksum of the content for integrity verification. If null, it will be automatically calculated.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub checksum: Option<String>,
 }
@@ -1958,10 +1896,6 @@ pub struct CreateCustomWafRuleRequest {
 #[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
 #[serde(default)]
 pub struct CreateShieldZoneRequest {
-    #[serde(rename = "shieldZone", skip_serializing_if = "Option::is_none")]
-    pub shield_zone: Option<ShieldZoneRequest>,
-    #[serde(rename = "pullZoneId")]
-    pub pull_zone_id: i64,
     #[serde(rename = "accessLists", skip_serializing_if = "Option::is_none")]
     pub access_lists: Option<std::collections::HashMap<String, AccessListAction>>,
     #[serde(
@@ -1976,6 +1910,10 @@ pub struct CreateShieldZoneRequest {
         skip_serializing_if = "Option::is_none"
     )]
     pub antivirus_scanning_mode: Option<UploadScanningScannerMode>,
+    #[serde(rename = "shieldZone", skip_serializing_if = "Option::is_none")]
+    pub shield_zone: Option<ShieldZoneRequest>,
+    #[serde(rename = "pullZoneId")]
+    pub pull_zone_id: i64,
 }
 
 /// Response object for creating a new Shield Zone.
@@ -2115,35 +2053,26 @@ pub struct CreateWafRateLimitRuleModel {
     pub chained_rule_conditions: Option<Vec<WafChainedRuleConditionItem>>,
 }
 
-/// Represents a custom access list associated with a shield zone.
 #[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
 #[serde(default)]
 pub struct CustomAccessList {
-    /// The unique identifier of the custom access list.
     pub id: i64,
-    /// The display name of the custom access list.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub name: Option<String>,
-    /// Optional description of the access list's purpose or contents.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub description: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub r#type: Option<AccessListType>,
-    /// The raw content of the access list with entries separated by newlines.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub content: Option<String>,
-    /// SHA-256 checksum of the content for integrity verification.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub checksum: Option<String>,
-    /// The total number of entries in the access list.
     #[serde(rename = "entryCount", skip_serializing_if = "Option::is_none")]
     pub entry_count: Option<i64>,
-    /// The timestamp when the access list was last modified.
     #[serde(rename = "lastModified", skip_serializing_if = "Option::is_none")]
     pub last_modified: Option<String>,
 }
 
-/// Response containing custom access list data or error information.
 #[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
 #[serde(default)]
 pub struct CustomAccessListResponse {
@@ -2213,151 +2142,112 @@ int_enum! {
     }
 }
 
-/// An aggregated group of events (returned when the search request specifies groupBy).
 #[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
 #[serde(default)]
 pub struct EventGroup {
-    /// The group key: each requested groupBy dimension mapped to its value.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub key: Option<std::collections::HashMap<String, String>>,
-    /// Number of events in the group.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub count: Option<i64>,
-    /// Earliest event time in the group (Unix time in milliseconds, UTC).
     #[serde(rename = "firstSeen", skip_serializing_if = "Option::is_none")]
     pub first_seen: Option<i64>,
-    /// Most recent event time in the group (Unix time in milliseconds, UTC).
     #[serde(rename = "lastSeen", skip_serializing_if = "Option::is_none")]
     pub last_seen: Option<i64>,
-    /// Context aggregates for the group: country, asn, per-action counts (blocked/challenged/logged),
-    /// and features/ruleIds touched. Counts are numbers; features/ruleIds are comma-joined strings.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub context: Option<serde_json::Value>,
-    /// Per-group event counts bucketed across the requested window (mini time histogram), present only
-    /// when the request set `buckets`. Bucket i covers [from + i*width, from + (i+1)*width).
+    /// The event count of this group in each time bucket of the window (a small time histogram).
+    /// Present only when the request set `buckets`. Bucket i covers
+    /// [from + i*width, from + (i+1)*width).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub sparkline: Option<Vec<i64>>,
 }
 
-/// Request body for exporting a Shield Zone's full filtered Event Logs set as CSV.
 #[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
 #[serde(default)]
 pub struct EventLogsExportRequest {
-    /// Window start as Unix time in milliseconds (UTC). Required.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub from: Option<i64>,
-    /// Window end as Unix time in milliseconds (UTC). Required; must be after BunnyNet.Shield.Api.Entities.Waf.WafLogging.EventLogsExportRequest.from and within the last 72 hours.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub to: Option<i64>,
-    /// Optional free-text search across IP, ruleId, URL, User-Agent and rule name.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub query: Option<String>,
-    /// Optional filters, combined with AND. Repeated values within one filter combine with OR.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub filters: Option<Vec<EventLogsFilter>>,
 }
 
-/// A single Event Logs filter clause.
 #[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
 #[serde(default)]
 pub struct EventLogsFilter {
-    /// Dimension to filter on: feature, ruleId, ip, ja4, ua, url, asn, country or action.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub field: Option<String>,
-    /// Operator: eq, in, contains, cidr (ip only, IPv4/IPv6) or wildcard ('*' matches any run).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub op: Option<String>,
-    /// Value(s) for the filter; multiple values are OR-combined.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub value: Option<Vec<String>>,
 }
 
-/// Request body for searching a Shield Zone's Event Logs within a time window.
 #[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
 #[serde(default)]
 pub struct EventLogsSearchRequest {
-    /// Window start as Unix time in milliseconds (UTC). Required.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub from: Option<i64>,
-    /// Window end as Unix time in milliseconds (UTC). Required; must be after BunnyNet.Shield.Api.Entities.Waf.WafLogging.EventLogsSearchRequest.from and within the last 72 hours.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub to: Option<i64>,
-    /// Optional free-text search across IP, ruleId, URL, User-Agent and rule name.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub query: Option<String>,
-    /// Optional filters, combined with AND. Repeated values within one filter combine with OR.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub filters: Option<Vec<EventLogsFilter>>,
-    /// Optional ordered dimensions to group by, e.g. ["ip","ja4"]. Omit for flat rows.
-    /// Allowed: feature, ruleId, ip, ja4, ua, url, asn, country, action.
     #[serde(rename = "groupBy", skip_serializing_if = "Option::is_none")]
     pub group_by: Option<Vec<String>>,
-    /// When grouping, the number of time buckets for each group's sparkline histogram over the
-    /// window. 0 (default) omits the sparkline; clamped to 500.
+    /// When grouping, the number of time buckets for the sparkline histogram of each group over the
+    /// window. 0 (default) omits the sparkline. The provider clamps the value to 500.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub buckets: Option<i32>,
-    /// Zero-based page index.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub page: Option<i32>,
-    /// Page size; clamped to 1–500 (defaults to 50 when unset).
     #[serde(rename = "pageSize", skip_serializing_if = "Option::is_none")]
     pub page_size: Option<i32>,
 }
 
-/// Result of an Event Logs search. Exactly one of BunnyNet.Shield.Api.Entities.Waf.WafLogging.EventLogsSearchResponse.rows or BunnyNet.Shield.Api.Entities.Waf.WafLogging.EventLogsSearchResponse.groups is populated.
 #[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
 #[serde(default)]
 pub struct EventLogsSearchResponse {
-    /// Flat event rows (populated when the request had no groupBy).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub rows: Option<Vec<EventRow>>,
-    /// Aggregated groups (populated when the request had a groupBy).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub groups: Option<Vec<EventGroup>>,
-    /// Total flat rows, or total distinct groups when grouped.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub total: Option<i64>,
-    /// Total number of pages for the current page size.
     #[serde(rename = "totalPages", skip_serializing_if = "Option::is_none")]
     pub total_pages: Option<i32>,
-    /// Zero-based index of the returned page.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub page: Option<i32>,
     #[serde(rename = "errorResponse", skip_serializing_if = "Option::is_none")]
     pub error_response: Option<GenericRequestResponse>,
 }
 
-/// A single event returned in a flat (ungrouped) search.
 #[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
 #[serde(default)]
 pub struct EventRow {
-    /// Unique event identifier.
     #[serde(rename = "logId", skip_serializing_if = "Option::is_none")]
     pub log_id: Option<String>,
-    /// Event time as Unix time in milliseconds (UTC).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub timestamp: Option<i64>,
-    /// The full request context for the event (JSON object).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub log: Option<serde_json::Value>,
-    /// Resolved dimension values for the event (e.g. ip, ruleId, url, ja4).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub fields: Option<std::collections::HashMap<String, String>>,
 }
 
-/// Generic response object containing status information for API operations.
 #[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
 #[serde(default)]
 pub struct GenericRequestResponse {
     #[serde(rename = "statusCode", skip_serializing_if = "Option::is_none")]
     pub status_code: Option<HttpStatusCode>,
-    /// Indicates whether the operation was successful.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub success: Option<bool>,
-    /// Human-readable message describing the result of the operation.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub message: Option<String>,
-    /// Unique error key for programmatic error handling, if applicable.
     #[serde(rename = "errorKey", skip_serializing_if = "Option::is_none")]
     pub error_key: Option<String>,
 }
@@ -2380,7 +2270,6 @@ pub struct GetApiGuardianMetricsResponse {
     pub data: Option<ApiGuardianMetrics>,
 }
 
-/// Represents the response for getting API Guardian configuration.
 #[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
 #[serde(default)]
 pub struct GetApiGuardianResponse {
@@ -2763,6 +2652,7 @@ pub struct OverviewMetric {
     pub totals: Option<std::collections::HashMap<String, i64>>,
 }
 
+/// Describes which page of Shield Zones this response contains.
 #[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
 #[serde(default)]
 pub struct PaginationResponse {
@@ -3383,18 +3273,15 @@ int_enum! {
     }
 }
 
-/// Request model for updating an access list configuration.
 #[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
 #[serde(default)]
 pub struct UpdateAccessListConfigurationRequest {
-    /// Whether the access list should be enabled or disabled. If null, the current state is preserved.
     #[serde(rename = "isEnabled", skip_serializing_if = "Option::is_none")]
     pub is_enabled: Option<bool>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub action: Option<AccessListAction>,
 }
 
-/// Response containing the updated access list configuration data or error information.
 #[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
 #[serde(default)]
 pub struct UpdateAccessListConfigurationResponse {
@@ -3404,12 +3291,9 @@ pub struct UpdateAccessListConfigurationResponse {
     pub error: Option<GenericRequestResponse>,
 }
 
-/// Patch request for updating the global API Guardian configuration.
-/// All fields are optional — only provided fields are applied.
 #[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
 #[serde(default)]
 pub struct UpdateApiGuardianConfigurationRequest {
-    /// Enable or disable API Guardian entirely for this shield zone.
     #[serde(rename = "isEnabled", skip_serializing_if = "Option::is_none")]
     pub is_enabled: Option<bool>,
     #[serde(rename = "executionMode", skip_serializing_if = "Option::is_none")]
@@ -3423,7 +3307,6 @@ pub struct UpdateApiGuardianConfigurationRequest {
     pub unmatched_path_action: Option<UnmatchedPathAction>,
 }
 
-/// Response for the PATCH /configuration endpoint.
 #[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
 #[serde(default)]
 pub struct UpdateApiGuardianConfigurationResponse {
@@ -3433,8 +3316,6 @@ pub struct UpdateApiGuardianConfigurationResponse {
     pub data: Option<ApiGuardianConfigurationDetails>,
 }
 
-/// Parameters to run injection detection on, grouped by location (path, query, header, cookie).
-/// Must be a subset of the endpoint's available parameters.
 #[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
 #[serde(default)]
 pub struct UpdateApiGuardianEndpointRequestInjectionDetectionParameters {
@@ -3448,53 +3329,39 @@ pub struct UpdateApiGuardianEndpointRequestInjectionDetectionParameters {
     pub cookie: Option<Vec<String>>,
 }
 
-/// Patch request for updating an individual API Guardian endpoint.
-/// All fields are optional — only provided fields are applied.
 #[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
 #[serde(default)]
 pub struct UpdateApiGuardianEndpointRequest {
-    /// Enable or disable this endpoint. Disabled endpoints are not enforced.
     #[serde(rename = "isEnabled", skip_serializing_if = "Option::is_none")]
     pub is_enabled: Option<bool>,
-    /// Enable or disable request body schema validation.
-    /// Only effective if the endpoint's OAS operation defines a request body schema.
     #[serde(
         rename = "validateRequestBodySchema",
         skip_serializing_if = "Option::is_none"
     )]
     pub validate_request_body_schema: Option<bool>,
-    /// Enable or disable response body schema validation.
-    /// Only effective if the endpoint's OAS operation defines response schemas.
     #[serde(
         rename = "validateResponseBodySchema",
         skip_serializing_if = "Option::is_none"
     )]
     pub validate_response_body_schema: Option<bool>,
-    /// Enable or disable enforcement of authentication requirements
-    /// as defined in the OAS security schemes.
     #[serde(
         rename = "validateAuthorization",
         skip_serializing_if = "Option::is_none"
     )]
     pub validate_authorization: Option<bool>,
-    /// Parameters to run injection detection on, grouped by location (path, query, header, cookie).
-    /// Must be a subset of the endpoint's available parameters.
     #[serde(
         rename = "injectionDetectionParameters",
         skip_serializing_if = "Option::is_none"
     )]
     pub injection_detection_parameters:
         Option<UpdateApiGuardianEndpointRequestInjectionDetectionParameters>,
-    /// Enable XSS detection on the selected injection detection parameters.
     #[serde(rename = "detectParameterXss", skip_serializing_if = "Option::is_none")]
     pub detect_parameter_xss: Option<bool>,
-    /// Enable SQL injection detection on the selected injection detection parameters.
     #[serde(
         rename = "detectParameterSqli",
         skip_serializing_if = "Option::is_none"
     )]
     pub detect_parameter_sqli: Option<bool>,
-    /// Enable or disable per-endpoint rate limiting.
     #[serde(
         rename = "rateLimitingEnabled",
         skip_serializing_if = "Option::is_none"
@@ -3502,7 +3369,6 @@ pub struct UpdateApiGuardianEndpointRequest {
     pub rate_limiting_enabled: Option<bool>,
     #[serde(rename = "rateLimitingType", skip_serializing_if = "Option::is_none")]
     pub rate_limiting_type: Option<ApiGuardianRateLimitType>,
-    /// Maximum number of requests allowed within the timeframe before blocking. Must be greater than zero.
     #[serde(
         rename = "rateLimitingRequestCount",
         skip_serializing_if = "Option::is_none"
@@ -3515,7 +3381,6 @@ pub struct UpdateApiGuardianEndpointRequest {
     pub rate_limiting_timeframe: Option<RateLimitTimeframe>,
 }
 
-/// Response for the PATCH /endpoint/{endpointId} endpoint.
 #[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
 #[serde(default)]
 pub struct UpdateApiGuardianEndpointResponse {
@@ -3540,9 +3405,6 @@ pub struct UpdateBotCategorizationConfigurationResponse {
     pub error: Option<GenericRequestResponse>,
 }
 
-/// Request body for setting a category-level action. Uses BunnyNet.Shield.Database.Enums.BotCategoryAction rather
-/// than BunnyNet.Shield.Database.Enums.BotCategorizationAction so the contract can only express actions valid for a
-/// category (no Ignore).
 #[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
 #[serde(default)]
 pub struct UpdateBotCategoryConfigurationRequest {
@@ -3582,17 +3444,13 @@ pub struct UpdateBotDetectionResponse {
     pub data: Option<BotDetectionConfigurationState>,
 }
 
-/// Request model for updating a custom access list.
 #[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
 #[serde(default)]
 pub struct UpdateCustomAccessListRequest {
-    /// The new display name for the access list. If null, the current name is preserved.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub name: Option<String>,
-    /// The new content for the access list with entries separated by newlines. If null, the current content is preserved.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub content: Option<String>,
-    /// SHA-256 checksum of the new content for integrity verification. If null, it will be automatically calculated.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub checksum: Option<String>,
 }
@@ -3695,9 +3553,9 @@ pub struct UploadScanning {
 #[serde(default)]
 pub struct UploadScanningConfigurationResponse {
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub error: Option<GenericRequestResponse>,
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub data: Option<UploadScanningConfigurationState>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub error: Option<GenericRequestResponse>,
 }
 
 #[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
@@ -3727,16 +3585,11 @@ int_enum! {
     }
 }
 
-/// Represents the request for uploading or updating an OpenAPI specification in API Guardian.
 #[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
 #[serde(default)]
 pub struct UpsertOpenApiSpecificationRequest {
-    /// The file contents of the OpenAPI specification.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub content: Option<String>,
-    /// Whether to enforce authentication requirements for endpoints.
-    /// On upload, defaults to true if not specified.
-    /// On update, existing endpoint auth settings are preserved if not specified.
     #[serde(
         rename = "enforceAuthorizationValidation",
         skip_serializing_if = "Option::is_none"
@@ -3744,7 +3597,6 @@ pub struct UpsertOpenApiSpecificationRequest {
     pub enforce_authorization_validation: Option<bool>,
 }
 
-/// Represents the response for uploading or updating an OpenAPI specification in API Guardian.
 #[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
 #[serde(default)]
 pub struct UpsertOpenApiSpecificationResponse {
@@ -4222,6 +4074,8 @@ pub struct WafValueConstraint {
 }
 
 str_enum! {
+    /// Mirrors BunnyNet.Backend.CDS.Services.Shield.Domain.Waf.WafValueKind. The API owns this copy for the same reason as
+    /// BunnyNet.Backend.CDS.Services.Shield.Api.Waf.Models.WafRuleOperatorType. Staging writes the value as a name, so the enum has the string converter.
     WafValueKind {
         Text = "Text",
         Number = "Number",

@@ -522,7 +522,7 @@ pub struct EdgeScriptModel {
     #[serde(rename = "LastModified", skip_serializing_if = "Option::is_none")]
     pub last_modified: Option<String>,
     /// 0 = DNS
-    /// 1 = CDN
+    /// 1 = Standalone
     /// 2 = Middleware
     #[serde(rename = "ScriptType", skip_serializing_if = "Option::is_none")]
     pub script_type: Option<EdgeScriptTypes>,
@@ -563,7 +563,7 @@ pub struct EdgeScriptModel {
 
 int_enum! {
     /// 0 = DNS
-    /// 1 = CDN
+    /// 1 = Standalone
     /// 2 = Middleware
     EdgeScriptTypes {
         Dns = 0,
@@ -668,7 +668,7 @@ pub struct UpdateEdgeScriptModel {
     #[serde(rename = "Name", skip_serializing_if = "Option::is_none")]
     pub name: Option<String>,
     /// 0 = DNS
-    /// 1 = CDN
+    /// 1 = Standalone
     /// 2 = Middleware
     #[serde(rename = "ScriptType", skip_serializing_if = "Option::is_none")]
     pub script_type: Option<EdgeScriptTypes>,
@@ -814,7 +814,7 @@ pub struct AddEdgeScriptModel {
     #[serde(rename = "Code", skip_serializing_if = "Option::is_none")]
     pub code: Option<String>,
     /// 0 = DNS
-    /// 1 = CDN
+    /// 1 = Standalone
     /// 2 = Middleware
     #[serde(rename = "ScriptType", skip_serializing_if = "Option::is_none")]
     pub script_type: Option<EdgeScriptTypes>,
