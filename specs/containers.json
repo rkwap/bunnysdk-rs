@@ -2,7 +2,7 @@
   "openapi": "3.0.4",
   "info": {
     "title": "Public API",
-    "description": "Public API endpoints for user consumption. Release version: v1.11.1.0",
+    "description": "Public API endpoints for user consumption. Release version: v1.12.1.0",
     "version": "1.0"
   },
   "servers": [
@@ -3668,7 +3668,7 @@
           "Volumes"
         ],
         "summary": "Delete All Volume Instances",
-        "description": "Deletes all volume instances for a volume template. All instances must be detached before deletion.",
+        "description": "Deletes a volume template and all its instances. The volume must be detached from the application and all instances must be detached before deletion.",
         "operationId": "DeleteAllVolumeInstances",
         "parameters": [
           {
@@ -3701,7 +3701,7 @@
             }
           },
           "400": {
-            "description": "Some volume instances are not detached.",
+            "description": "Some volume instances are not detached yet or already being deleted, or a container still mounts the volume.",
             "content": {
               "application/json": {
                 "schema": {
@@ -3721,7 +3721,108 @@
             }
           },
           "404": {
-            "description": "Volume template or instances not found.",
+            "description": "Application or volume template not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/apps/{appId}/volumes/{volumeId}/mounts": {
+      "put": {
+        "tags": [
+          "Volumes"
+        ],
+        "summary": "Set Volume Mounts",
+        "description": "Sets every application container that mounts the volume and the path it is mounted at, in a single application update. Containers left out of the list stop mounting the volume; an empty list detaches it from the application.",
+        "operationId": "SetVolumeMounts",
+        "parameters": [
+          {
+            "name": "appId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "volumeId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "my-data-volume"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetVolumeMountsRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetVolumeMountsRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetVolumeMountsRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Mounts were set; when they changed, the pods restart once with the new mounts.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SetVolumeMountsResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "A container is unknown or listed twice, or its mount path is taken by another volume.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "User is unauthorized.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Application or volume not found.",
             "content": {
               "application/json": {
                 "schema": {
@@ -4387,6 +4488,10 @@
           },
           "repositorySettings": {
             "$ref": "#/components/schemas/RepositorySettings"
+          },
+          "terminationGracePeriodSeconds": {
+            "type": "integer",
+            "format": "int64"
           }
         },
         "additionalProperties": false,
@@ -6910,6 +7015,61 @@
         },
         "additionalProperties": false
       },
+      "SetVolumeMountRequest": {
+        "required": [
+          "containerId",
+          "mountPath"
+        ],
+        "type": "object",
+        "properties": {
+          "containerId": {
+            "minLength": 1,
+            "type": "string",
+            "description": "Id of the container template that mounts the volume."
+          },
+          "mountPath": {
+            "minLength": 1,
+            "pattern": "^/(?!.*//)(?!.*\\.\\.)(?!.*\\s)([a-zA-Z0-9._-]+/?)+$",
+            "type": "string",
+            "description": "Absolute path inside the container where the volume is mounted."
+          }
+        },
+        "additionalProperties": false,
+        "description": "One container that mounts the volume"
+      },
+      "SetVolumeMountsRequest": {
+        "required": [
+          "mounts"
+        ],
+        "type": "object",
+        "properties": {
+          "mounts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SetVolumeMountRequest"
+            },
+            "description": "Every container that mounts the volume, each at its own path. A container left out does not mount it\nany more, so an empty list detaches the volume from the application. The whole list is applied in one\napplication update, or nothing is when any mount is invalid."
+          }
+        },
+        "additionalProperties": false,
+        "description": "Set volume mounts request"
+      },
+      "SetVolumeMountsResponse": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "mounts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/VolumeMountInList"
+            }
+          }
+        },
+        "additionalProperties": false,
+        "description": "Set volume mounts response"
+      },
       "Statistics": {
         "type": "object",
         "properties": {
@@ -7454,6 +7614,12 @@
             "items": {
               "$ref": "#/components/schemas/VolumeInstance"
             }
+          },
+          "mounts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/VolumeMountInList"
+            }
           }
         },
         "additionalProperties": false,
@@ -7498,6 +7664,22 @@
         },
         "additionalProperties": false,
         "description": "Volume instance model"
+      },
+      "VolumeMountInList": {
+        "type": "object",
+        "properties": {
+          "containerId": {
+            "type": "string"
+          },
+          "containerName": {
+            "type": "string"
+          },
+          "mountPath": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false,
+        "description": "Where the application's container templates mount the volume (the desired state). Empty once the\nvolume is detached, even while its instances are still attached to pods that have not rolled yet."
       },
       "VolumeMountRequest": {
         "required": [

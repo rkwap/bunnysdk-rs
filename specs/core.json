@@ -16049,9 +16049,9 @@
             "format": "decimal"
           },
           "TotalUnits": {
-            "type": "integer",
+            "type": "number",
             "description": "The billed quantity for the related product",
-            "format": "int64"
+            "format": "decimal"
           },
           "MeasuringUnit": {
             "type": "string",

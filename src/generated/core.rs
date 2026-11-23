@@ -4,12 +4,12 @@
 //! Do not edit by hand.
 
 #![allow(
-    deprecated,
-    clippy::all,
-    rustdoc::bare_urls,
-    rustdoc::broken_intra_doc_links,
-    rustdoc::invalid_html_tags,
-    rustdoc::invalid_rust_codeblocks
+deprecated,
+clippy::all,
+rustdoc::bare_urls,
+rustdoc::broken_intra_doc_links,
+rustdoc::invalid_html_tags,
+rustdoc::invalid_rust_codeblocks
 )]
 
 use serde::{Deserialize, Serialize};
@@ -22,21 +22,19 @@ pub const BASE_URL: &str = "https://api.bunny.net";
 /// Authenticates with your account API key. Cheap to clone; clones share the connection pool.
 #[derive(Debug, Clone)]
 pub struct CoreClient {
-    pub(crate) transport: crate::transport::Transport,
+pub(crate) transport: crate::transport::Transport,
 }
 
 impl CoreClient {
-    /// Creates a client authenticated with your account API key.
-    pub fn new(api_key: &str) -> crate::Result<Self> {
-        Self::with_config(api_key, crate::Config::default())
-    }
+/// Creates a client authenticated with your account API key.
+pub fn new(api_key: &str) -> crate::Result<Self> {
+Self::with_config(api_key, crate::Config::default())
+}
 
-    /// Like [`CoreClient::new`], with custom settings.
-    pub fn with_config(api_key: &str, config: crate::Config) -> crate::Result<Self> {
-        Ok(Self {
-            transport: crate::transport::Transport::new(api_key, BASE_URL, config)?,
-        })
-    }
+/// Like [`CoreClient::new`], with custom settings.
+pub fn with_config(api_key: &str, config: crate::Config) -> crate::Result<Self> {
+Ok(Self { transport: crate::transport::Transport::new(api_key, BASE_URL, config)? })
+}
 
     /// Get Country List
     ///
@@ -44,252 +42,141 @@ impl CoreClient {
     ///
     /// `GET /country`
     pub async fn get_country_list(&self) -> crate::Result<Vec<CountryModel>> {
-        let request = self.transport.request(reqwest::Method::GET, "/country");
-        self.transport.json(request).await
-    }
+let request = self.transport.request(reqwest::Method::GET, "/country");
+self.transport.json(request).await
+}
 
     /// List DNS Zones
     ///
     /// Returns: The list of DNS Zones on the account.
     ///
     /// `GET /dnszone`
-    pub async fn list_dns_zones(
-        &self,
-        query: &ListDnsZonesQuery,
-    ) -> crate::Result<PaginationListModelOfDnsZoneModel> {
-        let request = self
-            .transport
-            .request_with_query(reqwest::Method::GET, "/dnszone", query)?;
-        self.transport
-            .json_list(request, crate::transport::ListShape::Page("Items"))
-            .await
-    }
+    pub async fn list_dns_zones(&self, query: &ListDnsZonesQuery) -> crate::Result<PaginationListModelOfDnsZoneModel> {
+let request = self.transport.request_with_query(reqwest::Method::GET, "/dnszone", query)?;
+self.transport.json_list(request, crate::transport::ListShape::Page("Items")).await
+}
 
     /// Add DNS Zone
     ///
     /// `POST /dnszone`
     pub async fn add_dns_zone(&self, body: &DnsZoneAddModel) -> crate::Result<()> {
-        let request = self
-            .transport
-            .request(reqwest::Method::POST, "/dnszone")
-            .json(body);
-        self.transport.empty(request).await
-    }
+let request = self.transport.request(reqwest::Method::POST, "/dnszone").json(body);
+self.transport.empty(request).await
+}
 
     /// Get DNS Zone
     ///
     /// Returns: The DNS Zone with the requested ID
     ///
     /// `GET /dnszone/{id}`
-    pub async fn get_dns_zone(
-        &self,
-        id: i64,
-        query: &GetDnsZoneQuery,
-    ) -> crate::Result<DnsZoneModel> {
-        let request = self.transport.request_with_query(
-            reqwest::Method::GET,
-            &format!("/dnszone/{}", crate::transport::segment(id)),
-            query,
-        )?;
-        self.transport.json(request).await
-    }
+    pub async fn get_dns_zone(&self, id: i64, query: &GetDnsZoneQuery) -> crate::Result<DnsZoneModel> {
+let request = self.transport.request_with_query(reqwest::Method::GET, &format!("/dnszone/{}", crate::transport::segment(id)), query)?;
+self.transport.json(request).await
+}
 
     /// Update DNS Zones
     ///
     /// Returns: The DNS Zone with the requested ID
     ///
     /// `POST /dnszone/{id}`
-    pub async fn update_dns_zones(
-        &self,
-        id: i64,
-        body: &UpdateDnsZoneModel,
-    ) -> crate::Result<DnsZoneModel> {
-        let request = self
-            .transport
-            .request(
-                reqwest::Method::POST,
-                &format!("/dnszone/{}", crate::transport::segment(id)),
-            )
-            .json(body);
-        self.transport.json(request).await
-    }
+    pub async fn update_dns_zones(&self, id: i64, body: &UpdateDnsZoneModel) -> crate::Result<DnsZoneModel> {
+let request = self.transport.request(reqwest::Method::POST, &format!("/dnszone/{}", crate::transport::segment(id))).json(body);
+self.transport.json(request).await
+}
 
     /// Delete DNS Zone
     ///
     /// `DELETE /dnszone/{id}`
     pub async fn delete_dns_zone(&self, id: i64) -> crate::Result<()> {
-        let request = self.transport.request(
-            reqwest::Method::DELETE,
-            &format!("/dnszone/{}", crate::transport::segment(id)),
-        );
-        self.transport.empty(request).await
-    }
+let request = self.transport.request(reqwest::Method::DELETE, &format!("/dnszone/{}", crate::transport::segment(id)));
+self.transport.empty(request).await
+}
 
     /// `GET /dnszone/{id}/export`
     pub async fn export_dns_zone(&self, id: i64) -> crate::Result<bytes::Bytes> {
-        let request = self.transport.request(
-            reqwest::Method::GET,
-            &format!("/dnszone/{}/export", crate::transport::segment(id)),
-        );
-        self.transport.bytes(request).await
-    }
+let request = self.transport.request(reqwest::Method::GET, &format!("/dnszone/{}/export", crate::transport::segment(id)));
+self.transport.bytes(request).await
+}
 
     /// Check the DNS zone availability
     ///
     /// `POST /dnszone/checkavailability`
-    pub async fn check_dns_zone_availability(
-        &self,
-        body: &ZoneAvailabilityRequestModel,
-    ) -> crate::Result<()> {
-        let request = self
-            .transport
-            .request(reqwest::Method::POST, "/dnszone/checkavailability")
-            .json(body);
-        self.transport.empty(request).await
-    }
+    pub async fn check_dns_zone_availability(&self, body: &ZoneAvailabilityRequestModel) -> crate::Result<()> {
+let request = self.transport.request(reqwest::Method::POST, "/dnszone/checkavailability").json(body);
+self.transport.empty(request).await
+}
 
     /// List DNS Zone Records
     ///
     /// Returns: A paginated list of DNS records for the specified zone
     ///
     /// `GET /dnszone/{zoneId}/records`
-    pub async fn list_dns_zone_records(
-        &self,
-        zone_id: i64,
-        query: &ListDnsZoneRecordsQuery,
-    ) -> crate::Result<PaginationListModelOfDnsRecordModel> {
-        let request = self.transport.request_with_query(
-            reqwest::Method::GET,
-            &format!("/dnszone/{}/records", crate::transport::segment(zone_id)),
-            query,
-        )?;
-        self.transport
-            .json_list(request, crate::transport::ListShape::Page("Items"))
-            .await
-    }
+    pub async fn list_dns_zone_records(&self, zone_id: i64, query: &ListDnsZoneRecordsQuery) -> crate::Result<PaginationListModelOfDnsRecordModel> {
+let request = self.transport.request_with_query(reqwest::Method::GET, &format!("/dnszone/{}/records", crate::transport::segment(zone_id)), query)?;
+self.transport.json_list(request, crate::transport::ListShape::Page("Items")).await
+}
 
     /// Add DNS Record
     ///
     /// Returns: The DNS record was successfully added.
     ///
     /// `PUT /dnszone/{zoneId}/records`
-    pub async fn add_dns_record(
-        &self,
-        zone_id: i64,
-        body: &AddDnsRecordModel,
-    ) -> crate::Result<DnsRecordModel> {
-        let request = self
-            .transport
-            .request(
-                reqwest::Method::PUT,
-                &format!("/dnszone/{}/records", crate::transport::segment(zone_id)),
-            )
-            .json(body);
-        self.transport.json(request).await
-    }
+    pub async fn add_dns_record(&self, zone_id: i64, body: &AddDnsRecordModel) -> crate::Result<DnsRecordModel> {
+let request = self.transport.request(reqwest::Method::PUT, &format!("/dnszone/{}/records", crate::transport::segment(zone_id))).json(body);
+self.transport.json(request).await
+}
 
     /// Update DNS Record
     ///
     /// `POST /dnszone/{zoneId}/records/{id}`
-    pub async fn update_dns_record(
-        &self,
-        zone_id: i64,
-        id: i64,
-        body: &UpdateDnsRecordModel,
-    ) -> crate::Result<()> {
-        let request = self
-            .transport
-            .request(
-                reqwest::Method::POST,
-                &format!(
-                    "/dnszone/{}/records/{}",
-                    crate::transport::segment(zone_id),
-                    crate::transport::segment(id)
-                ),
-            )
-            .json(body);
-        self.transport.empty(request).await
-    }
+    pub async fn update_dns_record(&self, zone_id: i64, id: i64, body: &UpdateDnsRecordModel) -> crate::Result<()> {
+let request = self.transport.request(reqwest::Method::POST, &format!("/dnszone/{}/records/{}", crate::transport::segment(zone_id), crate::transport::segment(id))).json(body);
+self.transport.empty(request).await
+}
 
     /// Delete DNS Record
     ///
     /// `DELETE /dnszone/{zoneId}/records/{id}`
     pub async fn delete_dns_record(&self, zone_id: i64, id: i64) -> crate::Result<()> {
-        let request = self.transport.request(
-            reqwest::Method::DELETE,
-            &format!(
-                "/dnszone/{}/records/{}",
-                crate::transport::segment(zone_id),
-                crate::transport::segment(id)
-            ),
-        );
-        self.transport.empty(request).await
-    }
+let request = self.transport.request(reqwest::Method::DELETE, &format!("/dnszone/{}/records/{}", crate::transport::segment(zone_id), crate::transport::segment(id)));
+self.transport.empty(request).await
+}
 
     /// Import DNS Records
     ///
     /// Returns: The import operation has finished successfully.
     ///
     /// `POST /dnszone/{zoneId}/import`
-    pub async fn import_dns_records(
-        &self,
-        zone_id: i64,
-    ) -> crate::Result<DnsZoneImportResultModel> {
-        let request = self.transport.request(
-            reqwest::Method::POST,
-            &format!("/dnszone/{}/import", crate::transport::segment(zone_id)),
-        );
-        self.transport.json(request).await
-    }
+    pub async fn import_dns_records(&self, zone_id: i64) -> crate::Result<DnsZoneImportResultModel> {
+let request = self.transport.request(reqwest::Method::POST, &format!("/dnszone/{}/import", crate::transport::segment(zone_id)));
+self.transport.json(request).await
+}
 
     /// Issue new wildcard certificate
     ///
     /// `POST /dnszone/{zoneId}/certificate/issue`
-    pub async fn issue_new_wildcard_certificate(
-        &self,
-        zone_id: i64,
-        body: &IssueWildcardCertificateRequestModel,
-    ) -> crate::Result<()> {
-        let request = self
-            .transport
-            .request(
-                reqwest::Method::POST,
-                &format!(
-                    "/dnszone/{}/certificate/issue",
-                    crate::transport::segment(zone_id)
-                ),
-            )
-            .json(body);
-        self.transport.empty(request).await
-    }
+    pub async fn issue_new_wildcard_certificate(&self, zone_id: i64, body: &IssueWildcardCertificateRequestModel) -> crate::Result<()> {
+let request = self.transport.request(reqwest::Method::POST, &format!("/dnszone/{}/certificate/issue", crate::transport::segment(zone_id))).json(body);
+self.transport.empty(request).await
+}
 
     /// List Pull Zones
     ///
     /// Returns: The list of all the pull zones on the account. When the page parameter is set to a value greater than 0, the response will be a paginated object with Items, CurrentPage, TotalItems and HasMoreItems properties instead of a plain array.
     ///
     /// `GET /pullzone`
-    pub async fn list_pull_zones(
-        &self,
-        query: &ListPullZonesQuery,
-    ) -> crate::Result<Vec<PullZoneModel>> {
-        let request =
-            self.transport
-                .request_with_query(reqwest::Method::GET, "/pullzone", query)?;
-        self.transport
-            .json_list(request, crate::transport::ListShape::Array)
-            .await
-    }
+    pub async fn list_pull_zones(&self, query: &ListPullZonesQuery) -> crate::Result<Vec<PullZoneModel>> {
+let request = self.transport.request_with_query(reqwest::Method::GET, "/pullzone", query)?;
+self.transport.json_list(request, crate::transport::ListShape::Array).await
+}
 
     /// Add Pull Zone
     ///
     /// `POST /pullzone`
     pub async fn add_pull_zone(&self, body: &PullZoneAddModel) -> crate::Result<()> {
-        let request = self
-            .transport
-            .request(reqwest::Method::POST, "/pullzone")
-            .json(body);
-        self.transport.empty(request).await
-    }
+let request = self.transport.request(reqwest::Method::POST, "/pullzone").json(body);
+self.transport.empty(request).await
+}
 
     /// Count Pull Zones
     ///
@@ -297,502 +184,233 @@ impl CoreClient {
     ///
     /// `GET /pullzone/count`
     pub async fn count_pull_zones(&self) -> crate::Result<PullZoneCountModel> {
-        let request = self
-            .transport
-            .request(reqwest::Method::GET, "/pullzone/count");
-        self.transport.json(request).await
-    }
+let request = self.transport.request(reqwest::Method::GET, "/pullzone/count");
+self.transport.json(request).await
+}
 
     /// Get Pull Zone
     ///
     /// Returns: The Pull Zone with the requested ID
     ///
     /// `GET /pullzone/{id}`
-    pub async fn get_pull_zone(
-        &self,
-        id: i64,
-        query: &GetPullZoneQuery,
-    ) -> crate::Result<PullZoneModel> {
-        let request = self.transport.request_with_query(
-            reqwest::Method::GET,
-            &format!("/pullzone/{}", crate::transport::segment(id)),
-            query,
-        )?;
-        self.transport.json(request).await
-    }
+    pub async fn get_pull_zone(&self, id: i64, query: &GetPullZoneQuery) -> crate::Result<PullZoneModel> {
+let request = self.transport.request_with_query(reqwest::Method::GET, &format!("/pullzone/{}", crate::transport::segment(id)), query)?;
+self.transport.json(request).await
+}
 
     /// Update Pull Zone
     ///
     /// Returns: The Pull Zone was successfully updated
     ///
     /// `POST /pullzone/{id}`
-    pub async fn update_pull_zone(
-        &self,
-        id: i64,
-        body: &PullZoneSettingsModel,
-    ) -> crate::Result<PullZoneModel> {
-        let request = self
-            .transport
-            .request(
-                reqwest::Method::POST,
-                &format!("/pullzone/{}", crate::transport::segment(id)),
-            )
-            .json(body);
-        self.transport.json(request).await
-    }
+    pub async fn update_pull_zone(&self, id: i64, body: &PullZoneSettingsModel) -> crate::Result<PullZoneModel> {
+let request = self.transport.request(reqwest::Method::POST, &format!("/pullzone/{}", crate::transport::segment(id))).json(body);
+self.transport.json(request).await
+}
 
     /// Delete Pull Zone
     ///
     /// `DELETE /pullzone/{id}`
     pub async fn delete_pull_zone(&self, id: i64) -> crate::Result<()> {
-        let request = self.transport.request(
-            reqwest::Method::DELETE,
-            &format!("/pullzone/{}", crate::transport::segment(id)),
-        );
-        self.transport.empty(request).await
-    }
+let request = self.transport.request(reqwest::Method::DELETE, &format!("/pullzone/{}", crate::transport::segment(id)));
+self.transport.empty(request).await
+}
 
     /// Delete Edge Rule
     ///
     /// `DELETE /pullzone/{pullZoneId}/edgerules/{edgeRuleId}`
-    pub async fn delete_edge_rule(
-        &self,
-        pull_zone_id: i64,
-        edge_rule_id: &str,
-    ) -> crate::Result<()> {
-        let request = self.transport.request(
-            reqwest::Method::DELETE,
-            &format!(
-                "/pullzone/{}/edgerules/{}",
-                crate::transport::segment(pull_zone_id),
-                crate::transport::segment(edge_rule_id)
-            ),
-        );
-        self.transport.empty(request).await
-    }
+    pub async fn delete_edge_rule(&self, pull_zone_id: i64, edge_rule_id: &str) -> crate::Result<()> {
+let request = self.transport.request(reqwest::Method::DELETE, &format!("/pullzone/{}/edgerules/{}", crate::transport::segment(pull_zone_id), crate::transport::segment(edge_rule_id)));
+self.transport.empty(request).await
+}
 
     /// Add/Update Edge Rule
     ///
     /// `POST /pullzone/{pullZoneId}/edgerules/addOrUpdate`
-    pub async fn add_update_edge_rule(
-        &self,
-        pull_zone_id: i64,
-        body: &EdgeRuleV2Model,
-    ) -> crate::Result<()> {
-        let request = self
-            .transport
-            .request(
-                reqwest::Method::POST,
-                &format!(
-                    "/pullzone/{}/edgerules/addOrUpdate",
-                    crate::transport::segment(pull_zone_id)
-                ),
-            )
-            .json(body);
-        self.transport.empty(request).await
-    }
+    pub async fn add_update_edge_rule(&self, pull_zone_id: i64, body: &EdgeRuleV2Model) -> crate::Result<()> {
+let request = self.transport.request(reqwest::Method::POST, &format!("/pullzone/{}/edgerules/addOrUpdate", crate::transport::segment(pull_zone_id))).json(body);
+self.transport.empty(request).await
+}
 
     /// Set Edge Rule Enabled
     ///
     /// `POST /pullzone/{pullZoneId}/edgerules/{edgeRuleId}/setEdgeRuleEnabled`
-    pub async fn set_edge_rule_enabled(
-        &self,
-        pull_zone_id: i64,
-        edge_rule_id: &str,
-        body: &ToggleRequestModel,
-    ) -> crate::Result<()> {
-        let request = self
-            .transport
-            .request(
-                reqwest::Method::POST,
-                &format!(
-                    "/pullzone/{}/edgerules/{}/setEdgeRuleEnabled",
-                    crate::transport::segment(pull_zone_id),
-                    crate::transport::segment(edge_rule_id)
-                ),
-            )
-            .json(body);
-        self.transport.empty(request).await
-    }
+    pub async fn set_edge_rule_enabled(&self, pull_zone_id: i64, edge_rule_id: &str, body: &ToggleRequestModel) -> crate::Result<()> {
+let request = self.transport.request(reqwest::Method::POST, &format!("/pullzone/{}/edgerules/{}/setEdgeRuleEnabled", crate::transport::segment(pull_zone_id), crate::transport::segment(edge_rule_id))).json(body);
+self.transport.empty(request).await
+}
 
     /// Change hostname private key type
     ///
     /// `POST /pullzone/{id}/updatePrivateKeyType`
-    pub async fn change_hostname_private_key_type(
-        &self,
-        id: i32,
-        body: &PrivateKeyUpdateModel,
-    ) -> crate::Result<()> {
-        let request = self
-            .transport
-            .request(
-                reqwest::Method::POST,
-                &format!(
-                    "/pullzone/{}/updatePrivateKeyType",
-                    crate::transport::segment(id)
-                ),
-            )
-            .json(body);
-        self.transport.empty(request).await
-    }
+    pub async fn change_hostname_private_key_type(&self, id: i32, body: &PrivateKeyUpdateModel) -> crate::Result<()> {
+let request = self.transport.request(reqwest::Method::POST, &format!("/pullzone/{}/updatePrivateKeyType", crate::transport::segment(id))).json(body);
+self.transport.empty(request).await
+}
 
     /// Load Free Certificate
     ///
     /// `GET /pullzone/loadFreeCertificate`
-    pub async fn load_free_certificate(
-        &self,
-        query: &LoadFreeCertificateQuery,
-    ) -> crate::Result<bytes::Bytes> {
-        let request = self.transport.request_with_query(
-            reqwest::Method::GET,
-            "/pullzone/loadFreeCertificate",
-            query,
-        )?;
-        self.transport.bytes(request).await
-    }
+    pub async fn load_free_certificate(&self, query: &LoadFreeCertificateQuery) -> crate::Result<bytes::Bytes> {
+let request = self.transport.request_with_query(reqwest::Method::GET, "/pullzone/loadFreeCertificate", query)?;
+self.transport.bytes(request).await
+}
 
     /// Request External DNS Certificate
     ///
     /// Returns: The TXT record details for DNS verification
     ///
     /// `POST /pullzone/requestExternalDnsCertificate`
-    pub async fn request_external_dns_certificate(
-        &self,
-        body: &ExternalDnsCertificateRequest,
-    ) -> crate::Result<serde_json::Value> {
-        let request = self
-            .transport
-            .request(
-                reqwest::Method::POST,
-                "/pullzone/requestExternalDnsCertificate",
-            )
-            .json(body);
-        self.transport.json(request).await
-    }
+    pub async fn request_external_dns_certificate(&self, body: &ExternalDnsCertificateRequest) -> crate::Result<serde_json::Value> {
+let request = self.transport.request(reqwest::Method::POST, "/pullzone/requestExternalDnsCertificate").json(body);
+self.transport.json(request).await
+}
 
     /// Complete External DNS Certificate
     ///
     /// `POST /pullzone/completeExternalDnsCertificate`
-    pub async fn complete_external_dns_certificate(
-        &self,
-        body: &ExternalDnsCertificateRequest,
-    ) -> crate::Result<()> {
-        let request = self
-            .transport
-            .request(
-                reqwest::Method::POST,
-                "/pullzone/completeExternalDnsCertificate",
-            )
-            .json(body);
-        self.transport.empty(request).await
-    }
+    pub async fn complete_external_dns_certificate(&self, body: &ExternalDnsCertificateRequest) -> crate::Result<()> {
+let request = self.transport.request(reqwest::Method::POST, "/pullzone/completeExternalDnsCertificate").json(body);
+self.transport.empty(request).await
+}
 
     /// Request External HTTP Certificate
     ///
     /// Returns: The HTTP-01 challenge file details for verification
     ///
     /// `POST /pullzone/requestExternalHttpCertificate`
-    pub async fn request_external_http_certificate(
-        &self,
-        body: &ExternalHttpCertificateRequest,
-    ) -> crate::Result<serde_json::Value> {
-        let request = self
-            .transport
-            .request(
-                reqwest::Method::POST,
-                "/pullzone/requestExternalHttpCertificate",
-            )
-            .json(body);
-        self.transport.json(request).await
-    }
+    pub async fn request_external_http_certificate(&self, body: &ExternalHttpCertificateRequest) -> crate::Result<serde_json::Value> {
+let request = self.transport.request(reqwest::Method::POST, "/pullzone/requestExternalHttpCertificate").json(body);
+self.transport.json(request).await
+}
 
     /// Complete External HTTP Certificate
     ///
     /// `POST /pullzone/completeExternalHttpCertificate`
-    pub async fn complete_external_http_certificate(
-        &self,
-        body: &ExternalHttpCertificateRequest,
-    ) -> crate::Result<()> {
-        let request = self
-            .transport
-            .request(
-                reqwest::Method::POST,
-                "/pullzone/completeExternalHttpCertificate",
-            )
-            .json(body);
-        self.transport.empty(request).await
-    }
+    pub async fn complete_external_http_certificate(&self, body: &ExternalHttpCertificateRequest) -> crate::Result<()> {
+let request = self.transport.request(reqwest::Method::POST, "/pullzone/completeExternalHttpCertificate").json(body);
+self.transport.empty(request).await
+}
 
     /// Purge Cache
     ///
     /// `POST /pullzone/{id}/purgeCache`
     pub async fn purge_cache(&self, id: i64, body: &PullZonePurgeModel) -> crate::Result<()> {
-        let request = self
-            .transport
-            .request(
-                reqwest::Method::POST,
-                &format!("/pullzone/{}/purgeCache", crate::transport::segment(id)),
-            )
-            .json(body);
-        self.transport.empty(request).await
-    }
+let request = self.transport.request(reqwest::Method::POST, &format!("/pullzone/{}/purgeCache", crate::transport::segment(id))).json(body);
+self.transport.empty(request).await
+}
 
     /// Check the pull zone availability
     ///
     /// `POST /pullzone/checkavailability`
-    pub async fn check_pull_zone_availability(
-        &self,
-        body: &ZoneAvailabilityRequestModel,
-    ) -> crate::Result<()> {
-        let request = self
-            .transport
-            .request(reqwest::Method::POST, "/pullzone/checkavailability")
-            .json(body);
-        self.transport.empty(request).await
-    }
+    pub async fn check_pull_zone_availability(&self, body: &ZoneAvailabilityRequestModel) -> crate::Result<()> {
+let request = self.transport.request(reqwest::Method::POST, "/pullzone/checkavailability").json(body);
+self.transport.empty(request).await
+}
 
     /// Add Custom Certificate
     ///
     /// `POST /pullzone/{id}/addCertificate`
-    pub async fn add_custom_certificate(
-        &self,
-        id: i64,
-        body: &AddCertificateRequestModel,
-    ) -> crate::Result<()> {
-        let request = self
-            .transport
-            .request(
-                reqwest::Method::POST,
-                &format!("/pullzone/{}/addCertificate", crate::transport::segment(id)),
-            )
-            .json(body);
-        self.transport.empty(request).await
-    }
+    pub async fn add_custom_certificate(&self, id: i64, body: &AddCertificateRequestModel) -> crate::Result<()> {
+let request = self.transport.request(reqwest::Method::POST, &format!("/pullzone/{}/addCertificate", crate::transport::segment(id))).json(body);
+self.transport.empty(request).await
+}
 
     /// Remove Certificate
     ///
     /// `DELETE /pullzone/{id}/removeCertificate`
-    pub async fn remove_certificate(
-        &self,
-        id: i64,
-        body: &RemoveCertificateRequestModel,
-    ) -> crate::Result<()> {
-        let request = self
-            .transport
-            .request(
-                reqwest::Method::DELETE,
-                &format!(
-                    "/pullzone/{}/removeCertificate",
-                    crate::transport::segment(id)
-                ),
-            )
-            .json(body);
-        self.transport.empty(request).await
-    }
+    pub async fn remove_certificate(&self, id: i64, body: &RemoveCertificateRequestModel) -> crate::Result<()> {
+let request = self.transport.request(reqwest::Method::DELETE, &format!("/pullzone/{}/removeCertificate", crate::transport::segment(id))).json(body);
+self.transport.empty(request).await
+}
 
     /// Add Custom Hostname
     ///
     /// `POST /pullzone/{id}/addHostname`
-    pub async fn add_custom_hostname(
-        &self,
-        id: i64,
-        body: &AddHostnameRequestModel,
-    ) -> crate::Result<()> {
-        let request = self
-            .transport
-            .request(
-                reqwest::Method::POST,
-                &format!("/pullzone/{}/addHostname", crate::transport::segment(id)),
-            )
-            .json(body);
-        self.transport.empty(request).await
-    }
+    pub async fn add_custom_hostname(&self, id: i64, body: &AddHostnameRequestModel) -> crate::Result<()> {
+let request = self.transport.request(reqwest::Method::POST, &format!("/pullzone/{}/addHostname", crate::transport::segment(id))).json(body);
+self.transport.empty(request).await
+}
 
     /// Remove Custom Hostname
     ///
     /// `DELETE /pullzone/{id}/removeHostname`
-    pub async fn remove_custom_hostname(
-        &self,
-        id: i64,
-        body: &RemoveHostnameRequestModel,
-    ) -> crate::Result<()> {
-        let request = self
-            .transport
-            .request(
-                reqwest::Method::DELETE,
-                &format!("/pullzone/{}/removeHostname", crate::transport::segment(id)),
-            )
-            .json(body);
-        self.transport.empty(request).await
-    }
+    pub async fn remove_custom_hostname(&self, id: i64, body: &RemoveHostnameRequestModel) -> crate::Result<()> {
+let request = self.transport.request(reqwest::Method::DELETE, &format!("/pullzone/{}/removeHostname", crate::transport::segment(id))).json(body);
+self.transport.empty(request).await
+}
 
     /// Set Force SSL
     ///
     /// `POST /pullzone/{id}/setForceSSL`
     pub async fn set_force_ssl(&self, id: i64, body: &ForceSslRequestModel) -> crate::Result<()> {
-        let request = self
-            .transport
-            .request(
-                reqwest::Method::POST,
-                &format!("/pullzone/{}/setForceSSL", crate::transport::segment(id)),
-            )
-            .json(body);
-        self.transport.empty(request).await
-    }
+let request = self.transport.request(reqwest::Method::POST, &format!("/pullzone/{}/setForceSSL", crate::transport::segment(id))).json(body);
+self.transport.empty(request).await
+}
 
     /// Reset Token Key
     ///
     /// `POST /pullzone/{id}/resetSecurityKey`
-    pub async fn reset_token_key(
-        &self,
-        id: i64,
-        body: &ResetPullZoneSecurityKeyModel,
-    ) -> crate::Result<()> {
-        let request = self
-            .transport
-            .request(
-                reqwest::Method::POST,
-                &format!(
-                    "/pullzone/{}/resetSecurityKey",
-                    crate::transport::segment(id)
-                ),
-            )
-            .json(body);
-        self.transport.empty(request).await
-    }
+    pub async fn reset_token_key(&self, id: i64, body: &ResetPullZoneSecurityKeyModel) -> crate::Result<()> {
+let request = self.transport.request(reqwest::Method::POST, &format!("/pullzone/{}/resetSecurityKey", crate::transport::segment(id))).json(body);
+self.transport.empty(request).await
+}
 
     /// Add Allowed Referer
     ///
     /// `POST /pullzone/{id}/addAllowedReferrer`
-    pub async fn add_allowed_referer(
-        &self,
-        id: i64,
-        body: &AddAllowedReferrerRequestModel,
-    ) -> crate::Result<()> {
-        let request = self
-            .transport
-            .request(
-                reqwest::Method::POST,
-                &format!(
-                    "/pullzone/{}/addAllowedReferrer",
-                    crate::transport::segment(id)
-                ),
-            )
-            .json(body);
-        self.transport.empty(request).await
-    }
+    pub async fn add_allowed_referer(&self, id: i64, body: &AddAllowedReferrerRequestModel) -> crate::Result<()> {
+let request = self.transport.request(reqwest::Method::POST, &format!("/pullzone/{}/addAllowedReferrer", crate::transport::segment(id))).json(body);
+self.transport.empty(request).await
+}
 
     /// Remove Allowed Referer
     ///
     /// `POST /pullzone/{id}/removeAllowedReferrer`
-    pub async fn remove_allowed_referer(
-        &self,
-        id: i64,
-        body: &RemoveAllowedReferrerRequestModel,
-    ) -> crate::Result<()> {
-        let request = self
-            .transport
-            .request(
-                reqwest::Method::POST,
-                &format!(
-                    "/pullzone/{}/removeAllowedReferrer",
-                    crate::transport::segment(id)
-                ),
-            )
-            .json(body);
-        self.transport.empty(request).await
-    }
+    pub async fn remove_allowed_referer(&self, id: i64, body: &RemoveAllowedReferrerRequestModel) -> crate::Result<()> {
+let request = self.transport.request(reqwest::Method::POST, &format!("/pullzone/{}/removeAllowedReferrer", crate::transport::segment(id))).json(body);
+self.transport.empty(request).await
+}
 
     /// Add Blocked Referer
     ///
     /// `POST /pullzone/{id}/addBlockedReferrer`
-    pub async fn add_blocked_referer(
-        &self,
-        id: i64,
-        body: &AddBlockedReferrerRequestModel,
-    ) -> crate::Result<()> {
-        let request = self
-            .transport
-            .request(
-                reqwest::Method::POST,
-                &format!(
-                    "/pullzone/{}/addBlockedReferrer",
-                    crate::transport::segment(id)
-                ),
-            )
-            .json(body);
-        self.transport.empty(request).await
-    }
+    pub async fn add_blocked_referer(&self, id: i64, body: &AddBlockedReferrerRequestModel) -> crate::Result<()> {
+let request = self.transport.request(reqwest::Method::POST, &format!("/pullzone/{}/addBlockedReferrer", crate::transport::segment(id))).json(body);
+self.transport.empty(request).await
+}
 
     /// Remove Blocked Referer
     ///
     /// `POST /pullzone/{id}/removeBlockedReferrer`
-    pub async fn remove_blocked_referer(
-        &self,
-        id: i64,
-        body: &RemoveAllowedReferrerRequestModel,
-    ) -> crate::Result<()> {
-        let request = self
-            .transport
-            .request(
-                reqwest::Method::POST,
-                &format!(
-                    "/pullzone/{}/removeBlockedReferrer",
-                    crate::transport::segment(id)
-                ),
-            )
-            .json(body);
-        self.transport.empty(request).await
-    }
+    pub async fn remove_blocked_referer(&self, id: i64, body: &RemoveAllowedReferrerRequestModel) -> crate::Result<()> {
+let request = self.transport.request(reqwest::Method::POST, &format!("/pullzone/{}/removeBlockedReferrer", crate::transport::segment(id))).json(body);
+self.transport.empty(request).await
+}
 
     /// Add Blocked IP
     ///
     /// `POST /pullzone/{id}/addBlockedIp`
-    pub async fn add_blocked_ip(
-        &self,
-        id: i64,
-        body: &AddBlockedIpRequestModel,
-    ) -> crate::Result<()> {
-        let request = self
-            .transport
-            .request(
-                reqwest::Method::POST,
-                &format!("/pullzone/{}/addBlockedIp", crate::transport::segment(id)),
-            )
-            .json(body);
-        self.transport.empty(request).await
-    }
+    pub async fn add_blocked_ip(&self, id: i64, body: &AddBlockedIpRequestModel) -> crate::Result<()> {
+let request = self.transport.request(reqwest::Method::POST, &format!("/pullzone/{}/addBlockedIp", crate::transport::segment(id))).json(body);
+self.transport.empty(request).await
+}
 
     /// Remove Blocked IP
     ///
     /// `POST /pullzone/{id}/removeBlockedIp`
-    pub async fn remove_blocked_ip(
-        &self,
-        id: i64,
-        body: &RemoveBlockedIpRequestModel,
-    ) -> crate::Result<()> {
-        let request = self
-            .transport
-            .request(
-                reqwest::Method::POST,
-                &format!(
-                    "/pullzone/{}/removeBlockedIp",
-                    crate::transport::segment(id)
-                ),
-            )
-            .json(body);
-        self.transport.empty(request).await
-    }
+    pub async fn remove_blocked_ip(&self, id: i64, body: &RemoveBlockedIpRequestModel) -> crate::Result<()> {
+let request = self.transport.request(reqwest::Method::POST, &format!("/pullzone/{}/removeBlockedIp", crate::transport::segment(id))).json(body);
+self.transport.empty(request).await
+}
 
     /// Purge URL
     ///
     /// `POST /purge`
     pub async fn purge_url(&self, query: &PurgeUrlQuery) -> crate::Result<()> {
-        let request = self
-            .transport
-            .request_with_query(reqwest::Method::POST, "/purge", query)?;
-        self.transport.empty(request).await
-    }
+let request = self.transport.request_with_query(reqwest::Method::POST, "/purge", query)?;
+self.transport.empty(request).await
+}
 
     /// Region list
     ///
@@ -800,9 +418,9 @@ impl CoreClient {
     ///
     /// `GET /region`
     pub async fn region_list(&self) -> crate::Result<Vec<RegionModel>> {
-        let request = self.transport.request(reqwest::Method::GET, "/region");
-        self.transport.json(request).await
-    }
+let request = self.transport.request(reqwest::Method::GET, "/region");
+self.transport.json(request).await
+}
 
     /// Get Storage Zone Regions
     ///
@@ -810,58 +428,37 @@ impl CoreClient {
     ///
     /// `GET /storagezone/regions`
     pub async fn get_storage_zone_regions(&self) -> crate::Result<Vec<StorageRegionModel>> {
-        let request = self
-            .transport
-            .request(reqwest::Method::GET, "/storagezone/regions");
-        self.transport.json(request).await
-    }
+let request = self.transport.request(reqwest::Method::GET, "/storagezone/regions");
+self.transport.json(request).await
+}
 
     /// List Storage Zones
     ///
     /// Returns: The list of storage zones on the account. When the page parameter is set to a value greater than 0, the response will be a paginated object with Items, CurrentPage, TotalItems and HasMoreItems properties instead of a plain array.
     ///
     /// `GET /storagezone`
-    pub async fn list_storage_zones(
-        &self,
-        query: &ListStorageZonesQuery,
-    ) -> crate::Result<Vec<StorageZoneModel>> {
-        let request =
-            self.transport
-                .request_with_query(reqwest::Method::GET, "/storagezone", query)?;
-        self.transport
-            .json_list(request, crate::transport::ListShape::Array)
-            .await
-    }
+    pub async fn list_storage_zones(&self, query: &ListStorageZonesQuery) -> crate::Result<Vec<StorageZoneModel>> {
+let request = self.transport.request_with_query(reqwest::Method::GET, "/storagezone", query)?;
+self.transport.json_list(request, crate::transport::ListShape::Array).await
+}
 
     /// Add Storage Zone
     ///
     /// Returns: The storage zone that was added
     ///
     /// `POST /storagezone`
-    pub async fn add_storage_zone(
-        &self,
-        body: &StorageZoneModelAdd,
-    ) -> crate::Result<StorageZoneModel> {
-        let request = self
-            .transport
-            .request(reqwest::Method::POST, "/storagezone")
-            .json(body);
-        self.transport.json(request).await
-    }
+    pub async fn add_storage_zone(&self, body: &StorageZoneModelAdd) -> crate::Result<StorageZoneModel> {
+let request = self.transport.request(reqwest::Method::POST, "/storagezone").json(body);
+self.transport.json(request).await
+}
 
     /// Check the storage zone availability
     ///
     /// `POST /storagezone/checkavailability`
-    pub async fn check_storage_zone_availability(
-        &self,
-        body: &ZoneAvailabilityRequestModel,
-    ) -> crate::Result<()> {
-        let request = self
-            .transport
-            .request(reqwest::Method::POST, "/storagezone/checkavailability")
-            .json(body);
-        self.transport.empty(request).await
-    }
+    pub async fn check_storage_zone_availability(&self, body: &ZoneAvailabilityRequestModel) -> crate::Result<()> {
+let request = self.transport.request(reqwest::Method::POST, "/storagezone/checkavailability").json(body);
+self.transport.empty(request).await
+}
 
     /// Get Storage Zone
     ///
@@ -869,172 +466,93 @@ impl CoreClient {
     ///
     /// `GET /storagezone/{id}`
     pub async fn get_storage_zone(&self, id: i64) -> crate::Result<StorageZoneModel> {
-        let request = self.transport.request(
-            reqwest::Method::GET,
-            &format!("/storagezone/{}", crate::transport::segment(id)),
-        );
-        self.transport.json(request).await
-    }
+let request = self.transport.request(reqwest::Method::GET, &format!("/storagezone/{}", crate::transport::segment(id)));
+self.transport.json(request).await
+}
 
     /// Update Storage Zone
     ///
     /// `POST /storagezone/{id}`
-    pub async fn update_storage_zone(
-        &self,
-        id: i64,
-        body: &StorageZoneSettingsModel,
-    ) -> crate::Result<()> {
-        let request = self
-            .transport
-            .request(
-                reqwest::Method::POST,
-                &format!("/storagezone/{}", crate::transport::segment(id)),
-            )
-            .json(body);
-        self.transport.empty(request).await
-    }
+    pub async fn update_storage_zone(&self, id: i64, body: &StorageZoneSettingsModel) -> crate::Result<()> {
+let request = self.transport.request(reqwest::Method::POST, &format!("/storagezone/{}", crate::transport::segment(id))).json(body);
+self.transport.empty(request).await
+}
 
     /// Delete Storage Zone
     ///
     /// `DELETE /storagezone/{id}`
-    pub async fn delete_storage_zone(
-        &self,
-        id: i64,
-        query: &DeleteStorageZoneQuery,
-    ) -> crate::Result<()> {
-        let request = self.transport.request_with_query(
-            reqwest::Method::DELETE,
-            &format!("/storagezone/{}", crate::transport::segment(id)),
-            query,
-        )?;
-        self.transport.empty(request).await
-    }
+    pub async fn delete_storage_zone(&self, id: i64, query: &DeleteStorageZoneQuery) -> crate::Result<()> {
+let request = self.transport.request_with_query(reqwest::Method::DELETE, &format!("/storagezone/{}", crate::transport::segment(id)), query)?;
+self.transport.empty(request).await
+}
 
     /// Reset Password
     ///
     /// `POST /storagezone/{id}/resetPassword`
     pub async fn reset_password(&self, id: i64) -> crate::Result<()> {
-        let request = self.transport.request(
-            reqwest::Method::POST,
-            &format!(
-                "/storagezone/{}/resetPassword",
-                crate::transport::segment(id)
-            ),
-        );
-        self.transport.empty(request).await
-    }
+let request = self.transport.request(reqwest::Method::POST, &format!("/storagezone/{}/resetPassword", crate::transport::segment(id)));
+self.transport.empty(request).await
+}
 
     /// Reset Read-Only Password
     ///
     /// `POST /storagezone/resetReadOnlyPassword`
-    pub async fn reset_read_only_password(
-        &self,
-        query: &ResetReadOnlyPasswordQuery,
-    ) -> crate::Result<()> {
-        let request = self.transport.request_with_query(
-            reqwest::Method::POST,
-            "/storagezone/resetReadOnlyPassword",
-            query,
-        )?;
-        self.transport.empty(request).await
-    }
+    pub async fn reset_read_only_password(&self, query: &ResetReadOnlyPasswordQuery) -> crate::Result<()> {
+let request = self.transport.request_with_query(reqwest::Method::POST, "/storagezone/resetReadOnlyPassword", query)?;
+self.transport.empty(request).await
+}
 
     /// Add Allowed Referer
     ///
     /// `POST /videolibrary/{id}/addAllowedReferrer`
-    pub async fn add_video_library_allowed_referer(
-        &self,
-        id: i64,
-        body: &AddAllowedReferrerRequestModel,
-    ) -> crate::Result<()> {
-        let request = self
-            .transport
-            .request(
-                reqwest::Method::POST,
-                &format!(
-                    "/videolibrary/{}/addAllowedReferrer",
-                    crate::transport::segment(id)
-                ),
-            )
-            .json(body);
-        self.transport.empty(request).await
-    }
+    pub async fn add_video_library_allowed_referer(&self, id: i64, body: &AddAllowedReferrerRequestModel) -> crate::Result<()> {
+let request = self.transport.request(reqwest::Method::POST, &format!("/videolibrary/{}/addAllowedReferrer", crate::transport::segment(id))).json(body);
+self.transport.empty(request).await
+}
 
     /// Add Blocked Referer
     ///
     /// `POST /videolibrary/{id}/addBlockedReferrer`
-    pub async fn add_video_library_blocked_referer(
-        &self,
-        id: i64,
-        body: &AddBlockedReferrerRequestModel,
-    ) -> crate::Result<()> {
-        let request = self
-            .transport
-            .request(
-                reqwest::Method::POST,
-                &format!(
-                    "/videolibrary/{}/addBlockedReferrer",
-                    crate::transport::segment(id)
-                ),
-            )
-            .json(body);
-        self.transport.empty(request).await
-    }
+    pub async fn add_video_library_blocked_referer(&self, id: i64, body: &AddBlockedReferrerRequestModel) -> crate::Result<()> {
+let request = self.transport.request(reqwest::Method::POST, &format!("/videolibrary/{}/addBlockedReferrer", crate::transport::segment(id))).json(body);
+self.transport.empty(request).await
+}
 
     /// List Video Libraries
     ///
     /// Returns: The list of Video Libraries on the account. When the page parameter is set to a value greater than 0, the response will be a paginated object with Items, CurrentPage, TotalItems and HasMoreItems properties instead of a plain array.
     ///
     /// `GET /videolibrary`
-    pub async fn list_video_libraries(
-        &self,
-        query: &ListVideoLibrariesQuery,
-    ) -> crate::Result<PaginationListModelOfVideoLibraryModel> {
-        let request =
-            self.transport
-                .request_with_query(reqwest::Method::GET, "/videolibrary", query)?;
-        self.transport
-            .json_list(request, crate::transport::ListShape::Page("Items"))
-            .await
-    }
+    pub async fn list_video_libraries(&self, query: &ListVideoLibrariesQuery) -> crate::Result<PaginationListModelOfVideoLibraryModel> {
+let request = self.transport.request_with_query(reqwest::Method::GET, "/videolibrary", query)?;
+self.transport.json_list(request, crate::transport::ListShape::Page("Items")).await
+}
 
     /// Add Video Library
     ///
     /// Returns: The added video library
     ///
     /// `POST /videolibrary`
-    pub async fn add_video_library(
-        &self,
-        body: &VideoLibraryCreateModel,
-    ) -> crate::Result<VideoLibraryModel> {
-        let request = self
-            .transport
-            .request(reqwest::Method::POST, "/videolibrary")
-            .json(body);
-        self.transport.json(request).await
-    }
+    pub async fn add_video_library(&self, body: &VideoLibraryCreateModel) -> crate::Result<VideoLibraryModel> {
+let request = self.transport.request(reqwest::Method::POST, "/videolibrary").json(body);
+self.transport.json(request).await
+}
 
     /// Add Watermark
     ///
     /// `PUT /videolibrary/{id}/watermark`
     pub async fn add_watermark(&self, id: i64) -> crate::Result<()> {
-        let request = self.transport.request(
-            reqwest::Method::PUT,
-            &format!("/videolibrary/{}/watermark", crate::transport::segment(id)),
-        );
-        self.transport.empty(request).await
-    }
+let request = self.transport.request(reqwest::Method::PUT, &format!("/videolibrary/{}/watermark", crate::transport::segment(id)));
+self.transport.empty(request).await
+}
 
     /// Delete Watermark
     ///
     /// `DELETE /videolibrary/{id}/watermark`
     pub async fn delete_watermark(&self, id: i64) -> crate::Result<()> {
-        let request = self.transport.request(
-            reqwest::Method::DELETE,
-            &format!("/videolibrary/{}/watermark", crate::transport::segment(id)),
-        );
-        self.transport.empty(request).await
-    }
+let request = self.transport.request(reqwest::Method::DELETE, &format!("/videolibrary/{}/watermark", crate::transport::segment(id)));
+self.transport.empty(request).await
+}
 
     /// Get Video Library
     ///
@@ -1042,43 +560,27 @@ impl CoreClient {
     ///
     /// `GET /videolibrary/{id}`
     pub async fn get_video_library(&self, id: i64) -> crate::Result<VideoLibraryModel> {
-        let request = self.transport.request(
-            reqwest::Method::GET,
-            &format!("/videolibrary/{}", crate::transport::segment(id)),
-        );
-        self.transport.json(request).await
-    }
+let request = self.transport.request(reqwest::Method::GET, &format!("/videolibrary/{}", crate::transport::segment(id)));
+self.transport.json(request).await
+}
 
     /// Update Video Library
     ///
     /// Returns: The updated video library
     ///
     /// `POST /videolibrary/{id}`
-    pub async fn update_video_library(
-        &self,
-        id: i64,
-        body: &VideoLibraryUpdateModel,
-    ) -> crate::Result<VideoLibraryModel> {
-        let request = self
-            .transport
-            .request(
-                reqwest::Method::POST,
-                &format!("/videolibrary/{}", crate::transport::segment(id)),
-            )
-            .json(body);
-        self.transport.json(request).await
-    }
+    pub async fn update_video_library(&self, id: i64, body: &VideoLibraryUpdateModel) -> crate::Result<VideoLibraryModel> {
+let request = self.transport.request(reqwest::Method::POST, &format!("/videolibrary/{}", crate::transport::segment(id))).json(body);
+self.transport.json(request).await
+}
 
     /// Delete Video Library
     ///
     /// `DELETE /videolibrary/{id}`
     pub async fn delete_video_library(&self, id: i64) -> crate::Result<()> {
-        let request = self.transport.request(
-            reqwest::Method::DELETE,
-            &format!("/videolibrary/{}", crate::transport::segment(id)),
-        );
-        self.transport.empty(request).await
-    }
+let request = self.transport.request(reqwest::Method::DELETE, &format!("/videolibrary/{}", crate::transport::segment(id)));
+self.transport.empty(request).await
+}
 
     /// Get Languages
     ///
@@ -1086,207 +588,109 @@ impl CoreClient {
     ///
     /// `GET /videolibrary/languages`
     pub async fn get_languages(&self) -> crate::Result<Vec<VideoLibraryLanguage>> {
-        let request = self
-            .transport
-            .request(reqwest::Method::GET, "/videolibrary/languages");
-        self.transport.json(request).await
-    }
+let request = self.transport.request(reqwest::Method::GET, "/videolibrary/languages");
+self.transport.json(request).await
+}
 
     /// Remove Allowed Referer
     ///
     /// `POST /videolibrary/{id}/removeAllowedReferrer`
-    pub async fn remove_video_library_allowed_referer(
-        &self,
-        id: i64,
-        body: &RemoveAllowedReferrerRequestModel,
-    ) -> crate::Result<()> {
-        let request = self
-            .transport
-            .request(
-                reqwest::Method::POST,
-                &format!(
-                    "/videolibrary/{}/removeAllowedReferrer",
-                    crate::transport::segment(id)
-                ),
-            )
-            .json(body);
-        self.transport.empty(request).await
-    }
+    pub async fn remove_video_library_allowed_referer(&self, id: i64, body: &RemoveAllowedReferrerRequestModel) -> crate::Result<()> {
+let request = self.transport.request(reqwest::Method::POST, &format!("/videolibrary/{}/removeAllowedReferrer", crate::transport::segment(id))).json(body);
+self.transport.empty(request).await
+}
 
     /// Remove Blocked Referer
     ///
     /// `POST /videolibrary/{id}/removeBlockedReferrer`
-    pub async fn remove_video_library_blocked_referer(
-        &self,
-        id: i64,
-        body: &RemoveBlockedReferrerRequestModel,
-    ) -> crate::Result<()> {
-        let request = self
-            .transport
-            .request(
-                reqwest::Method::POST,
-                &format!(
-                    "/videolibrary/{}/removeBlockedReferrer",
-                    crate::transport::segment(id)
-                ),
-            )
-            .json(body);
-        self.transport.empty(request).await
-    }
+    pub async fn remove_video_library_blocked_referer(&self, id: i64, body: &RemoveBlockedReferrerRequestModel) -> crate::Result<()> {
+let request = self.transport.request(reqwest::Method::POST, &format!("/videolibrary/{}/removeBlockedReferrer", crate::transport::segment(id))).json(body);
+self.transport.empty(request).await
+}
 
     /// Reset API Key
     ///
     /// `POST /videolibrary/{id}/resetApiKey`
     pub async fn reset_api_key(&self, id: i64) -> crate::Result<()> {
-        let request = self.transport.request(
-            reqwest::Method::POST,
-            &format!(
-                "/videolibrary/{}/resetApiKey",
-                crate::transport::segment(id)
-            ),
-        );
-        self.transport.empty(request).await
-    }
+let request = self.transport.request(reqwest::Method::POST, &format!("/videolibrary/{}/resetApiKey", crate::transport::segment(id)));
+self.transport.empty(request).await
+}
 
     /// Reset Read Only API Key
     ///
     /// `POST /videolibrary/{id}/resetReadOnlyApiKey`
     pub async fn reset_read_only_api_key(&self, id: i64) -> crate::Result<()> {
-        let request = self.transport.request(
-            reqwest::Method::POST,
-            &format!(
-                "/videolibrary/{}/resetReadOnlyApiKey",
-                crate::transport::segment(id)
-            ),
-        );
-        self.transport.empty(request).await
-    }
+let request = self.transport.request(reqwest::Method::POST, &format!("/videolibrary/{}/resetReadOnlyApiKey", crate::transport::segment(id)));
+self.transport.empty(request).await
+}
 
     /// Reset Webhook Signing Secret
     ///
     /// `POST /videolibrary/{id}/resetWebhookSigningSecret`
     pub async fn reset_webhook_signing_secret(&self, id: i64) -> crate::Result<()> {
-        let request = self.transport.request(
-            reqwest::Method::POST,
-            &format!(
-                "/videolibrary/{}/resetWebhookSigningSecret",
-                crate::transport::segment(id)
-            ),
-        );
-        self.transport.empty(request).await
-    }
+let request = self.transport.request(reqwest::Method::POST, &format!("/videolibrary/{}/resetWebhookSigningSecret", crate::transport::segment(id)));
+self.transport.empty(request).await
+}
 
     /// Get Video Library Transcribing Statistics
     ///
     /// Returns: Returns the statistics for the video library with the given ID
     ///
     /// `GET /videolibrary/{id}/transcribing/statistics`
-    pub async fn get_video_library_transcribing_statistics(
-        &self,
-        id: i64,
-        query: &GetVideoLibraryTranscribingStatisticsQuery,
-    ) -> crate::Result<VideoLibraryTranscriptionStatisticsModel> {
-        let request = self.transport.request_with_query(
-            reqwest::Method::GET,
-            &format!(
-                "/videolibrary/{}/transcribing/statistics",
-                crate::transport::segment(id)
-            ),
-            query,
-        )?;
-        self.transport.json(request).await
-    }
+    pub async fn get_video_library_transcribing_statistics(&self, id: i64, query: &GetVideoLibraryTranscribingStatisticsQuery) -> crate::Result<VideoLibraryTranscriptionStatisticsModel> {
+let request = self.transport.request_with_query(reqwest::Method::GET, &format!("/videolibrary/{}/transcribing/statistics", crate::transport::segment(id)), query)?;
+self.transport.json(request).await
+}
 
     /// Add Live Thumbnail
     ///
     /// `PUT /videolibrary/{id}/live/thumbnail`
     pub async fn add_live_thumbnail(&self, id: i64) -> crate::Result<()> {
-        let request = self.transport.request(
-            reqwest::Method::PUT,
-            &format!(
-                "/videolibrary/{}/live/thumbnail",
-                crate::transport::segment(id)
-            ),
-        );
-        self.transport.empty(request).await
-    }
+let request = self.transport.request(reqwest::Method::PUT, &format!("/videolibrary/{}/live/thumbnail", crate::transport::segment(id)));
+self.transport.empty(request).await
+}
 
     /// Delete Live Thumbnail
     ///
     /// `DELETE /videolibrary/{id}/live/thumbnail`
     pub async fn delete_live_thumbnail(&self, id: i64) -> crate::Result<()> {
-        let request = self.transport.request(
-            reqwest::Method::DELETE,
-            &format!(
-                "/videolibrary/{}/live/thumbnail",
-                crate::transport::segment(id)
-            ),
-        );
-        self.transport.empty(request).await
-    }
+let request = self.transport.request(reqwest::Method::DELETE, &format!("/videolibrary/{}/live/thumbnail", crate::transport::segment(id)));
+self.transport.empty(request).await
+}
 
     /// Add Live Watermark
     ///
     /// `PUT /videolibrary/{id}/live/watermark`
     pub async fn add_live_watermark(&self, id: i64) -> crate::Result<()> {
-        let request = self.transport.request(
-            reqwest::Method::PUT,
-            &format!(
-                "/videolibrary/{}/live/watermark",
-                crate::transport::segment(id)
-            ),
-        );
-        self.transport.empty(request).await
-    }
+let request = self.transport.request(reqwest::Method::PUT, &format!("/videolibrary/{}/live/watermark", crate::transport::segment(id)));
+self.transport.empty(request).await
+}
 
     /// Delete Live Watermark
     ///
     /// `DELETE /videolibrary/{id}/live/watermark`
     pub async fn delete_live_watermark(&self, id: i64) -> crate::Result<()> {
-        let request = self.transport.request(
-            reqwest::Method::DELETE,
-            &format!(
-                "/videolibrary/{}/live/watermark",
-                crate::transport::segment(id)
-            ),
-        );
-        self.transport.empty(request).await
-    }
+let request = self.transport.request(reqwest::Method::DELETE, &format!("/videolibrary/{}/live/watermark", crate::transport::segment(id)));
+self.transport.empty(request).await
+}
 
     /// Reset Live Auto Create Stream Key
     ///
     /// `POST /videolibrary/{id}/live/resetAutoCreateStreamKey`
     pub async fn reset_live_auto_create_stream_key(&self, id: i64) -> crate::Result<()> {
-        let request = self.transport.request(
-            reqwest::Method::POST,
-            &format!(
-                "/videolibrary/{}/live/resetAutoCreateStreamKey",
-                crate::transport::segment(id)
-            ),
-        );
-        self.transport.empty(request).await
-    }
+let request = self.transport.request(reqwest::Method::POST, &format!("/videolibrary/{}/live/resetAutoCreateStreamKey", crate::transport::segment(id)));
+self.transport.empty(request).await
+}
 
     /// Get Video Library DRM Statistics
     ///
     /// Returns: Returns the statistics for the video library with the given ID
     ///
     /// `GET /videolibrary/{id}/drm/statistics`
-    pub async fn get_video_library_drm_statistics(
-        &self,
-        id: i64,
-        query: &GetVideoLibraryDrmStatisticsQuery,
-    ) -> crate::Result<VideoLibraryDrmStatisticsModel> {
-        let request = self.transport.request_with_query(
-            reqwest::Method::GET,
-            &format!(
-                "/videolibrary/{}/drm/statistics",
-                crate::transport::segment(id)
-            ),
-            query,
-        )?;
-        self.transport.json(request).await
-    }
+    pub async fn get_video_library_drm_statistics(&self, id: i64, query: &GetVideoLibraryDrmStatisticsQuery) -> crate::Result<VideoLibraryDrmStatisticsModel> {
+let request = self.transport.request_with_query(reqwest::Method::GET, &format!("/videolibrary/{}/drm/statistics", crate::transport::segment(id)), query)?;
+self.transport.json(request).await
+}
 
     /// Close the account
     ///
@@ -1295,510 +699,248 @@ impl CoreClient {
     /// Returns: The account was successfully closed
     ///
     /// `POST /user/closeaccount`
-    pub async fn close_account(
-        &self,
-        body: &CloseAccountRequestModel,
-    ) -> crate::Result<CloseAccountResponseModel> {
-        let request = self
-            .transport
-            .request(reqwest::Method::POST, "/user/closeaccount")
-            .json(body);
-        self.transport.json(request).await
-    }
+    pub async fn close_account(&self, body: &CloseAccountRequestModel) -> crate::Result<CloseAccountResponseModel> {
+let request = self.transport.request(reqwest::Method::POST, "/user/closeaccount").json(body);
+self.transport.json(request).await
+}
 
     /// Returns: The list of audit log entries
     ///
     /// `GET /user/audit/{date}`
-    pub async fn get_user_audit_log(
-        &self,
-        date: &str,
-        query: &GetUserAuditLogQuery,
-    ) -> crate::Result<GetUserAuditLogResponse> {
-        let request = self.transport.request_with_query(
-            reqwest::Method::GET,
-            &format!("/user/audit/{}", crate::transport::segment(date)),
-            query,
-        )?;
-        self.transport.json(request).await
-    }
+    pub async fn get_user_audit_log(&self, date: &str, query: &GetUserAuditLogQuery) -> crate::Result<GetUserAuditLogResponse> {
+let request = self.transport.request_with_query(reqwest::Method::GET, &format!("/user/audit/{}", crate::transport::segment(date)), query)?;
+self.transport.json(request).await
+}
 
     /// Get Storage Zone Egress Statistics
     ///
     /// Returns: The egress statistics data for the passed parameters.
     ///
     /// `GET /storagezone/{id}/statistics/egress`
-    pub async fn get_storage_zone_egress_statistics(
-        &self,
-        id: i64,
-        query: &GetStorageZoneEgressStatisticsQuery,
-    ) -> crate::Result<StorageZoneEgressStatisticsModel> {
-        let request = self.transport.request_with_query(
-            reqwest::Method::GET,
-            &format!(
-                "/storagezone/{}/statistics/egress",
-                crate::transport::segment(id)
-            ),
-            query,
-        )?;
-        self.transport.json(request).await
-    }
+    pub async fn get_storage_zone_egress_statistics(&self, id: i64, query: &GetStorageZoneEgressStatisticsQuery) -> crate::Result<StorageZoneEgressStatisticsModel> {
+let request = self.transport.request_with_query(reqwest::Method::GET, &format!("/storagezone/{}/statistics/egress", crate::transport::segment(id)), query)?;
+self.transport.json(request).await
+}
 
     /// Get Storage Zone Statistics
     ///
     /// Returns: The statistics data for the passed parameters.
     ///
     /// `GET /storagezone/{id}/statistics`
-    pub async fn get_storage_zone_statistics(
-        &self,
-        id: i64,
-        query: &GetStorageZoneStatisticsQuery,
-    ) -> crate::Result<StorageZoneStatisticsModel> {
-        let request = self.transport.request_with_query(
-            reqwest::Method::GET,
-            &format!("/storagezone/{}/statistics", crate::transport::segment(id)),
-            query,
-        )?;
-        self.transport.json(request).await
-    }
+    pub async fn get_storage_zone_statistics(&self, id: i64, query: &GetStorageZoneStatisticsQuery) -> crate::Result<StorageZoneStatisticsModel> {
+let request = self.transport.request_with_query(reqwest::Method::GET, &format!("/storagezone/{}/statistics", crate::transport::segment(id)), query)?;
+self.transport.json(request).await
+}
 
     /// Get optimizer statistics
     ///
     /// Returns: The statistics data for the passed parameters.
     ///
     /// `GET /pullzone/{pullZoneId}/optimizer/statistics`
-    pub async fn get_optimizer_statistics(
-        &self,
-        pull_zone_id: i64,
-        query: &GetOptimizerStatisticsQuery,
-    ) -> crate::Result<OptimizerStatisticsModel> {
-        let request = self.transport.request_with_query(
-            reqwest::Method::GET,
-            &format!(
-                "/pullzone/{}/optimizer/statistics",
-                crate::transport::segment(pull_zone_id)
-            ),
-            query,
-        )?;
-        self.transport.json(request).await
-    }
+    pub async fn get_optimizer_statistics(&self, pull_zone_id: i64, query: &GetOptimizerStatisticsQuery) -> crate::Result<OptimizerStatisticsModel> {
+let request = self.transport.request_with_query(reqwest::Method::GET, &format!("/pullzone/{}/optimizer/statistics", crate::transport::segment(pull_zone_id)), query)?;
+self.transport.json(request).await
+}
 
     /// Get Origin Shield Queue Statistics
     ///
     /// Returns: The statistics data for the passed parameters.
     ///
     /// `GET /pullzone/{pullZoneId}/originshield/queuestatistics`
-    pub async fn get_origin_shield_queue_statistics(
-        &self,
-        pull_zone_id: i64,
-        query: &GetOriginShieldQueueStatisticsQuery,
-    ) -> crate::Result<OriginShieldConcurrencyStatisticsModel> {
-        let request = self.transport.request_with_query(
-            reqwest::Method::GET,
-            &format!(
-                "/pullzone/{}/originshield/queuestatistics",
-                crate::transport::segment(pull_zone_id)
-            ),
-            query,
-        )?;
-        self.transport.json(request).await
-    }
+    pub async fn get_origin_shield_queue_statistics(&self, pull_zone_id: i64, query: &GetOriginShieldQueueStatisticsQuery) -> crate::Result<OriginShieldConcurrencyStatisticsModel> {
+let request = self.transport.request_with_query(reqwest::Method::GET, &format!("/pullzone/{}/originshield/queuestatistics", crate::transport::segment(pull_zone_id)), query)?;
+self.transport.json(request).await
+}
 
     /// Get SafeHop Statistics
     ///
     /// Returns: The statistics data for the passed parameters.
     ///
     /// `GET /pullzone/{pullZoneId}/safehop/statistics`
-    pub async fn get_safe_hop_statistics(
-        &self,
-        pull_zone_id: i64,
-        query: &GetSafeHopStatisticsQuery,
-    ) -> crate::Result<SafeHopStatisticsModel> {
-        let request = self.transport.request_with_query(
-            reqwest::Method::GET,
-            &format!(
-                "/pullzone/{}/safehop/statistics",
-                crate::transport::segment(pull_zone_id)
-            ),
-            query,
-        )?;
-        self.transport.json(request).await
-    }
+    pub async fn get_safe_hop_statistics(&self, pull_zone_id: i64, query: &GetSafeHopStatisticsQuery) -> crate::Result<SafeHopStatisticsModel> {
+let request = self.transport.request_with_query(reqwest::Method::GET, &format!("/pullzone/{}/safehop/statistics", crate::transport::segment(pull_zone_id)), query)?;
+self.transport.json(request).await
+}
 
     /// Get Statistics
     ///
     /// Returns: The statistics data for the passed parameters.
     ///
     /// `GET /statistics`
-    pub async fn get_statistics(
-        &self,
-        query: &GetStatisticsQuery,
-    ) -> crate::Result<StatisticsModel> {
-        let request =
-            self.transport
-                .request_with_query(reqwest::Method::GET, "/statistics", query)?;
-        self.transport.json(request).await
-    }
+    pub async fn get_statistics(&self, query: &GetStatisticsQuery) -> crate::Result<StatisticsModel> {
+let request = self.transport.request_with_query(reqwest::Method::GET, "/statistics", query)?;
+self.transport.json(request).await
+}
 
     /// Global Search
     ///
     /// Returns: The list of platfom-wide search results
     ///
     /// `GET /search`
-    pub async fn global_search(
-        &self,
-        query: &GlobalSearchQuery,
-    ) -> crate::Result<SearchResultsModel> {
-        let request = self
-            .transport
-            .request_with_query(reqwest::Method::GET, "/search", query)?;
-        self.transport.json(request).await
-    }
+    pub async fn global_search(&self, query: &GlobalSearchQuery) -> crate::Result<SearchResultsModel> {
+let request = self.transport.request_with_query(reqwest::Method::GET, "/search", query)?;
+self.transport.json(request).await
+}
 
     /// Get active price for a resource and optionally cost estimate if usage amount provided
     ///
     /// Returns: The price estimation result
     ///
     /// `GET /v1/pricing/{source}/{resourceId}`
-    pub async fn get_price_estimation(
-        &self,
-        source: &str,
-        resource_id: i64,
-        query: &GetPriceEstimationQuery,
-    ) -> crate::Result<PriceEstimationModel> {
-        let request = self.transport.request_with_query(
-            reqwest::Method::GET,
-            &format!(
-                "/v1/pricing/{}/{}",
-                crate::transport::segment(source),
-                crate::transport::segment(resource_id)
-            ),
-            query,
-        )?;
-        self.transport.json(request).await
-    }
+    pub async fn get_price_estimation(&self, source: &str, resource_id: i64, query: &GetPriceEstimationQuery) -> crate::Result<PriceEstimationModel> {
+let request = self.transport.request_with_query(reqwest::Method::GET, &format!("/v1/pricing/{}/{}", crate::transport::segment(source), crate::transport::segment(resource_id)), query)?;
+self.transport.json(request).await
+}
 
     /// Add a new origin to an origin group
     ///
     /// Returns: The newly created origin
     ///
     /// `POST /loadbalancer/{loadBalancerId}/origingroup/{originGroupId}/origin`
-    pub async fn add_new_origin_to_origin_group(
-        &self,
-        load_balancer_id: i64,
-        origin_group_id: i64,
-        body: &LoadBalancerOriginCreateModel,
-    ) -> crate::Result<LoadBalancerOriginModel> {
-        let request = self
-            .transport
-            .request(
-                reqwest::Method::POST,
-                &format!(
-                    "/loadbalancer/{}/origingroup/{}/origin",
-                    crate::transport::segment(load_balancer_id),
-                    crate::transport::segment(origin_group_id)
-                ),
-            )
-            .json(body);
-        self.transport.json(request).await
-    }
+    pub async fn add_new_origin_to_origin_group(&self, load_balancer_id: i64, origin_group_id: i64, body: &LoadBalancerOriginCreateModel) -> crate::Result<LoadBalancerOriginModel> {
+let request = self.transport.request(reqwest::Method::POST, &format!("/loadbalancer/{}/origingroup/{}/origin", crate::transport::segment(load_balancer_id), crate::transport::segment(origin_group_id))).json(body);
+self.transport.json(request).await
+}
 
     /// Update an existing origin
     ///
     /// `POST /loadbalancer/{loadBalancerId}/origingroup/{originGroupId}/origin/{originId}`
-    pub async fn update_existing_origin(
-        &self,
-        load_balancer_id: i64,
-        origin_group_id: i64,
-        origin_id: i64,
-        body: &LoadBalancerOriginCreateModel,
-    ) -> crate::Result<LoadBalancerOriginModel> {
-        let request = self
-            .transport
-            .request(
-                reqwest::Method::POST,
-                &format!(
-                    "/loadbalancer/{}/origingroup/{}/origin/{}",
-                    crate::transport::segment(load_balancer_id),
-                    crate::transport::segment(origin_group_id),
-                    crate::transport::segment(origin_id)
-                ),
-            )
-            .json(body);
-        self.transport.json(request).await
-    }
+    pub async fn update_existing_origin(&self, load_balancer_id: i64, origin_group_id: i64, origin_id: i64, body: &LoadBalancerOriginCreateModel) -> crate::Result<LoadBalancerOriginModel> {
+let request = self.transport.request(reqwest::Method::POST, &format!("/loadbalancer/{}/origingroup/{}/origin/{}", crate::transport::segment(load_balancer_id), crate::transport::segment(origin_group_id), crate::transport::segment(origin_id))).json(body);
+self.transport.json(request).await
+}
 
     /// Delete an origin from an origin group
     ///
     /// `DELETE /loadbalancer/{loadBalancerId}/origingroup/{originGroupId}/origin/{originId}`
-    pub async fn delete_origin_from_origin_group(
-        &self,
-        load_balancer_id: i64,
-        origin_group_id: i64,
-        origin_id: i64,
-    ) -> crate::Result<()> {
-        let request = self.transport.request(
-            reqwest::Method::DELETE,
-            &format!(
-                "/loadbalancer/{}/origingroup/{}/origin/{}",
-                crate::transport::segment(load_balancer_id),
-                crate::transport::segment(origin_group_id),
-                crate::transport::segment(origin_id)
-            ),
-        );
-        self.transport.empty(request).await
-    }
+    pub async fn delete_origin_from_origin_group(&self, load_balancer_id: i64, origin_group_id: i64, origin_id: i64) -> crate::Result<()> {
+let request = self.transport.request(reqwest::Method::DELETE, &format!("/loadbalancer/{}/origingroup/{}/origin/{}", crate::transport::segment(load_balancer_id), crate::transport::segment(origin_group_id), crate::transport::segment(origin_id)));
+self.transport.empty(request).await
+}
 
     /// Add a new origin group to a Load Balancer profile
     ///
     /// Returns: The newly created origin group
     ///
     /// `POST /loadbalancer/{loadBalancerId}/origingroup`
-    pub async fn add_load_balancer_origin_group(
-        &self,
-        load_balancer_id: i64,
-        body: &OriginGroupCreateModel,
-    ) -> crate::Result<LoadBalancerOriginGroupModel> {
-        let request = self
-            .transport
-            .request(
-                reqwest::Method::POST,
-                &format!(
-                    "/loadbalancer/{}/origingroup",
-                    crate::transport::segment(load_balancer_id)
-                ),
-            )
-            .json(body);
-        self.transport.json(request).await
-    }
+    pub async fn add_load_balancer_origin_group(&self, load_balancer_id: i64, body: &OriginGroupCreateModel) -> crate::Result<LoadBalancerOriginGroupModel> {
+let request = self.transport.request(reqwest::Method::POST, &format!("/loadbalancer/{}/origingroup", crate::transport::segment(load_balancer_id))).json(body);
+self.transport.json(request).await
+}
 
     /// Update an origin group in a Load Balancer profile
     ///
     /// Returns: The updated origin group
     ///
     /// `POST /loadbalancer/{loadBalancerId}/origingroup/{id}`
-    pub async fn update_load_balancer_origin_group(
-        &self,
-        load_balancer_id: i64,
-        id: i64,
-        body: &OriginGroupCreateModel,
-    ) -> crate::Result<LoadBalancerOriginGroupModel> {
-        let request = self
-            .transport
-            .request(
-                reqwest::Method::POST,
-                &format!(
-                    "/loadbalancer/{}/origingroup/{}",
-                    crate::transport::segment(load_balancer_id),
-                    crate::transport::segment(id)
-                ),
-            )
-            .json(body);
-        self.transport.json(request).await
-    }
+    pub async fn update_load_balancer_origin_group(&self, load_balancer_id: i64, id: i64, body: &OriginGroupCreateModel) -> crate::Result<LoadBalancerOriginGroupModel> {
+let request = self.transport.request(reqwest::Method::POST, &format!("/loadbalancer/{}/origingroup/{}", crate::transport::segment(load_balancer_id), crate::transport::segment(id))).json(body);
+self.transport.json(request).await
+}
 
     /// Delete an origin group from a Load Balancer profile
     ///
     /// `DELETE /loadbalancer/{loadBalancerId}/origingroup/{id}`
-    pub async fn delete_load_balancer_origin_group(
-        &self,
-        load_balancer_id: i64,
-        id: i64,
-    ) -> crate::Result<()> {
-        let request = self.transport.request(
-            reqwest::Method::DELETE,
-            &format!(
-                "/loadbalancer/{}/origingroup/{}",
-                crate::transport::segment(load_balancer_id),
-                crate::transport::segment(id)
-            ),
-        );
-        self.transport.empty(request).await
-    }
+    pub async fn delete_load_balancer_origin_group(&self, load_balancer_id: i64, id: i64) -> crate::Result<()> {
+let request = self.transport.request(reqwest::Method::DELETE, &format!("/loadbalancer/{}/origingroup/{}", crate::transport::segment(load_balancer_id), crate::transport::segment(id)));
+self.transport.empty(request).await
+}
 
     /// Get the list of Load Balancer profiles
     ///
     /// Returns: The list of Load Balancer profiles
     ///
     /// `GET /loadbalancer`
-    pub async fn get_list_of_load_balancer_profiles(
-        &self,
-        query: &GetListOfLoadBalancerProfilesQuery,
-    ) -> crate::Result<Vec<LoadBalancerProfileModel>> {
-        let request =
-            self.transport
-                .request_with_query(reqwest::Method::GET, "/loadbalancer", query)?;
-        self.transport
-            .json_list(request, crate::transport::ListShape::Array)
-            .await
-    }
+    pub async fn get_list_of_load_balancer_profiles(&self, query: &GetListOfLoadBalancerProfilesQuery) -> crate::Result<Vec<LoadBalancerProfileModel>> {
+let request = self.transport.request_with_query(reqwest::Method::GET, "/loadbalancer", query)?;
+self.transport.json_list(request, crate::transport::ListShape::Array).await
+}
 
     /// Create a new Load Balancer profile
     ///
     /// Returns: The newly created Load Balancer profile
     ///
     /// `POST /loadbalancer`
-    pub async fn create_new_load_balancer_profile(
-        &self,
-        body: &LoadBalancerSettingsModel,
-    ) -> crate::Result<LoadBalancerProfileModel> {
-        let request = self
-            .transport
-            .request(reqwest::Method::POST, "/loadbalancer")
-            .json(body);
-        self.transport.json(request).await
-    }
+    pub async fn create_new_load_balancer_profile(&self, body: &LoadBalancerSettingsModel) -> crate::Result<LoadBalancerProfileModel> {
+let request = self.transport.request(reqwest::Method::POST, "/loadbalancer").json(body);
+self.transport.json(request).await
+}
 
     /// Get a Load Balancer profile
     ///
     /// Returns: The Load Balancer profile
     ///
     /// `GET /loadbalancer/{loadBalancerId}`
-    pub async fn get_load_balancer_profile(
-        &self,
-        load_balancer_id: i64,
-    ) -> crate::Result<LoadBalancerProfileModel> {
-        let request = self.transport.request(
-            reqwest::Method::GET,
-            &format!(
-                "/loadbalancer/{}",
-                crate::transport::segment(load_balancer_id)
-            ),
-        );
-        self.transport.json(request).await
-    }
+    pub async fn get_load_balancer_profile(&self, load_balancer_id: i64) -> crate::Result<LoadBalancerProfileModel> {
+let request = self.transport.request(reqwest::Method::GET, &format!("/loadbalancer/{}", crate::transport::segment(load_balancer_id)));
+self.transport.json(request).await
+}
 
     /// Update a Load Balancer profile
     ///
     /// Returns: The updated Load Balancer profile
     ///
     /// `POST /loadbalancer/{loadBalancerId}`
-    pub async fn update_load_balancer_profile(
-        &self,
-        load_balancer_id: i64,
-        body: &LoadBalancerSettingsModel,
-    ) -> crate::Result<LoadBalancerProfileModel> {
-        let request = self
-            .transport
-            .request(
-                reqwest::Method::POST,
-                &format!(
-                    "/loadbalancer/{}",
-                    crate::transport::segment(load_balancer_id)
-                ),
-            )
-            .json(body);
-        self.transport.json(request).await
-    }
+    pub async fn update_load_balancer_profile(&self, load_balancer_id: i64, body: &LoadBalancerSettingsModel) -> crate::Result<LoadBalancerProfileModel> {
+let request = self.transport.request(reqwest::Method::POST, &format!("/loadbalancer/{}", crate::transport::segment(load_balancer_id))).json(body);
+self.transport.json(request).await
+}
 
     /// Delete a Load Balancer profile
     ///
     /// `DELETE /loadbalancer/{loadBalancerId}`
     pub async fn delete_load_balancer_profile(&self, load_balancer_id: i64) -> crate::Result<()> {
-        let request = self.transport.request(
-            reqwest::Method::DELETE,
-            &format!(
-                "/loadbalancer/{}",
-                crate::transport::segment(load_balancer_id)
-            ),
-        );
-        self.transport.empty(request).await
-    }
+let request = self.transport.request(reqwest::Method::DELETE, &format!("/loadbalancer/{}", crate::transport::segment(load_balancer_id)));
+self.transport.empty(request).await
+}
 
     /// Get Load Balancer statistics
     ///
     /// Returns: The Load Balancer statistics
     ///
     /// `GET /loadbalancer/{loadBalancerId}/statistics`
-    pub async fn get_load_balancer_statistics(
-        &self,
-        load_balancer_id: i64,
-        query: &GetLoadBalancerStatisticsQuery,
-    ) -> crate::Result<LoadBalancerStatisticsModel> {
-        let request = self.transport.request_with_query(
-            reqwest::Method::GET,
-            &format!(
-                "/loadbalancer/{}/statistics",
-                crate::transport::segment(load_balancer_id)
-            ),
-            query,
-        )?;
-        self.transport.json(request).await
-    }
+    pub async fn get_load_balancer_statistics(&self, load_balancer_id: i64, query: &GetLoadBalancerStatisticsQuery) -> crate::Result<LoadBalancerStatisticsModel> {
+let request = self.transport.request_with_query(reqwest::Method::GET, &format!("/loadbalancer/{}/statistics", crate::transport::segment(load_balancer_id)), query)?;
+self.transport.json(request).await
+}
 
     /// Get the pull zones attached to a Load Balancer
     ///
     /// Returns: The attached pull zones
     ///
     /// `GET /loadbalancer/{loadBalancerId}/pullzones`
-    pub async fn get_load_balancer_pull_zones(
-        &self,
-        load_balancer_id: i64,
-        query: &GetLoadBalancerPullZonesQuery,
-    ) -> crate::Result<Vec<LoadBalancerAttachedZoneModel>> {
-        let request = self.transport.request_with_query(
-            reqwest::Method::GET,
-            &format!(
-                "/loadbalancer/{}/pullzones",
-                crate::transport::segment(load_balancer_id)
-            ),
-            query,
-        )?;
-        self.transport.json(request).await
-    }
+    pub async fn get_load_balancer_pull_zones(&self, load_balancer_id: i64, query: &GetLoadBalancerPullZonesQuery) -> crate::Result<Vec<LoadBalancerAttachedZoneModel>> {
+let request = self.transport.request_with_query(reqwest::Method::GET, &format!("/loadbalancer/{}/pullzones", crate::transport::segment(load_balancer_id)), query)?;
+self.transport.json(request).await
+}
 
     /// Get statistics roll-ups for all Load Balancers on the account
     ///
     /// `GET /loadbalancer/statistics`
-    pub async fn get_load_balancer_account_statistics(
-        &self,
-        query: &GetLoadBalancerAccountStatisticsQuery,
-    ) -> crate::Result<Vec<LoadBalancerAccountSummaryModel>> {
-        let request = self.transport.request_with_query(
-            reqwest::Method::GET,
-            "/loadbalancer/statistics",
-            query,
-        )?;
-        self.transport.json(request).await
-    }
+    pub async fn get_load_balancer_account_statistics(&self, query: &GetLoadBalancerAccountStatisticsQuery) -> crate::Result<Vec<LoadBalancerAccountSummaryModel>> {
+let request = self.transport.request_with_query(reqwest::Method::GET, "/loadbalancer/statistics", query)?;
+self.transport.json(request).await
+}
 
     /// Get current-period request usage and pricing for a Load Balancer
     ///
     /// Returns: The current usage and pricing
     ///
     /// `GET /loadbalancer/{loadBalancerId}/usage`
-    pub async fn get_load_balancer_usage(
-        &self,
-        load_balancer_id: i64,
-        query: &GetLoadBalancerUsageQuery,
-    ) -> crate::Result<LoadBalancerUsageModel> {
-        let request = self.transport.request_with_query(
-            reqwest::Method::GET,
-            &format!(
-                "/loadbalancer/{}/usage",
-                crate::transport::segment(load_balancer_id)
-            ),
-            query,
-        )?;
-        self.transport.json(request).await
-    }
+    pub async fn get_load_balancer_usage(&self, load_balancer_id: i64, query: &GetLoadBalancerUsageQuery) -> crate::Result<LoadBalancerUsageModel> {
+let request = self.transport.request_with_query(reqwest::Method::GET, &format!("/loadbalancer/{}/usage", crate::transport::segment(load_balancer_id)), query)?;
+self.transport.json(request).await
+}
 
     /// Get DNS Query Statistics
     ///
     /// Returns: Returns the statistics for the DNS Zone with the given ID
     ///
     /// `GET /dnszone/{id}/statistics`
-    pub async fn get_dns_query_statistics(
-        &self,
-        id: i64,
-        query: &GetDnsQueryStatisticsQuery,
-    ) -> crate::Result<DnsZoneStatisticsModel> {
-        let request = self.transport.request_with_query(
-            reqwest::Method::GET,
-            &format!("/dnszone/{}/statistics", crate::transport::segment(id)),
-            query,
-        )?;
-        self.transport.json(request).await
-    }
+    pub async fn get_dns_query_statistics(&self, id: i64, query: &GetDnsQueryStatisticsQuery) -> crate::Result<DnsZoneStatisticsModel> {
+let request = self.transport.request_with_query(reqwest::Method::GET, &format!("/dnszone/{}/statistics", crate::transport::segment(id)), query)?;
+self.transport.json(request).await
+}
 
     /// Enable DNSSEC on a DNS Zone
     ///
@@ -1806,12 +948,9 @@ impl CoreClient {
     ///
     /// `POST /dnszone/{id}/dnssec`
     pub async fn enable_dnssec_on_dns_zone(&self, id: i64) -> crate::Result<DnsSecDsRecordModel> {
-        let request = self.transport.request(
-            reqwest::Method::POST,
-            &format!("/dnszone/{}/dnssec", crate::transport::segment(id)),
-        );
-        self.transport.json(request).await
-    }
+let request = self.transport.request(reqwest::Method::POST, &format!("/dnszone/{}/dnssec", crate::transport::segment(id)));
+self.transport.json(request).await
+}
 
     /// Disable DNSSEC on a DNS Zone
     ///
@@ -1819,47 +958,29 @@ impl CoreClient {
     ///
     /// `DELETE /dnszone/{id}/dnssec`
     pub async fn disable_dnssec_on_dns_zone(&self, id: i64) -> crate::Result<DnsSecDsRecordModel> {
-        let request = self.transport.request(
-            reqwest::Method::DELETE,
-            &format!("/dnszone/{}/dnssec", crate::transport::segment(id)),
-        );
-        self.transport.json(request).await
-    }
+let request = self.transport.request(reqwest::Method::DELETE, &format!("/dnszone/{}/dnssec", crate::transport::segment(id)));
+self.transport.json(request).await
+}
 
     /// Trigger a background scan for pre-existing DNS records. Can use ZoneId for existing zones or Domain for pre-zone creation scenarios.
     ///
     /// Returns: DNS record scan job triggered successfully
     ///
     /// `POST /dnszone/records/scan`
-    pub async fn trigger_dns_record_scan(
-        &self,
-        body: &TriggerDnsZoneRecordScanRequest,
-    ) -> crate::Result<DnsZoneRecordScanTriggerResponse> {
-        let request = self
-            .transport
-            .request(reqwest::Method::POST, "/dnszone/records/scan")
-            .json(body);
-        self.transport.json(request).await
-    }
+    pub async fn trigger_dns_record_scan(&self, body: &TriggerDnsZoneRecordScanRequest) -> crate::Result<DnsZoneRecordScanTriggerResponse> {
+let request = self.transport.request(reqwest::Method::POST, "/dnszone/records/scan").json(body);
+self.transport.json(request).await
+}
 
     /// Get the latest DNS record scan result for a DNS Zone
     ///
     /// Returns: Latest DNS record scan job details
     ///
     /// `GET /dnszone/{zoneId}/records/scan`
-    pub async fn get_latest_dns_record_scan(
-        &self,
-        zone_id: i64,
-    ) -> crate::Result<DnsZoneRecordScanJobResponse> {
-        let request = self.transport.request(
-            reqwest::Method::GET,
-            &format!(
-                "/dnszone/{}/records/scan",
-                crate::transport::segment(zone_id)
-            ),
-        );
-        self.transport.json(request).await
-    }
+    pub async fn get_latest_dns_record_scan(&self, zone_id: i64) -> crate::Result<DnsZoneRecordScanJobResponse> {
+let request = self.transport.request(reqwest::Method::GET, &format!("/dnszone/{}/records/scan", crate::transport::segment(zone_id)));
+self.transport.json(request).await
+}
 
     /// Get Billing Details
     ///
@@ -1869,26 +990,17 @@ impl CoreClient {
     ///
     /// `GET /billing`
     pub async fn get_billing_details(&self) -> crate::Result<BillingModel> {
-        let request = self.transport.request(reqwest::Method::GET, "/billing");
-        self.transport.json(request).await
-    }
+let request = self.transport.request(reqwest::Method::GET, "/billing");
+self.transport.json(request).await
+}
 
     /// Download Payment Request Invoice PDF
     ///
     /// `GET /billing/payment-request-invoice/{id}/pdf`
-    pub async fn download_payment_request_invoice_pdf(
-        &self,
-        id: i64,
-    ) -> crate::Result<bytes::Bytes> {
-        let request = self.transport.request(
-            reqwest::Method::GET,
-            &format!(
-                "/billing/payment-request-invoice/{}/pdf",
-                crate::transport::segment(id)
-            ),
-        );
-        self.transport.bytes(request).await
-    }
+    pub async fn download_payment_request_invoice_pdf(&self, id: i64) -> crate::Result<bytes::Bytes> {
+let request = self.transport.request(reqwest::Method::GET, &format!("/billing/payment-request-invoice/{}/pdf", crate::transport::segment(id)));
+self.transport.bytes(request).await
+}
 
     /// Get Pending Payment Requests
     ///
@@ -1898,28 +1010,17 @@ impl CoreClient {
     ///
     /// `GET /billing/payment-requests`
     pub async fn get_pending_payment_requests(&self) -> crate::Result<Vec<PaymentRequestModel>> {
-        let request = self
-            .transport
-            .request(reqwest::Method::GET, "/billing/payment-requests");
-        self.transport.json(request).await
-    }
+let request = self.transport.request(reqwest::Method::GET, "/billing/payment-requests");
+self.transport.json(request).await
+}
 
     /// Get Billing Summary Document
     ///
     /// `GET /billing/summary/{billingRecordId}/pdf`
-    pub async fn get_billing_summary_document(
-        &self,
-        billing_record_id: i64,
-    ) -> crate::Result<bytes::Bytes> {
-        let request = self.transport.request(
-            reqwest::Method::GET,
-            &format!(
-                "/billing/summary/{}/pdf",
-                crate::transport::segment(billing_record_id)
-            ),
-        );
-        self.transport.bytes(request).await
-    }
+    pub async fn get_billing_summary_document(&self, billing_record_id: i64) -> crate::Result<bytes::Bytes> {
+let request = self.transport.request(reqwest::Method::GET, &format!("/billing/summary/{}/pdf", crate::transport::segment(billing_record_id)));
+self.transport.bytes(request).await
+}
 
     /// Get Billing Summary
     ///
@@ -1927,28 +1028,19 @@ impl CoreClient {
     ///
     /// `GET /billing/summary`
     pub async fn get_billing_summary(&self) -> crate::Result<Vec<BillingSummaryItem>> {
-        let request = self
-            .transport
-            .request(reqwest::Method::GET, "/billing/summary");
-        self.transport.json(request).await
-    }
+let request = self.transport.request(reqwest::Method::GET, "/billing/summary");
+self.transport.json(request).await
+}
 
     /// List API Keys
     ///
     /// Returns: The list of all API keys on the account
     ///
     /// `GET /apikey`
-    pub async fn list_api_keys(
-        &self,
-        query: &ListApiKeysQuery,
-    ) -> crate::Result<PaginationListModelOfApiKeyModel> {
-        let request = self
-            .transport
-            .request_with_query(reqwest::Method::GET, "/apikey", query)?;
-        self.transport
-            .json_list(request, crate::transport::ListShape::Page("Items"))
-            .await
-    }
+    pub async fn list_api_keys(&self, query: &ListApiKeysQuery) -> crate::Result<PaginationListModelOfApiKeyModel> {
+let request = self.transport.request_with_query(reqwest::Method::GET, "/apikey", query)?;
+self.transport.json_list(request, crate::transport::ListShape::Page("Items")).await
+}
 
     /// Get affiliate details
     ///
@@ -1956,11 +1048,10 @@ impl CoreClient {
     ///
     /// `GET /billing/affiliate`
     pub async fn get_affiliate_details(&self) -> crate::Result<BillingAffiliateDetailsModel> {
-        let request = self
-            .transport
-            .request(reqwest::Method::GET, "/billing/affiliate");
-        self.transport.json(request).await
-    }
+let request = self.transport.request(reqwest::Method::GET, "/billing/affiliate");
+self.transport.json(request).await
+}
+
 }
 
 #[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
@@ -2009,15 +1100,9 @@ pub struct DnsZoneModel {
     pub date_modified: Option<String>,
     #[serde(rename = "DateCreated", skip_serializing_if = "Option::is_none")]
     pub date_created: Option<String>,
-    #[serde(
-        rename = "NameserversDetected",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "NameserversDetected", skip_serializing_if = "Option::is_none")]
     pub nameservers_detected: Option<bool>,
-    #[serde(
-        rename = "CustomNameserversEnabled",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "CustomNameserversEnabled", skip_serializing_if = "Option::is_none")]
     pub custom_nameservers_enabled: Option<bool>,
     #[serde(rename = "Nameserver1", skip_serializing_if = "Option::is_none")]
     pub nameserver1: Option<String>,
@@ -2025,27 +1110,18 @@ pub struct DnsZoneModel {
     pub nameserver2: Option<String>,
     #[serde(rename = "SoaEmail", skip_serializing_if = "Option::is_none")]
     pub soa_email: Option<String>,
-    #[serde(
-        rename = "NameserversNextCheck",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "NameserversNextCheck", skip_serializing_if = "Option::is_none")]
     pub nameservers_next_check: Option<String>,
     #[serde(rename = "LoggingEnabled", skip_serializing_if = "Option::is_none")]
     pub logging_enabled: Option<bool>,
     /// Determines if the TLS 1 is enabled on the DNS Zone
-    #[serde(
-        rename = "LoggingIPAnonymizationEnabled",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "LoggingIPAnonymizationEnabled", skip_serializing_if = "Option::is_none")]
     pub logging_ip_anonymization_enabled: Option<bool>,
     /// Sets the log anonymization type for this zone
     ///
     /// 0 = One Digit
     /// 1 = Drop
-    #[serde(
-        rename = "LogAnonymizationType",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "LogAnonymizationType", skip_serializing_if = "Option::is_none")]
     pub log_anonymization_type: Option<LogAnonymizationType>,
     /// Determines if DNSSEC is enabled for this DNS Zone
     #[serde(rename = "DnsSecEnabled", skip_serializing_if = "Option::is_none")]
@@ -2106,10 +1182,7 @@ pub struct DnsRecordModel {
     pub tag: Option<String>,
     #[serde(rename = "Accelerated", skip_serializing_if = "Option::is_none")]
     pub accelerated: Option<bool>,
-    #[serde(
-        rename = "AcceleratedPullZoneId",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "AcceleratedPullZoneId", skip_serializing_if = "Option::is_none")]
     pub accelerated_pull_zone_id: Option<i64>,
     #[serde(rename = "LinkName", skip_serializing_if = "Option::is_none")]
     pub link_name: Option<String>,
@@ -2128,20 +1201,11 @@ pub struct DnsRecordModel {
     /// 3 = Monitor
     #[serde(rename = "MonitorType", skip_serializing_if = "Option::is_none")]
     pub monitor_type: Option<DnsMonitoringType>,
-    #[serde(
-        rename = "GeolocationLatitude",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "GeolocationLatitude", skip_serializing_if = "Option::is_none")]
     pub geolocation_latitude: Option<f64>,
-    #[serde(
-        rename = "GeolocationLongitude",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "GeolocationLongitude", skip_serializing_if = "Option::is_none")]
     pub geolocation_longitude: Option<f64>,
-    #[serde(
-        rename = "EnviromentalVariables",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "EnviromentalVariables", skip_serializing_if = "Option::is_none")]
     pub enviromental_variables: Option<Vec<DnsRecordEnviromentalVariableModel>>,
     #[serde(rename = "LatencyZone", skip_serializing_if = "Option::is_none")]
     pub latency_zone: Option<String>,
@@ -2324,10 +1388,7 @@ int_enum! {
 #[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
 #[serde(default)]
 pub struct UpdateDnsZoneModel {
-    #[serde(
-        rename = "CustomNameserversEnabled",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "CustomNameserversEnabled", skip_serializing_if = "Option::is_none")]
     pub custom_nameservers_enabled: Option<bool>,
     #[serde(rename = "Nameserver1", skip_serializing_if = "Option::is_none")]
     pub nameserver1: Option<String>,
@@ -2341,10 +1402,7 @@ pub struct UpdateDnsZoneModel {
     ///
     /// 0 = One Digit
     /// 1 = Drop
-    #[serde(
-        rename = "LogAnonymizationType",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "LogAnonymizationType", skip_serializing_if = "Option::is_none")]
     pub log_anonymization_type: Option<LogAnonymizationType>,
     /// Sets the certificate private key type for wildcard certificates for this zone
     ///
@@ -2353,10 +1411,7 @@ pub struct UpdateDnsZoneModel {
     #[serde(rename = "CertificateKeyType", skip_serializing_if = "Option::is_none")]
     pub certificate_key_type: Option<PrivateKeyType>,
     /// Determines if the log anonoymization should be enabled
-    #[serde(
-        rename = "LoggingIPAnonymizationEnabled",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "LoggingIPAnonymizationEnabled", skip_serializing_if = "Option::is_none")]
     pub logging_ip_anonymization_enabled: Option<bool>,
 }
 
@@ -2446,15 +1501,9 @@ pub struct AddDnsRecordModel {
     /// 3 = Monitor
     #[serde(rename = "MonitorType", skip_serializing_if = "Option::is_none")]
     pub monitor_type: Option<DnsMonitoringType>,
-    #[serde(
-        rename = "GeolocationLatitude",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "GeolocationLatitude", skip_serializing_if = "Option::is_none")]
     pub geolocation_latitude: Option<f64>,
-    #[serde(
-        rename = "GeolocationLongitude",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "GeolocationLongitude", skip_serializing_if = "Option::is_none")]
     pub geolocation_longitude: Option<f64>,
     #[serde(rename = "LatencyZone", skip_serializing_if = "Option::is_none")]
     pub latency_zone: Option<String>,
@@ -2465,10 +1514,7 @@ pub struct AddDnsRecordModel {
     pub smart_routing_type: Option<DnsSmartRoutingType>,
     #[serde(rename = "Disabled", skip_serializing_if = "Option::is_none")]
     pub disabled: Option<bool>,
-    #[serde(
-        rename = "EnviromentalVariables",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "EnviromentalVariables", skip_serializing_if = "Option::is_none")]
     pub enviromental_variables: Option<Vec<DnsRecordEnviromentalVariableModel>>,
     #[serde(rename = "Comment", skip_serializing_if = "Option::is_none")]
     pub comment: Option<String>,
@@ -2532,15 +1578,9 @@ pub struct UpdateDnsRecordModel {
     /// 3 = Monitor
     #[serde(rename = "MonitorType", skip_serializing_if = "Option::is_none")]
     pub monitor_type: Option<DnsMonitoringType>,
-    #[serde(
-        rename = "GeolocationLatitude",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "GeolocationLatitude", skip_serializing_if = "Option::is_none")]
     pub geolocation_latitude: Option<f64>,
-    #[serde(
-        rename = "GeolocationLongitude",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "GeolocationLongitude", skip_serializing_if = "Option::is_none")]
     pub geolocation_longitude: Option<f64>,
     #[serde(rename = "LatencyZone", skip_serializing_if = "Option::is_none")]
     pub latency_zone: Option<String>,
@@ -2551,10 +1591,7 @@ pub struct UpdateDnsRecordModel {
     pub smart_routing_type: Option<DnsSmartRoutingType>,
     #[serde(rename = "Disabled", skip_serializing_if = "Option::is_none")]
     pub disabled: Option<bool>,
-    #[serde(
-        rename = "EnviromentalVariables",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "EnviromentalVariables", skip_serializing_if = "Option::is_none")]
     pub enviromental_variables: Option<Vec<DnsRecordEnviromentalVariableModel>>,
     #[serde(rename = "Comment", skip_serializing_if = "Option::is_none")]
     pub comment: Option<String>,
@@ -2663,24 +1700,15 @@ pub struct PullZoneModel {
     /// 0 = Cache
     /// 1 = Load Balancer
     /// 2 = Pre-Cache
-    #[serde(
-        rename = "EdgeScriptExecutionPhase",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "EdgeScriptExecutionPhase", skip_serializing_if = "Option::is_none")]
     pub edge_script_execution_phase: Option<ExecutionPhase>,
     #[serde(rename = "MiddlewareScriptId", skip_serializing_if = "Option::is_none")]
     pub middleware_script_id: Option<i64>,
     /// The ID of the Magic Container application the pull zone is linked to
-    #[serde(
-        rename = "MagicContainersAppId",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "MagicContainersAppId", skip_serializing_if = "Option::is_none")]
     pub magic_containers_app_id: Option<String>,
     /// The ID of the Magic Container Endpoint the pull zone is linked to
-    #[serde(
-        rename = "MagicContainersEndpointId",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "MagicContainersEndpointId", skip_serializing_if = "Option::is_none")]
     pub magic_containers_endpoint_id: Option<String>,
     /// The list of referrer hostnames that are allowed to access the pull zone.Requests containing the header Referer: hostname that is not on the list will be rejected.If empty, all the referrers are allowed
     #[serde(rename = "AllowedReferrers", skip_serializing_if = "Option::is_none")]
@@ -2715,34 +1743,22 @@ pub struct PullZoneModel {
     #[serde(rename = "IpFamilyPolicy", skip_serializing_if = "Option::is_none")]
     pub ip_family_policy: Option<IpFamilyPolicy>,
     /// True if the URL secure token authentication security is enabled
-    #[serde(
-        rename = "ZoneSecurityEnabled",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "ZoneSecurityEnabled", skip_serializing_if = "Option::is_none")]
     pub zone_security_enabled: Option<bool>,
     /// The security key used for secure URL token authentication
     #[serde(rename = "ZoneSecurityKey", skip_serializing_if = "Option::is_none")]
     pub zone_security_key: Option<String>,
     /// True if the zone security hash should include the remote IP
-    #[serde(
-        rename = "ZoneSecurityIncludeHashRemoteIP",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "ZoneSecurityIncludeHashRemoteIP", skip_serializing_if = "Option::is_none")]
     pub zone_security_include_hash_remote_ip: Option<bool>,
     /// True if the Pull Zone is ignoring query strings when serving cached objects
     #[serde(rename = "IgnoreQueryStrings", skip_serializing_if = "Option::is_none")]
     pub ignore_query_strings: Option<bool>,
     /// The monthly limit of bandwidth in bytes that the pullzone is allowed to use
-    #[serde(
-        rename = "MonthlyBandwidthLimit",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "MonthlyBandwidthLimit", skip_serializing_if = "Option::is_none")]
     pub monthly_bandwidth_limit: Option<i64>,
     /// The amount of bandwidth in bytes that the pull zone used this month
-    #[serde(
-        rename = "MonthlyBandwidthUsed",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "MonthlyBandwidthUsed", skip_serializing_if = "Option::is_none")]
     pub monthly_bandwidth_used: Option<i64>,
     /// The total monthly charges for this so zone so far
     ///
@@ -2762,25 +1778,16 @@ pub struct PullZoneModel {
     #[serde(rename = "Type", skip_serializing_if = "Option::is_none")]
     pub r#type: Option<PullZoneType>,
     /// The list of extensions that will return the CORS headers
-    #[serde(
-        rename = "AccessControlOriginHeaderExtensions",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "AccessControlOriginHeaderExtensions", skip_serializing_if = "Option::is_none")]
     pub access_control_origin_header_extensions: Option<Vec<String>>,
     /// Determines if the CORS headers should be enabled
-    #[serde(
-        rename = "EnableAccessControlOriginHeader",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "EnableAccessControlOriginHeader", skip_serializing_if = "Option::is_none")]
     pub enable_access_control_origin_header: Option<bool>,
     /// Determines if the cookies are disabled for the pull zone
     #[serde(rename = "DisableCookies", skip_serializing_if = "Option::is_none")]
     pub disable_cookies: Option<bool>,
     /// The list of budget redirected countries with the two-letter Alpha2 ISO codes
-    #[serde(
-        rename = "BudgetRedirectedCountries",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "BudgetRedirectedCountries", skip_serializing_if = "Option::is_none")]
     pub budget_redirected_countries: Option<Vec<String>>,
     /// The list of blocked countries with the two-letter Alpha2 ISO codes
     #[serde(rename = "BlockedCountries", skip_serializing_if = "Option::is_none")]
@@ -2789,16 +1796,10 @@ pub struct PullZoneModel {
     #[serde(rename = "EnableOriginShield", skip_serializing_if = "Option::is_none")]
     pub enable_origin_shield: Option<bool>,
     /// The override cache time for the pull zone
-    #[serde(
-        rename = "CacheControlMaxAgeOverride",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "CacheControlMaxAgeOverride", skip_serializing_if = "Option::is_none")]
     pub cache_control_max_age_override: Option<i64>,
     /// The override cache time for the pull zone for the end client
-    #[serde(
-        rename = "CacheControlPublicMaxAgeOverride",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "CacheControlPublicMaxAgeOverride", skip_serializing_if = "Option::is_none")]
     pub cache_control_public_max_age_override: Option<i64>,
     /// Excessive requests are delayed until their number exceeds the maximum burst size.
     #[serde(rename = "BurstSize", skip_serializing_if = "Option::is_none")]
@@ -2807,10 +1808,7 @@ pub struct PullZoneModel {
     #[serde(rename = "RequestLimit", skip_serializing_if = "Option::is_none")]
     pub request_limit: Option<i32>,
     /// If true, access to root path will return a 403 error
-    #[serde(
-        rename = "BlockRootPathAccess",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "BlockRootPathAccess", skip_serializing_if = "Option::is_none")]
     pub block_root_path_access: Option<bool>,
     /// If true, POST requests to the zone will be blocked
     #[serde(rename = "BlockPostRequests", skip_serializing_if = "Option::is_none")]
@@ -2822,10 +1820,7 @@ pub struct PullZoneModel {
     #[serde(rename = "LimitRateAfter", skip_serializing_if = "Option::is_none")]
     pub limit_rate_after: Option<f64>,
     /// The number of connections limited per IP for this zone
-    #[serde(
-        rename = "ConnectionLimitPerIPCount",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "ConnectionLimitPerIPCount", skip_serializing_if = "Option::is_none")]
     pub connection_limit_per_ip_count: Option<i32>,
     /// The custom price override for this zone. Unit is $/Byte.
     ///
@@ -2859,16 +1854,10 @@ pub struct PullZoneModel {
     #[serde(rename = "EnableAvifVary", skip_serializing_if = "Option::is_none")]
     pub enable_avif_vary: Option<bool>,
     /// Determines if the Country Code Vary feature is enabled.
-    #[serde(
-        rename = "EnableCountryCodeVary",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "EnableCountryCodeVary", skip_serializing_if = "Option::is_none")]
     pub enable_country_code_vary: Option<bool>,
     /// Determines if the Country State Code Vary feature should be enabled.
-    #[serde(
-        rename = "EnableCountryStateCodeVary",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "EnableCountryStateCodeVary", skip_serializing_if = "Option::is_none")]
     pub enable_country_state_code_vary: Option<bool>,
     /// Determines if the Mobile Vary feature is enabled.
     #[serde(rename = "EnableMobileVary", skip_serializing_if = "Option::is_none")]
@@ -2877,10 +1866,7 @@ pub struct PullZoneModel {
     #[serde(rename = "EnableCookieVary", skip_serializing_if = "Option::is_none")]
     pub enable_cookie_vary: Option<bool>,
     /// Contains the list of vary parameters that will be used for vary cache by cookie string. If empty, cookie vary will not be used.
-    #[serde(
-        rename = "CookieVaryParameters",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "CookieVaryParameters", skip_serializing_if = "Option::is_none")]
     pub cookie_vary_parameters: Option<Vec<String>>,
     /// Determines if the Hostname Vary feature is enabled.
     #[serde(rename = "EnableHostnameVary", skip_serializing_if = "Option::is_none")]
@@ -2898,16 +1884,10 @@ pub struct PullZoneModel {
     #[serde(rename = "AWSSigningSecret", skip_serializing_if = "Option::is_none")]
     pub aws_signing_secret: Option<String>,
     /// The AWS Signing region name
-    #[serde(
-        rename = "AWSSigningRegionName",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "AWSSigningRegionName", skip_serializing_if = "Option::is_none")]
     pub aws_signing_region_name: Option<String>,
     /// Determines if the TLS 1 is enabled on the Pull Zone
-    #[serde(
-        rename = "LoggingIPAnonymizationEnabled",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "LoggingIPAnonymizationEnabled", skip_serializing_if = "Option::is_none")]
     pub logging_ip_anonymization_enabled: Option<bool>,
     /// Determines if the TLS 1 is enabled on the Pull Zone
     #[serde(rename = "EnableTLS1", skip_serializing_if = "Option::is_none")]
@@ -2926,52 +1906,28 @@ pub struct PullZoneModel {
     #[serde(rename = "VerifyOriginSSL", skip_serializing_if = "Option::is_none")]
     pub verify_origin_ssl: Option<bool>,
     /// Determines if custom error page code should be enabled.
-    #[serde(
-        rename = "ErrorPageEnableCustomCode",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "ErrorPageEnableCustomCode", skip_serializing_if = "Option::is_none")]
     pub error_page_enable_custom_code: Option<bool>,
     /// Contains the custom error page code that will be returned
-    #[serde(
-        rename = "ErrorPageCustomCode",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "ErrorPageCustomCode", skip_serializing_if = "Option::is_none")]
     pub error_page_custom_code: Option<String>,
     /// Determines if the statuspage widget should be displayed on the error pages
-    #[serde(
-        rename = "ErrorPageEnableStatuspageWidget",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "ErrorPageEnableStatuspageWidget", skip_serializing_if = "Option::is_none")]
     pub error_page_enable_statuspage_widget: Option<bool>,
     /// The statuspage code that will be used to build the status widget
-    #[serde(
-        rename = "ErrorPageStatuspageCode",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "ErrorPageStatuspageCode", skip_serializing_if = "Option::is_none")]
     pub error_page_statuspage_code: Option<String>,
     /// Determines if the error pages should be whitelabel or not
-    #[serde(
-        rename = "ErrorPageWhitelabel",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "ErrorPageWhitelabel", skip_serializing_if = "Option::is_none")]
     pub error_page_whitelabel: Option<bool>,
     /// The zone code of the origin shield
-    #[serde(
-        rename = "OriginShieldZoneCode",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "OriginShieldZoneCode", skip_serializing_if = "Option::is_none")]
     pub origin_shield_zone_code: Option<String>,
     /// Determines if the log forawrding is enabled
-    #[serde(
-        rename = "LogForwardingEnabled",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "LogForwardingEnabled", skip_serializing_if = "Option::is_none")]
     pub log_forwarding_enabled: Option<bool>,
     /// The log forwarding hostname
-    #[serde(
-        rename = "LogForwardingHostname",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "LogForwardingHostname", skip_serializing_if = "Option::is_none")]
     pub log_forwarding_hostname: Option<String>,
     /// The log forwarding port
     #[serde(rename = "LogForwardingPort", skip_serializing_if = "Option::is_none")]
@@ -2985,22 +1941,13 @@ pub struct PullZoneModel {
     /// 1 = TCP
     /// 2 = TCP Encrypted
     /// 3 = Datadog
-    #[serde(
-        rename = "LogForwardingProtocol",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "LogForwardingProtocol", skip_serializing_if = "Option::is_none")]
     pub log_forwarding_protocol: Option<PullZoneLogForwarderProtocolType>,
     /// Determines if the permanent logging feature is enabled
-    #[serde(
-        rename = "LoggingSaveToStorage",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "LoggingSaveToStorage", skip_serializing_if = "Option::is_none")]
     pub logging_save_to_storage: Option<bool>,
     /// The ID of the logging storage zone that is configured for this Pull Zone
-    #[serde(
-        rename = "LoggingStorageZoneId",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "LoggingStorageZoneId", skip_serializing_if = "Option::is_none")]
     pub logging_storage_zone_id: Option<i64>,
     /// Determines if the zone will follow origin redirects
     #[serde(rename = "FollowRedirects", skip_serializing_if = "Option::is_none")]
@@ -3021,92 +1968,53 @@ pub struct PullZoneModel {
     #[serde(rename = "OptimizerEnabled", skip_serializing_if = "Option::is_none")]
     pub optimizer_enabled: Option<bool>,
     /// Determines if the optimizer origin tunnel system is enabled for this zone
-    #[serde(
-        rename = "OptimizerTunnelEnabled",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "OptimizerTunnelEnabled", skip_serializing_if = "Option::is_none")]
     pub optimizer_tunnel_enabled: Option<bool>,
     /// Determines if the optimizer tunnel system active probing should be enabled for this zone
-    #[serde(
-        rename = "OptimizerTunnelActiveProbingEnabled",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "OptimizerTunnelActiveProbingEnabled", skip_serializing_if = "Option::is_none")]
     pub optimizer_tunnel_active_probing_enabled: Option<bool>,
     /// Determines the maximum automatic image size for desktop clients
-    #[serde(
-        rename = "OptimizerDesktopMaxWidth",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "OptimizerDesktopMaxWidth", skip_serializing_if = "Option::is_none")]
     pub optimizer_desktop_max_width: Option<i32>,
     /// Determines the maximum automatic image size for mobile clients
-    #[serde(
-        rename = "OptimizerMobileMaxWidth",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "OptimizerMobileMaxWidth", skip_serializing_if = "Option::is_none")]
     pub optimizer_mobile_max_width: Option<i32>,
     /// Determines the image quality for desktop clients
-    #[serde(
-        rename = "OptimizerImageQuality",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "OptimizerImageQuality", skip_serializing_if = "Option::is_none")]
     pub optimizer_image_quality: Option<i32>,
     /// Determines the image quality for mobile clients
-    #[serde(
-        rename = "OptimizerMobileImageQuality",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "OptimizerMobileImageQuality", skip_serializing_if = "Option::is_none")]
     pub optimizer_mobile_image_quality: Option<i32>,
     /// Determines if the WebP optimization should be enabled
-    #[serde(
-        rename = "OptimizerEnableWebP",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "OptimizerEnableWebP", skip_serializing_if = "Option::is_none")]
     pub optimizer_enable_web_p: Option<bool>,
     /// Determines if the SEO HTML prerender is enabled
-    #[serde(
-        rename = "OptimizerPrerenderHtml",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "OptimizerPrerenderHtml", skip_serializing_if = "Option::is_none")]
     pub optimizer_prerender_html: Option<bool>,
     /// Determines if Markdown automatic generation for AI systems is enabled and which pipeline to use
     ///
     /// 0 = Off
     /// 1 = Simple
     /// 2 = Prerendered
-    #[serde(
-        rename = "OptimizerHtmlToMarkdown",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "OptimizerHtmlToMarkdown", skip_serializing_if = "Option::is_none")]
     pub optimizer_html_to_markdown: Option<OptimizerHtmlToMarkdownType>,
     /// Determines if the llms.txt file should be served when requested
     #[serde(rename = "OptimizerLlmsTxt", skip_serializing_if = "Option::is_none")]
     pub optimizer_llms_txt: Option<bool>,
     /// Determines the image manipulation should be enabled
-    #[serde(
-        rename = "OptimizerEnableManipulationEngine",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "OptimizerEnableManipulationEngine", skip_serializing_if = "Option::is_none")]
     pub optimizer_enable_manipulation_engine: Option<bool>,
     /// Determines if the CSS minifcation should be enabled
     #[serde(rename = "OptimizerMinifyCSS", skip_serializing_if = "Option::is_none")]
     pub optimizer_minify_css: Option<bool>,
     /// Determines if the JavaScript minifcation should be enabled
-    #[serde(
-        rename = "OptimizerMinifyJavaScript",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "OptimizerMinifyJavaScript", skip_serializing_if = "Option::is_none")]
     pub optimizer_minify_java_script: Option<bool>,
     /// Determines if image watermarking should be enabled
-    #[serde(
-        rename = "OptimizerWatermarkEnabled",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "OptimizerWatermarkEnabled", skip_serializing_if = "Option::is_none")]
     pub optimizer_watermark_enabled: Option<bool>,
     /// Sets the URL of the watermark image
-    #[serde(
-        rename = "OptimizerWatermarkUrl",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "OptimizerWatermarkUrl", skip_serializing_if = "Option::is_none")]
     pub optimizer_watermark_url: Option<String>,
     /// Sets the position of the watermark image
     ///
@@ -3116,34 +2024,19 @@ pub struct PullZoneModel {
     /// 3 = Top Right
     /// 4 = Center
     /// 5 = Center Stretch
-    #[serde(
-        rename = "OptimizerWatermarkPosition",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "OptimizerWatermarkPosition", skip_serializing_if = "Option::is_none")]
     pub optimizer_watermark_position: Option<OptimizerWatermarkPosition>,
     /// Sets the offset of the watermark image
-    #[serde(
-        rename = "OptimizerWatermarkOffset",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "OptimizerWatermarkOffset", skip_serializing_if = "Option::is_none")]
     pub optimizer_watermark_offset: Option<f64>,
     /// Sets the minimum image size to which the watermark will be added
-    #[serde(
-        rename = "OptimizerWatermarkMinImageSize",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "OptimizerWatermarkMinImageSize", skip_serializing_if = "Option::is_none")]
     pub optimizer_watermark_min_image_size: Option<i32>,
     /// Determines if the automatic image optimization should be enabled
-    #[serde(
-        rename = "OptimizerAutomaticOptimizationEnabled",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "OptimizerAutomaticOptimizationEnabled", skip_serializing_if = "Option::is_none")]
     pub optimizer_automatic_optimization_enabled: Option<bool>,
     /// The IP of the storage zone used for Perma-Cache
-    #[serde(
-        rename = "PermaCacheStorageZoneId",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "PermaCacheStorageZoneId", skip_serializing_if = "Option::is_none")]
     pub perma_cache_storage_zone_id: Option<i64>,
     /// Determines Perma-Cache behavior
     ///
@@ -3155,138 +2048,78 @@ pub struct PullZoneModel {
     #[serde(rename = "OriginRetries", skip_serializing_if = "Option::is_none")]
     pub origin_retries: Option<i32>,
     /// The amount of seconds to wait when connecting to the origin. Otherwise the request will fail or retry.
-    #[serde(
-        rename = "OriginConnectTimeout",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "OriginConnectTimeout", skip_serializing_if = "Option::is_none")]
     pub origin_connect_timeout: Option<i32>,
     /// The amount of seconds to wait when waiting for the origin reply. Otherwise the request will fail or retry.
-    #[serde(
-        rename = "OriginResponseTimeout",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "OriginResponseTimeout", skip_serializing_if = "Option::is_none")]
     pub origin_response_timeout: Option<i32>,
     /// Determines if we should use stale cache while cache is updating
-    #[serde(
-        rename = "UseStaleWhileUpdating",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "UseStaleWhileUpdating", skip_serializing_if = "Option::is_none")]
     pub use_stale_while_updating: Option<bool>,
     /// Determines if we should use stale cache while the origin is offline
-    #[serde(
-        rename = "UseStaleWhileOffline",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "UseStaleWhileOffline", skip_serializing_if = "Option::is_none")]
     pub use_stale_while_offline: Option<bool>,
     /// Determines if we should retry the request in case of a 5XX response.
-    #[serde(
-        rename = "OriginRetry5XXResponses",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "OriginRetry5XXResponses", skip_serializing_if = "Option::is_none")]
     pub origin_retry5_xx_responses: Option<bool>,
     /// Determines if we should retry the request in case of a connection timeout.
-    #[serde(
-        rename = "OriginRetryConnectionTimeout",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "OriginRetryConnectionTimeout", skip_serializing_if = "Option::is_none")]
     pub origin_retry_connection_timeout: Option<bool>,
     /// Determines if we should retry the request in case of a response timeout.
-    #[serde(
-        rename = "OriginRetryResponseTimeout",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "OriginRetryResponseTimeout", skip_serializing_if = "Option::is_none")]
     pub origin_retry_response_timeout: Option<bool>,
     /// Determines the amount of time that the CDN should wait before retrying an origin request.
     #[serde(rename = "OriginRetryDelay", skip_serializing_if = "Option::is_none")]
     pub origin_retry_delay: Option<i32>,
     /// Contains the list of vary parameters that will be used for vary cache by query string. If empty, all parameters will be used to construct the key
-    #[serde(
-        rename = "QueryStringVaryParameters",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "QueryStringVaryParameters", skip_serializing_if = "Option::is_none")]
     pub query_string_vary_parameters: Option<Vec<String>>,
     /// Determines if the origin shield concurrency limit is enabled.
-    #[serde(
-        rename = "OriginShieldEnableConcurrencyLimit",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "OriginShieldEnableConcurrencyLimit", skip_serializing_if = "Option::is_none")]
     pub origin_shield_enable_concurrency_limit: Option<bool>,
     /// Determines the number of maximum concurrent requests allowed to the origin.
-    #[serde(
-        rename = "OriginShieldMaxConcurrentRequests",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "OriginShieldMaxConcurrentRequests", skip_serializing_if = "Option::is_none")]
     pub origin_shield_max_concurrent_requests: Option<i32>,
     #[serde(rename = "EnableSafeHop", skip_serializing_if = "Option::is_none")]
     pub enable_safe_hop: Option<bool>,
     /// Determines if bunny.net should be caching error responses
-    #[serde(
-        rename = "CacheErrorResponses",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "CacheErrorResponses", skip_serializing_if = "Option::is_none")]
     pub cache_error_responses: Option<bool>,
     /// Determines the max queue wait time
-    #[serde(
-        rename = "OriginShieldQueueMaxWaitTime",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "OriginShieldQueueMaxWaitTime", skip_serializing_if = "Option::is_none")]
     pub origin_shield_queue_max_wait_time: Option<i32>,
     /// Determines the max number of origin requests that will remain in the queu
-    #[serde(
-        rename = "OriginShieldMaxQueuedRequests",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "OriginShieldMaxQueuedRequests", skip_serializing_if = "Option::is_none")]
     pub origin_shield_max_queued_requests: Option<i32>,
     /// Contains the list of optimizer classes
     #[serde(rename = "OptimizerClasses", skip_serializing_if = "Option::is_none")]
     pub optimizer_classes: Option<Vec<OptimizerClassModel>>,
     /// Determines if the optimizer class list should be enforced
-    #[serde(
-        rename = "OptimizerForceClasses",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "OptimizerForceClasses", skip_serializing_if = "Option::is_none")]
     pub optimizer_force_classes: Option<bool>,
     /// Determines whether optimizer static html feature enabled
-    #[serde(
-        rename = "OptimizerStaticHtmlEnabled",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "OptimizerStaticHtmlEnabled", skip_serializing_if = "Option::is_none")]
     pub optimizer_static_html_enabled: Option<bool>,
     /// Wordpress html path which should be bypassed by permacache in edge rule
-    #[serde(
-        rename = "OptimizerStaticHtmlWordPressPath",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "OptimizerStaticHtmlWordPressPath", skip_serializing_if = "Option::is_none")]
     pub optimizer_static_html_word_press_path: Option<String>,
     /// Wordpress cookie which should be bypassed by permacache in edge rule
-    #[serde(
-        rename = "OptimizerStaticHtmlWordPressBypassCookie",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "OptimizerStaticHtmlWordPressBypassCookie", skip_serializing_if = "Option::is_none")]
     pub optimizer_static_html_word_press_bypass_cookie: Option<String>,
     /// Determines if cache update is performed in the background.
-    #[serde(
-        rename = "UseBackgroundUpdate",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "UseBackgroundUpdate", skip_serializing_if = "Option::is_none")]
     pub use_background_update: Option<bool>,
     /// If set to true, any hostnames added to this Pull Zone will automatically enable SSL.
     #[serde(rename = "EnableAutoSSL", skip_serializing_if = "Option::is_none")]
     pub enable_auto_ssl: Option<bool>,
     /// If set to true the query string ordering property is enabled.
-    #[serde(
-        rename = "EnableQueryStringOrdering",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "EnableQueryStringOrdering", skip_serializing_if = "Option::is_none")]
     pub enable_query_string_ordering: Option<bool>,
     /// Gets the log anonymization type for this pull zone
     ///
     /// 0 = One Digit
     /// 1 = Drop
-    #[serde(
-        rename = "LogAnonymizationType",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "LogAnonymizationType", skip_serializing_if = "Option::is_none")]
     pub log_anonymization_type: Option<LogAnonymizationType>,
     /// 0 = Plain
     /// 1 = JSON
@@ -3294,23 +2127,14 @@ pub struct PullZoneModel {
     pub log_format: Option<PullZoneLogFormat>,
     /// 0 = Plain
     /// 1 = JSON
-    #[serde(
-        rename = "LogForwardingFormat",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "LogForwardingFormat", skip_serializing_if = "Option::is_none")]
     pub log_forwarding_format: Option<PullZoneLogFormat>,
     /// 0 = Detect Only
     /// 1 = Active Standard
     /// 2 = Active Aggressive
-    #[serde(
-        rename = "ShieldDDosProtectionType",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "ShieldDDosProtectionType", skip_serializing_if = "Option::is_none")]
     pub shield_d_dos_protection_type: Option<ShieldDDosProtectionType>,
-    #[serde(
-        rename = "ShieldDDosProtectionEnabled",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "ShieldDDosProtectionEnabled", skip_serializing_if = "Option::is_none")]
     pub shield_d_dos_protection_enabled: Option<bool>,
     /// The type of the origin for this Pull Zone
     ///
@@ -3324,16 +2148,10 @@ pub struct PullZoneModel {
     #[serde(rename = "OriginType", skip_serializing_if = "Option::is_none")]
     pub origin_type: Option<PullZoneOriginType>,
     /// Determines if request coalescing is currently enabled.
-    #[serde(
-        rename = "EnableRequestCoalescing",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "EnableRequestCoalescing", skip_serializing_if = "Option::is_none")]
     pub enable_request_coalescing: Option<bool>,
     /// Determines the lock time for coalesced requests.
-    #[serde(
-        rename = "RequestCoalescingTimeout",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "RequestCoalescingTimeout", skip_serializing_if = "Option::is_none")]
     pub request_coalescing_timeout: Option<i32>,
     /// Returns the link short preview value for the pull zone origin connection.
     #[serde(rename = "OriginLinkValue", skip_serializing_if = "Option::is_none")]
@@ -3343,73 +2161,43 @@ pub struct PullZoneModel {
     pub disable_lets_encrypt: Option<bool>,
     #[serde(rename = "EnableBunnyImageAi", skip_serializing_if = "Option::is_none")]
     pub enable_bunny_image_ai: Option<bool>,
-    #[serde(
-        rename = "BunnyAiImageBlueprints",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "BunnyAiImageBlueprints", skip_serializing_if = "Option::is_none")]
     pub bunny_ai_image_blueprints: Option<Vec<BunnyAiImageBlueprintModel>>,
     /// Determines if the preloading screen is currently enabled
-    #[serde(
-        rename = "PreloadingScreenEnabled",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "PreloadingScreenEnabled", skip_serializing_if = "Option::is_none")]
     pub preloading_screen_enabled: Option<bool>,
     /// Determines if the preloading screen is shown on the first load from a user.
-    #[serde(
-        rename = "PreloadingScreenShowOnFirstVisit",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "PreloadingScreenShowOnFirstVisit", skip_serializing_if = "Option::is_none")]
     pub preloading_screen_show_on_first_visit: Option<bool>,
     /// The custom preloading screen code
-    #[serde(
-        rename = "PreloadingScreenCode",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "PreloadingScreenCode", skip_serializing_if = "Option::is_none")]
     pub preloading_screen_code: Option<String>,
     /// The preloading screen logo URL
-    #[serde(
-        rename = "PreloadingScreenLogoUrl",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "PreloadingScreenLogoUrl", skip_serializing_if = "Option::is_none")]
     pub preloading_screen_logo_url: Option<String>,
     /// Determines if the custom preloader screen is enabled
-    #[serde(
-        rename = "PreloadingScreenCodeEnabled",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "PreloadingScreenCodeEnabled", skip_serializing_if = "Option::is_none")]
     pub preloading_screen_code_enabled: Option<bool>,
     /// The currently configured preloading screem theme. (0 - Light, 1 - Dark)
     ///
     /// 0 = Light
     /// 1 = Dark
-    #[serde(
-        rename = "PreloadingScreenTheme",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "PreloadingScreenTheme", skip_serializing_if = "Option::is_none")]
     pub preloading_screen_theme: Option<PreloadingScreenTheme>,
     /// The delay in miliseconds after which the preloading screen will be desplayed
-    #[serde(
-        rename = "PreloadingScreenDelay",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "PreloadingScreenDelay", skip_serializing_if = "Option::is_none")]
     pub preloading_screen_delay: Option<i32>,
     /// The Pull Zone specific pricing discount for EU and US region.
     #[serde(rename = "EUUSDiscount", skip_serializing_if = "Option::is_none")]
     pub euus_discount: Option<i32>,
     /// The Pull Zone specific pricing discount for South America region.
-    #[serde(
-        rename = "SouthAmericaDiscount",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "SouthAmericaDiscount", skip_serializing_if = "Option::is_none")]
     pub south_america_discount: Option<i32>,
     /// The Pull Zone specific pricing discount for Africa region.
     #[serde(rename = "AfricaDiscount", skip_serializing_if = "Option::is_none")]
     pub africa_discount: Option<i32>,
     /// The Pull Zone specific pricing discount for Asia & Oceania region.
-    #[serde(
-        rename = "AsiaOceaniaDiscount",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "AsiaOceaniaDiscount", skip_serializing_if = "Option::is_none")]
     pub asia_oceania_discount: Option<i32>,
     /// The list of routing filters enabled for this zone
     #[serde(rename = "RoutingFilters", skip_serializing_if = "Option::is_none")]
@@ -3424,16 +2212,10 @@ pub struct PullZoneModel {
     #[serde(rename = "StickySessionType", skip_serializing_if = "Option::is_none")]
     pub sticky_session_type: Option<StickySessionType>,
     /// Sticky Session Cookie Name
-    #[serde(
-        rename = "StickySessionCookieName",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "StickySessionCookieName", skip_serializing_if = "Option::is_none")]
     pub sticky_session_cookie_name: Option<String>,
     /// A set of comma-separated header names used to identify clients
-    #[serde(
-        rename = "StickySessionClientHeaders",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "StickySessionClientHeaders", skip_serializing_if = "Option::is_none")]
     pub sticky_session_client_headers: Option<String>,
     /// The ID of the Load Balancer profile used as the origin when OriginType is LoadBalancer
     #[serde(rename = "LoadBalancerId", skip_serializing_if = "Option::is_none")]
@@ -3444,25 +2226,16 @@ pub struct PullZoneModel {
     #[serde(rename = "CacheVersion", skip_serializing_if = "Option::is_none")]
     pub cache_version: Option<i64>,
     /// Determines if Optimizer is allowed to upscale images
-    #[serde(
-        rename = "OptimizerEnableUpscaling",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "OptimizerEnableUpscaling", skip_serializing_if = "Option::is_none")]
     pub optimizer_enable_upscaling: Option<bool>,
     /// Determines if WebSocket connections are allowed for this Pull Zone.
     #[serde(rename = "EnableWebSockets", skip_serializing_if = "Option::is_none")]
     pub enable_web_sockets: Option<bool>,
     /// The maximum global simultaneous WebSocket connections allowed for this Pull Zone.
-    #[serde(
-        rename = "MaxWebSocketConnections",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "MaxWebSocketConnections", skip_serializing_if = "Option::is_none")]
     pub max_web_socket_connections: Option<i32>,
     /// Determines if extended logging with additional details is enabled for this Pull Zone.
-    #[serde(
-        rename = "EnableExtendedLogging",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "EnableExtendedLogging", skip_serializing_if = "Option::is_none")]
     pub enable_extended_logging: Option<bool>,
     /// Vary Cache by Request Headers (comma delimited)
     #[serde(rename = "CacheKeyHeaders", skip_serializing_if = "Option::is_none")]
@@ -3509,10 +2282,7 @@ pub struct HostnameModel {
     /// 2 = DNS-01
     /// 3 = Custom
     /// 4 = Managed
-    #[serde(
-        rename = "CertificateProvisionType",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "CertificateProvisionType", skip_serializing_if = "Option::is_none")]
     pub certificate_provision_type: Option<CertificateProvisionType>,
 }
 
@@ -3637,10 +2407,7 @@ pub struct EdgeRuleV2Model {
     /// 0 = Match Any
     /// 1 = Match All
     /// 2 = Match None
-    #[serde(
-        rename = "TriggerMatchingType",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "TriggerMatchingType", skip_serializing_if = "Option::is_none")]
     pub trigger_matching_type: Option<TriggerMatchingTypes>,
     /// The description of the edge rule
     #[serde(rename = "Description", skip_serializing_if = "Option::is_none")]
@@ -3773,10 +2540,7 @@ pub struct Trigger {
     /// 0 = Match Any
     /// 1 = Match All
     /// 2 = Match None
-    #[serde(
-        rename = "PatternMatchingType",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "PatternMatchingType", skip_serializing_if = "Option::is_none")]
     pub pattern_matching_type: Option<PatternMatchingTypes>,
     /// The trigger parameter 1. The value depends on the type of trigger.
     #[serde(rename = "Parameter1", skip_serializing_if = "Option::is_none")]
@@ -4089,19 +2853,13 @@ pub struct PullZoneSettingsModel {
     #[serde(rename = "IpFamilyPolicy", skip_serializing_if = "Option::is_none")]
     pub ip_family_policy: Option<IpFamilyPolicy>,
     /// Determines if the zone should block requests to the root of the zone.
-    #[serde(
-        rename = "BlockRootPathAccess",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "BlockRootPathAccess", skip_serializing_if = "Option::is_none")]
     pub block_root_path_access: Option<bool>,
     /// Determines if the POST requests to this zone should be rejected.
     #[serde(rename = "BlockPostRequests", skip_serializing_if = "Option::is_none")]
     pub block_post_requests: Option<bool>,
     /// Determines if the query string ordering should be enabled.
-    #[serde(
-        rename = "EnableQueryStringOrdering",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "EnableQueryStringOrdering", skip_serializing_if = "Option::is_none")]
     pub enable_query_string_ordering: Option<bool>,
     /// Determines if the WebP Vary feature should be enabled.
     #[serde(rename = "EnableWebpVary", skip_serializing_if = "Option::is_none")]
@@ -4113,16 +2871,10 @@ pub struct PullZoneSettingsModel {
     #[serde(rename = "EnableMobileVary", skip_serializing_if = "Option::is_none")]
     pub enable_mobile_vary: Option<bool>,
     /// Determines if the Country Code Vary feature should be enabled.
-    #[serde(
-        rename = "EnableCountryCodeVary",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "EnableCountryCodeVary", skip_serializing_if = "Option::is_none")]
     pub enable_country_code_vary: Option<bool>,
     /// Determines if the Country State Code Vary feature should be enabled.
-    #[serde(
-        rename = "EnableCountryStateCodeVary",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "EnableCountryStateCodeVary", skip_serializing_if = "Option::is_none")]
     pub enable_country_state_code_vary: Option<bool>,
     /// Determines if the Hostname Vary feature should be enabled.
     #[serde(rename = "EnableHostnameVary", skip_serializing_if = "Option::is_none")]
@@ -4131,67 +2883,40 @@ pub struct PullZoneSettingsModel {
     #[serde(rename = "EnableCacheSlice", skip_serializing_if = "Option::is_none")]
     pub enable_cache_slice: Option<bool>,
     /// Determines if the zone token authentication security should be enabled
-    #[serde(
-        rename = "ZoneSecurityEnabled",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "ZoneSecurityEnabled", skip_serializing_if = "Option::is_none")]
     pub zone_security_enabled: Option<bool>,
     /// Determines if the token authentication IP validation should be enabled
-    #[serde(
-        rename = "ZoneSecurityIncludeHashRemoteIP",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "ZoneSecurityIncludeHashRemoteIP", skip_serializing_if = "Option::is_none")]
     pub zone_security_include_hash_remote_ip: Option<bool>,
     /// Determines if the Pull Zone should ignore query strings when serving cached objects (Vary by Query String)
     #[serde(rename = "IgnoreQueryStrings", skip_serializing_if = "Option::is_none")]
     pub ignore_query_strings: Option<bool>,
     /// Sets the monthly limit of bandwidth in bytes that the pullzone is allowed to use
-    #[serde(
-        rename = "MonthlyBandwidthLimit",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "MonthlyBandwidthLimit", skip_serializing_if = "Option::is_none")]
     pub monthly_bandwidth_limit: Option<i64>,
     /// Sets the list of extensions that will return the CORS headers
-    #[serde(
-        rename = "AccessControlOriginHeaderExtensions",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "AccessControlOriginHeaderExtensions", skip_serializing_if = "Option::is_none")]
     pub access_control_origin_header_extensions: Option<Vec<String>>,
     /// Determines if CORS headers should be enabled
-    #[serde(
-        rename = "EnableAccessControlOriginHeader",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "EnableAccessControlOriginHeader", skip_serializing_if = "Option::is_none")]
     pub enable_access_control_origin_header: Option<bool>,
     /// Determines if the Pull Zone should automatically remove cookies from the responses
     #[serde(rename = "DisableCookies", skip_serializing_if = "Option::is_none")]
     pub disable_cookies: Option<bool>,
     /// Sets the list of two letter Alpha2 country codes that will be redirected to the cheapest possible region
-    #[serde(
-        rename = "BudgetRedirectedCountries",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "BudgetRedirectedCountries", skip_serializing_if = "Option::is_none")]
     pub budget_redirected_countries: Option<Vec<String>>,
     /// Sets the list of two letter Alpha2 country codes that will be blocked from accessing the zone
     #[serde(rename = "BlockedCountries", skip_serializing_if = "Option::is_none")]
     pub blocked_countries: Option<Vec<String>>,
     /// Sets the cache control override setting for this zone
-    #[serde(
-        rename = "CacheControlMaxAgeOverride",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "CacheControlMaxAgeOverride", skip_serializing_if = "Option::is_none")]
     pub cache_control_max_age_override: Option<i64>,
     /// Sets the browser cache control override setting for this zone
-    #[serde(
-        rename = "CacheControlPublicMaxAgeOverride",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "CacheControlPublicMaxAgeOverride", skip_serializing_if = "Option::is_none")]
     pub cache_control_public_max_age_override: Option<i64>,
     /// (Deprecated) Sets the browser cache control override setting for this zone
-    #[serde(
-        rename = "CacheControlBrowserMaxAgeOverride",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "CacheControlBrowserMaxAgeOverride", skip_serializing_if = "Option::is_none")]
     pub cache_control_browser_max_age_override: Option<i64>,
     /// Determines if the zone should forward the requested host header to the origin
     #[serde(rename = "AddHostHeader", skip_serializing_if = "Option::is_none")]
@@ -4203,16 +2928,10 @@ pub struct PullZoneSettingsModel {
     #[serde(rename = "EnableLogging", skip_serializing_if = "Option::is_none")]
     pub enable_logging: Option<bool>,
     /// Determines if the log anonoymization should be enabled
-    #[serde(
-        rename = "LoggingIPAnonymizationEnabled",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "LoggingIPAnonymizationEnabled", skip_serializing_if = "Option::is_none")]
     pub logging_ip_anonymization_enabled: Option<bool>,
     /// The ID of the storage zone that should be used as the Perma-Cache
-    #[serde(
-        rename = "PermaCacheStorageZoneId",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "PermaCacheStorageZoneId", skip_serializing_if = "Option::is_none")]
     pub perma_cache_storage_zone_id: Option<i64>,
     /// Determines Perma-Cache behavior
     ///
@@ -4227,10 +2946,7 @@ pub struct PullZoneSettingsModel {
     #[serde(rename = "AWSSigningKey", skip_serializing_if = "Option::is_none")]
     pub aws_signing_key: Option<String>,
     /// Sets the AWS signing region name
-    #[serde(
-        rename = "AWSSigningRegionName",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "AWSSigningRegionName", skip_serializing_if = "Option::is_none")]
     pub aws_signing_region_name: Option<String>,
     /// Sets the AWS signing secret key
     #[serde(rename = "AWSSigningSecret", skip_serializing_if = "Option::is_none")]
@@ -4239,10 +2955,7 @@ pub struct PullZoneSettingsModel {
     #[serde(rename = "EnableOriginShield", skip_serializing_if = "Option::is_none")]
     pub enable_origin_shield: Option<bool>,
     /// Determines the zone code where the origin shield should be set up
-    #[serde(
-        rename = "OriginShieldZoneCode",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "OriginShieldZoneCode", skip_serializing_if = "Option::is_none")]
     pub origin_shield_zone_code: Option<String>,
     /// Determines if the TLS 1 should be enabled on this zone
     #[serde(rename = "EnableTLS1", skip_serializing_if = "Option::is_none")]
@@ -4258,25 +2971,16 @@ pub struct PullZoneSettingsModel {
     #[serde(rename = "TlsSecurityLevel", skip_serializing_if = "Option::is_none")]
     pub tls_security_level: Option<TlsSecurityLevelType>,
     /// Determines if the cache error responses should be enabled on the zone
-    #[serde(
-        rename = "CacheErrorResponses",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "CacheErrorResponses", skip_serializing_if = "Option::is_none")]
     pub cache_error_responses: Option<bool>,
     /// Determines if the SSL certificate should be verified when connecting to the origin
     #[serde(rename = "VerifyOriginSSL", skip_serializing_if = "Option::is_none")]
     pub verify_origin_ssl: Option<bool>,
     /// Sets the log forwarding token for the zone
-    #[serde(
-        rename = "LogForwardingEnabled",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "LogForwardingEnabled", skip_serializing_if = "Option::is_none")]
     pub log_forwarding_enabled: Option<bool>,
     /// Sets the log forwarding destination hostname for the zone
-    #[serde(
-        rename = "LogForwardingHostname",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "LogForwardingHostname", skip_serializing_if = "Option::is_none")]
     pub log_forwarding_hostname: Option<String>,
     /// Sets the log forwarding port for the zone
     #[serde(rename = "LogForwardingPort", skip_serializing_if = "Option::is_none")]
@@ -4290,31 +2994,19 @@ pub struct PullZoneSettingsModel {
     /// 1 = TCP
     /// 2 = TCP Encrypted
     /// 3 = Datadog
-    #[serde(
-        rename = "LogForwardingProtocol",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "LogForwardingProtocol", skip_serializing_if = "Option::is_none")]
     pub log_forwarding_protocol: Option<PullZoneLogForwarderProtocolType>,
     /// Determines if the logging permanent storage should be enabled
-    #[serde(
-        rename = "LoggingSaveToStorage",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "LoggingSaveToStorage", skip_serializing_if = "Option::is_none")]
     pub logging_save_to_storage: Option<bool>,
     /// Sets the Storage Zone id that should contain the logs from this Pull Zone
-    #[serde(
-        rename = "LoggingStorageZoneId",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "LoggingStorageZoneId", skip_serializing_if = "Option::is_none")]
     pub logging_storage_zone_id: Option<i64>,
     /// Determines if the zone should follow redirects return by the origin and cache the response
     #[serde(rename = "FollowRedirects", skip_serializing_if = "Option::is_none")]
     pub follow_redirects: Option<bool>,
     /// Determines the maximum number of connections per IP that will be allowed to connect to this Pull Zone
-    #[serde(
-        rename = "ConnectionLimitPerIPCount",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "ConnectionLimitPerIPCount", skip_serializing_if = "Option::is_none")]
     pub connection_limit_per_ip_count: Option<i32>,
     /// Determines the maximum number of requests per second that will be allowed to connect to this Pull Zone
     #[serde(rename = "RequestLimit", skip_serializing_if = "Option::is_none")]
@@ -4329,125 +3021,71 @@ pub struct PullZoneSettingsModel {
     #[serde(rename = "BurstSize", skip_serializing_if = "Option::is_none")]
     pub burst_size: Option<i32>,
     /// Determines if custom error page code should be enabled.
-    #[serde(
-        rename = "ErrorPageEnableCustomCode",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "ErrorPageEnableCustomCode", skip_serializing_if = "Option::is_none")]
     pub error_page_enable_custom_code: Option<bool>,
     /// Contains the custom error page code that will be returned
-    #[serde(
-        rename = "ErrorPageCustomCode",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "ErrorPageCustomCode", skip_serializing_if = "Option::is_none")]
     pub error_page_custom_code: Option<String>,
     /// Determines if the statuspage widget should be displayed on the error pages
-    #[serde(
-        rename = "ErrorPageEnableStatuspageWidget",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "ErrorPageEnableStatuspageWidget", skip_serializing_if = "Option::is_none")]
     pub error_page_enable_statuspage_widget: Option<bool>,
     /// The statuspage code that will be used to build the status widget
-    #[serde(
-        rename = "ErrorPageStatuspageCode",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "ErrorPageStatuspageCode", skip_serializing_if = "Option::is_none")]
     pub error_page_statuspage_code: Option<String>,
     /// Determines if the error pages should be whitelabel or not
-    #[serde(
-        rename = "ErrorPageWhitelabel",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "ErrorPageWhitelabel", skip_serializing_if = "Option::is_none")]
     pub error_page_whitelabel: Option<bool>,
     /// Determines if the optimizer should be enabled for this zone
     #[serde(rename = "OptimizerEnabled", skip_serializing_if = "Option::is_none")]
     pub optimizer_enabled: Option<bool>,
     /// Determines if the optimizer origin tunnel system should be enabled for this zone
-    #[serde(
-        rename = "OptimizerTunnelEnabled",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "OptimizerTunnelEnabled", skip_serializing_if = "Option::is_none")]
     pub optimizer_tunnel_enabled: Option<bool>,
     /// Determines if the optimizer tunnel system active probing should be enabled for this zone
-    #[serde(
-        rename = "OptimizerTunnelActiveProbingEnabled",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "OptimizerTunnelActiveProbingEnabled", skip_serializing_if = "Option::is_none")]
     pub optimizer_tunnel_active_probing_enabled: Option<bool>,
     /// Determines the maximum automatic image size for desktop clients
-    #[serde(
-        rename = "OptimizerDesktopMaxWidth",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "OptimizerDesktopMaxWidth", skip_serializing_if = "Option::is_none")]
     pub optimizer_desktop_max_width: Option<i32>,
     /// Determines the maximum automatic image size for mobile clients
-    #[serde(
-        rename = "OptimizerMobileMaxWidth",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "OptimizerMobileMaxWidth", skip_serializing_if = "Option::is_none")]
     pub optimizer_mobile_max_width: Option<i32>,
     /// Determines the image quality for desktop clients
-    #[serde(
-        rename = "OptimizerImageQuality",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "OptimizerImageQuality", skip_serializing_if = "Option::is_none")]
     pub optimizer_image_quality: Option<i32>,
     /// Determines the image quality for mobile clients
-    #[serde(
-        rename = "OptimizerMobileImageQuality",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "OptimizerMobileImageQuality", skip_serializing_if = "Option::is_none")]
     pub optimizer_mobile_image_quality: Option<i32>,
     /// Determines if the WebP optimization should be enabled
-    #[serde(
-        rename = "OptimizerEnableWebP",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "OptimizerEnableWebP", skip_serializing_if = "Option::is_none")]
     pub optimizer_enable_web_p: Option<bool>,
     /// Determines if the SEO HTML prerender should be enabled
-    #[serde(
-        rename = "OptimizerPrerenderHtml",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "OptimizerPrerenderHtml", skip_serializing_if = "Option::is_none")]
     pub optimizer_prerender_html: Option<bool>,
     /// Determines if Markdown automatic generation for AI systems is enabled and which pipeline to use
     ///
     /// 0 = Off
     /// 1 = Simple
     /// 2 = Prerendered
-    #[serde(
-        rename = "OptimizerHtmlToMarkdown",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "OptimizerHtmlToMarkdown", skip_serializing_if = "Option::is_none")]
     pub optimizer_html_to_markdown: Option<OptimizerHtmlToMarkdownType>,
     /// Determines if the llms.txt file should be served when requested
     #[serde(rename = "OptimizerLlmsTxt", skip_serializing_if = "Option::is_none")]
     pub optimizer_llms_txt: Option<bool>,
     /// Determines the image manipulation should be enabled
-    #[serde(
-        rename = "OptimizerEnableManipulationEngine",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "OptimizerEnableManipulationEngine", skip_serializing_if = "Option::is_none")]
     pub optimizer_enable_manipulation_engine: Option<bool>,
     /// Determines if the CSS minifcation should be enabled
     #[serde(rename = "OptimizerMinifyCSS", skip_serializing_if = "Option::is_none")]
     pub optimizer_minify_css: Option<bool>,
     /// Determines if the JavaScript minifcation should be enabled
-    #[serde(
-        rename = "OptimizerMinifyJavaScript",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "OptimizerMinifyJavaScript", skip_serializing_if = "Option::is_none")]
     pub optimizer_minify_java_script: Option<bool>,
     /// Determines if image watermarking should be enabled
-    #[serde(
-        rename = "OptimizerWatermarkEnabled",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "OptimizerWatermarkEnabled", skip_serializing_if = "Option::is_none")]
     pub optimizer_watermark_enabled: Option<bool>,
     /// Sets the URL of the watermark image
-    #[serde(
-        rename = "OptimizerWatermarkUrl",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "OptimizerWatermarkUrl", skip_serializing_if = "Option::is_none")]
     pub optimizer_watermark_url: Option<String>,
     /// Sets the position of the watermark image
     ///
@@ -4457,55 +3095,31 @@ pub struct PullZoneSettingsModel {
     /// 3 = Top Right
     /// 4 = Center
     /// 5 = Center Stretch
-    #[serde(
-        rename = "OptimizerWatermarkPosition",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "OptimizerWatermarkPosition", skip_serializing_if = "Option::is_none")]
     pub optimizer_watermark_position: Option<OptimizerWatermarkPosition>,
     /// Sets the offset of the watermark image
-    #[serde(
-        rename = "OptimizerWatermarkOffset",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "OptimizerWatermarkOffset", skip_serializing_if = "Option::is_none")]
     pub optimizer_watermark_offset: Option<f64>,
     /// Sets the minimum image size to which the watermark will be added
-    #[serde(
-        rename = "OptimizerWatermarkMinImageSize",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "OptimizerWatermarkMinImageSize", skip_serializing_if = "Option::is_none")]
     pub optimizer_watermark_min_image_size: Option<i32>,
     /// Determines if the automatic image optimization should be enabled
-    #[serde(
-        rename = "OptimizerAutomaticOptimizationEnabled",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "OptimizerAutomaticOptimizationEnabled", skip_serializing_if = "Option::is_none")]
     pub optimizer_automatic_optimization_enabled: Option<bool>,
     /// Determines the list of optimizer classes
     #[serde(rename = "OptimizerClasses", skip_serializing_if = "Option::is_none")]
     pub optimizer_classes: Option<Vec<PullZoneOptimizerClassModel>>,
     /// Determines if the optimizer classes should be forced
-    #[serde(
-        rename = "OptimizerForceClasses",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "OptimizerForceClasses", skip_serializing_if = "Option::is_none")]
     pub optimizer_force_classes: Option<bool>,
     /// Determines whether optimizer static html feature enabled
-    #[serde(
-        rename = "OptimizerStaticHtmlEnabled",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "OptimizerStaticHtmlEnabled", skip_serializing_if = "Option::is_none")]
     pub optimizer_static_html_enabled: Option<bool>,
     /// Wordpress html path which should be bypassed by permacache in edge rule
-    #[serde(
-        rename = "OptimizerStaticHtmlWordPressPath",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "OptimizerStaticHtmlWordPressPath", skip_serializing_if = "Option::is_none")]
     pub optimizer_static_html_word_press_path: Option<String>,
     /// Wordpress cookie which should be bypassed by permacache in edge rule
-    #[serde(
-        rename = "OptimizerStaticHtmlWordPressBypassCookie",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "OptimizerStaticHtmlWordPressBypassCookie", skip_serializing_if = "Option::is_none")]
     pub optimizer_static_html_word_press_bypass_cookie: Option<String>,
     /// The type of the pull zone
     ///
@@ -4517,46 +3131,25 @@ pub struct PullZoneSettingsModel {
     #[serde(rename = "OriginRetries", skip_serializing_if = "Option::is_none")]
     pub origin_retries: Option<i32>,
     /// The amount of seconds to wait when connecting to the origin. Otherwise the request will fail or retry.
-    #[serde(
-        rename = "OriginConnectTimeout",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "OriginConnectTimeout", skip_serializing_if = "Option::is_none")]
     pub origin_connect_timeout: Option<i32>,
     /// The amount of seconds to wait when waiting for the origin reply. Otherwise the request will fail or retry.
-    #[serde(
-        rename = "OriginResponseTimeout",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "OriginResponseTimeout", skip_serializing_if = "Option::is_none")]
     pub origin_response_timeout: Option<i32>,
     /// Determines if we should use stale cache while cache is updating
-    #[serde(
-        rename = "UseStaleWhileUpdating",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "UseStaleWhileUpdating", skip_serializing_if = "Option::is_none")]
     pub use_stale_while_updating: Option<bool>,
     /// Determines if we should use stale cache while the origin is offline
-    #[serde(
-        rename = "UseStaleWhileOffline",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "UseStaleWhileOffline", skip_serializing_if = "Option::is_none")]
     pub use_stale_while_offline: Option<bool>,
     /// Determines if we should retry the request in case of a 5XX response.
-    #[serde(
-        rename = "OriginRetry5XXResponses",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "OriginRetry5XXResponses", skip_serializing_if = "Option::is_none")]
     pub origin_retry5_xx_responses: Option<bool>,
     /// Determines if we should retry the request in case of a connection timeout.
-    #[serde(
-        rename = "OriginRetryConnectionTimeout",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "OriginRetryConnectionTimeout", skip_serializing_if = "Option::is_none")]
     pub origin_retry_connection_timeout: Option<bool>,
     /// Determines if we should retry the request in case of a response timeout.
-    #[serde(
-        rename = "OriginRetryResponseTimeout",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "OriginRetryResponseTimeout", skip_serializing_if = "Option::is_none")]
     pub origin_retry_response_timeout: Option<bool>,
     /// Determines the amount of time that the CDN should wait before retrying an origin request.
     #[serde(rename = "OriginRetryDelay", skip_serializing_if = "Option::is_none")]
@@ -4568,51 +3161,30 @@ pub struct PullZoneSettingsModel {
     #[serde(rename = "DnsOriginScheme", skip_serializing_if = "Option::is_none")]
     pub dns_origin_scheme: Option<String>,
     /// Contains the list of vary parameters that will be used for vary cache by query string. Only alphanumeric characters, dashes and underscores are allowed (values that contain other characters are ignorred). If empty, all parameters will be used to construct the key.
-    #[serde(
-        rename = "QueryStringVaryParameters",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "QueryStringVaryParameters", skip_serializing_if = "Option::is_none")]
     pub query_string_vary_parameters: Option<Vec<String>>,
     /// Determines if the origin shield concurrency limit is enabled.
-    #[serde(
-        rename = "OriginShieldEnableConcurrencyLimit",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "OriginShieldEnableConcurrencyLimit", skip_serializing_if = "Option::is_none")]
     pub origin_shield_enable_concurrency_limit: Option<bool>,
     /// Determines the number of maximum concurrent requests allowed to the origin.
-    #[serde(
-        rename = "OriginShieldMaxConcurrentRequests",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "OriginShieldMaxConcurrentRequests", skip_serializing_if = "Option::is_none")]
     pub origin_shield_max_concurrent_requests: Option<i32>,
     /// Determines if the Cookie Vary feature is enabled.
     #[serde(rename = "EnableCookieVary", skip_serializing_if = "Option::is_none")]
     pub enable_cookie_vary: Option<bool>,
     /// Contains the list of vary parameters that will be used for vary cache by cookie string.Only alphanumeric characters, dashes and underscores are allowed (values that contain other characters are ignorred). If empty, cookie vary will not be used.
-    #[serde(
-        rename = "CookieVaryParameters",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "CookieVaryParameters", skip_serializing_if = "Option::is_none")]
     pub cookie_vary_parameters: Option<Vec<String>>,
     #[serde(rename = "EnableSafeHop", skip_serializing_if = "Option::is_none")]
     pub enable_safe_hop: Option<bool>,
     /// Determines the max queue wait time
-    #[serde(
-        rename = "OriginShieldQueueMaxWaitTime",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "OriginShieldQueueMaxWaitTime", skip_serializing_if = "Option::is_none")]
     pub origin_shield_queue_max_wait_time: Option<i32>,
     /// Determines the max number of origin requests that will remain in the queue
-    #[serde(
-        rename = "OriginShieldMaxQueuedRequests",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "OriginShieldMaxQueuedRequests", skip_serializing_if = "Option::is_none")]
     pub origin_shield_max_queued_requests: Option<i32>,
     /// Determines if cache update is performed in the background.
-    #[serde(
-        rename = "UseBackgroundUpdate",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "UseBackgroundUpdate", skip_serializing_if = "Option::is_none")]
     pub use_background_update: Option<bool>,
     /// If set to true, any hostnames added to this Pull Zone will automatically enable SSL.
     #[serde(rename = "EnableAutoSSL", skip_serializing_if = "Option::is_none")]
@@ -4621,10 +3193,7 @@ pub struct PullZoneSettingsModel {
     ///
     /// 0 = One Digit
     /// 1 = Drop
-    #[serde(
-        rename = "LogAnonymizationType",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "LogAnonymizationType", skip_serializing_if = "Option::is_none")]
     pub log_anonymization_type: Option<LogAnonymizationType>,
     /// The ID of the storage zone that will be used as the origin
     #[serde(rename = "StorageZoneId", skip_serializing_if = "Option::is_none")]
@@ -4640,10 +3209,7 @@ pub struct PullZoneSettingsModel {
     /// 0 = Cache
     /// 1 = Load Balancer
     /// 2 = Pre-Cache
-    #[serde(
-        rename = "EdgeScriptExecutionPhase",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "EdgeScriptExecutionPhase", skip_serializing_if = "Option::is_none")]
     pub edge_script_execution_phase: Option<ExecutionPhase>,
     /// Determine the type of the origin for this Pull Zone
     ///
@@ -4656,15 +3222,9 @@ pub struct PullZoneSettingsModel {
     /// 6 = Push Zone
     #[serde(rename = "OriginType", skip_serializing_if = "Option::is_none")]
     pub origin_type: Option<PullZoneOriginType>,
-    #[serde(
-        rename = "MagicContainersAppId",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "MagicContainersAppId", skip_serializing_if = "Option::is_none")]
     pub magic_containers_app_id: Option<String>,
-    #[serde(
-        rename = "MagicContainersEndpointId",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "MagicContainersEndpointId", skip_serializing_if = "Option::is_none")]
     pub magic_containers_endpoint_id: Option<String>,
     /// 0 = Plain
     /// 1 = JSON
@@ -4672,23 +3232,14 @@ pub struct PullZoneSettingsModel {
     pub log_format: Option<PullZoneLogFormat>,
     /// 0 = Plain
     /// 1 = JSON
-    #[serde(
-        rename = "LogForwardingFormat",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "LogForwardingFormat", skip_serializing_if = "Option::is_none")]
     pub log_forwarding_format: Option<PullZoneLogFormat>,
     /// 0 = Detect Only
     /// 1 = Active Standard
     /// 2 = Active Aggressive
-    #[serde(
-        rename = "ShieldDDosProtectionType",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "ShieldDDosProtectionType", skip_serializing_if = "Option::is_none")]
     pub shield_d_dos_protection_type: Option<ShieldDDosProtectionType>,
-    #[serde(
-        rename = "ShieldDDosProtectionEnabled",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "ShieldDDosProtectionEnabled", skip_serializing_if = "Option::is_none")]
     pub shield_d_dos_protection_enabled: Option<bool>,
     /// Sets the host header that will be sent to the origin
     #[serde(rename = "OriginHostHeader", skip_serializing_if = "Option::is_none")]
@@ -4696,71 +3247,41 @@ pub struct PullZoneSettingsModel {
     #[serde(rename = "EnableSmartCache", skip_serializing_if = "Option::is_none")]
     pub enable_smart_cache: Option<bool>,
     /// Determines if request coalescing is currently enabled.
-    #[serde(
-        rename = "EnableRequestCoalescing",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "EnableRequestCoalescing", skip_serializing_if = "Option::is_none")]
     pub enable_request_coalescing: Option<bool>,
     /// Determines the lock time for coalesced requests.
-    #[serde(
-        rename = "RequestCoalescingTimeout",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "RequestCoalescingTimeout", skip_serializing_if = "Option::is_none")]
     pub request_coalescing_timeout: Option<i32>,
     /// If set to true, the built-in let's encrypt will be disabled and requests are passed to the origin.
     #[serde(rename = "DisableLetsEncrypt", skip_serializing_if = "Option::is_none")]
     pub disable_lets_encrypt: Option<bool>,
     #[serde(rename = "EnableBunnyImageAi", skip_serializing_if = "Option::is_none")]
     pub enable_bunny_image_ai: Option<bool>,
-    #[serde(
-        rename = "BunnyAiImageBlueprints",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "BunnyAiImageBlueprints", skip_serializing_if = "Option::is_none")]
     pub bunny_ai_image_blueprints: Option<Vec<BunnyAiImageBlueprintModel>>,
     /// Determines if the preloading screen is currently enabled
-    #[serde(
-        rename = "PreloadingScreenEnabled",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "PreloadingScreenEnabled", skip_serializing_if = "Option::is_none")]
     pub preloading_screen_enabled: Option<bool>,
     /// The custom preloading screen coed
-    #[serde(
-        rename = "PreloadingScreenCode",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "PreloadingScreenCode", skip_serializing_if = "Option::is_none")]
     pub preloading_screen_code: Option<String>,
     /// The preloading screen logo URL
-    #[serde(
-        rename = "PreloadingScreenLogoUrl",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "PreloadingScreenLogoUrl", skip_serializing_if = "Option::is_none")]
     pub preloading_screen_logo_url: Option<String>,
     /// Determines if the preloading screen is shown on the first load from a user.
-    #[serde(
-        rename = "PreloadingScreenShowOnFirstVisit",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "PreloadingScreenShowOnFirstVisit", skip_serializing_if = "Option::is_none")]
     pub preloading_screen_show_on_first_visit: Option<bool>,
     /// The currently configured preloading screem theme. (0 - Light, 1 - Dark)
     ///
     /// 0 = Light
     /// 1 = Dark
-    #[serde(
-        rename = "PreloadingScreenTheme",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "PreloadingScreenTheme", skip_serializing_if = "Option::is_none")]
     pub preloading_screen_theme: Option<PreloadingScreenTheme>,
     /// Determines if the custom preloader screen should be enabled
-    #[serde(
-        rename = "PreloadingScreenCodeEnabled",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "PreloadingScreenCodeEnabled", skip_serializing_if = "Option::is_none")]
     pub preloading_screen_code_enabled: Option<bool>,
     /// The delay in miliseconds after which the preloading screen will be displayed (0 - 10000ms)
-    #[serde(
-        rename = "PreloadingScreenDelay",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "PreloadingScreenDelay", skip_serializing_if = "Option::is_none")]
     pub preloading_screen_delay: Option<i32>,
     /// The list of routing filters enabled for this zone
     #[serde(rename = "RoutingFilters", skip_serializing_if = "Option::is_none")]
@@ -4772,31 +3293,19 @@ pub struct PullZoneSettingsModel {
     #[serde(rename = "StickySessionType", skip_serializing_if = "Option::is_none")]
     pub sticky_session_type: Option<StickySessionType>,
     /// Sticky Session Cookie Name
-    #[serde(
-        rename = "StickySessionCookieName",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "StickySessionCookieName", skip_serializing_if = "Option::is_none")]
     pub sticky_session_cookie_name: Option<String>,
     /// A set of comma-separated header names used to identify clients
-    #[serde(
-        rename = "StickySessionClientHeaders",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "StickySessionClientHeaders", skip_serializing_if = "Option::is_none")]
     pub sticky_session_client_headers: Option<String>,
     /// Determines if Optimizer is allowed to upscale images
-    #[serde(
-        rename = "OptimizerEnableUpscaling",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "OptimizerEnableUpscaling", skip_serializing_if = "Option::is_none")]
     pub optimizer_enable_upscaling: Option<bool>,
     /// Determines if WebSocket connections are allowed for this Pull Zone.
     #[serde(rename = "EnableWebSockets", skip_serializing_if = "Option::is_none")]
     pub enable_web_sockets: Option<bool>,
     /// The maximum global simultaneous WebSocket connections allowed for this Pull Zone. Allowed tiers: 500, 1,000, 2,500, 5,000, 10,000, 25,000. If you send a non-tier value, the value is rounded up to the next tier. Values over 25,000 are rejected, please contact sales if required.
-    #[serde(
-        rename = "MaxWebSocketConnections",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "MaxWebSocketConnections", skip_serializing_if = "Option::is_none")]
     pub max_web_socket_connections: Option<i32>,
     /// Vary Cache by Request Headers (comma delimited)
     #[serde(rename = "CacheKeyHeaders", skip_serializing_if = "Option::is_none")]
@@ -4890,19 +3399,13 @@ pub struct PullZoneAddModel {
     #[serde(rename = "IpFamilyPolicy", skip_serializing_if = "Option::is_none")]
     pub ip_family_policy: Option<IpFamilyPolicy>,
     /// Determines if the zone should block requests to the root of the zone.
-    #[serde(
-        rename = "BlockRootPathAccess",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "BlockRootPathAccess", skip_serializing_if = "Option::is_none")]
     pub block_root_path_access: Option<bool>,
     /// Determines if the POST requests to this zone should be rejected.
     #[serde(rename = "BlockPostRequests", skip_serializing_if = "Option::is_none")]
     pub block_post_requests: Option<bool>,
     /// Determines if the query string ordering should be enabled.
-    #[serde(
-        rename = "EnableQueryStringOrdering",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "EnableQueryStringOrdering", skip_serializing_if = "Option::is_none")]
     pub enable_query_string_ordering: Option<bool>,
     /// Determines if the WebP Vary feature should be enabled.
     #[serde(rename = "EnableWebpVary", skip_serializing_if = "Option::is_none")]
@@ -4914,16 +3417,10 @@ pub struct PullZoneAddModel {
     #[serde(rename = "EnableMobileVary", skip_serializing_if = "Option::is_none")]
     pub enable_mobile_vary: Option<bool>,
     /// Determines if the Country Code Vary feature should be enabled.
-    #[serde(
-        rename = "EnableCountryCodeVary",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "EnableCountryCodeVary", skip_serializing_if = "Option::is_none")]
     pub enable_country_code_vary: Option<bool>,
     /// Determines if the Country State Code Vary feature should be enabled.
-    #[serde(
-        rename = "EnableCountryStateCodeVary",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "EnableCountryStateCodeVary", skip_serializing_if = "Option::is_none")]
     pub enable_country_state_code_vary: Option<bool>,
     /// Determines if the Hostname Vary feature should be enabled.
     #[serde(rename = "EnableHostnameVary", skip_serializing_if = "Option::is_none")]
@@ -4932,67 +3429,40 @@ pub struct PullZoneAddModel {
     #[serde(rename = "EnableCacheSlice", skip_serializing_if = "Option::is_none")]
     pub enable_cache_slice: Option<bool>,
     /// Determines if the zone token authentication security should be enabled
-    #[serde(
-        rename = "ZoneSecurityEnabled",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "ZoneSecurityEnabled", skip_serializing_if = "Option::is_none")]
     pub zone_security_enabled: Option<bool>,
     /// Determines if the token authentication IP validation should be enabled
-    #[serde(
-        rename = "ZoneSecurityIncludeHashRemoteIP",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "ZoneSecurityIncludeHashRemoteIP", skip_serializing_if = "Option::is_none")]
     pub zone_security_include_hash_remote_ip: Option<bool>,
     /// Determines if the Pull Zone should ignore query strings when serving cached objects (Vary by Query String)
     #[serde(rename = "IgnoreQueryStrings", skip_serializing_if = "Option::is_none")]
     pub ignore_query_strings: Option<bool>,
     /// Sets the monthly limit of bandwidth in bytes that the pullzone is allowed to use
-    #[serde(
-        rename = "MonthlyBandwidthLimit",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "MonthlyBandwidthLimit", skip_serializing_if = "Option::is_none")]
     pub monthly_bandwidth_limit: Option<i64>,
     /// Sets the list of extensions that will return the CORS headers
-    #[serde(
-        rename = "AccessControlOriginHeaderExtensions",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "AccessControlOriginHeaderExtensions", skip_serializing_if = "Option::is_none")]
     pub access_control_origin_header_extensions: Option<Vec<String>>,
     /// Determines if CORS headers should be enabled
-    #[serde(
-        rename = "EnableAccessControlOriginHeader",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "EnableAccessControlOriginHeader", skip_serializing_if = "Option::is_none")]
     pub enable_access_control_origin_header: Option<bool>,
     /// Determines if the Pull Zone should automatically remove cookies from the responses
     #[serde(rename = "DisableCookies", skip_serializing_if = "Option::is_none")]
     pub disable_cookies: Option<bool>,
     /// Sets the list of two letter Alpha2 country codes that will be redirected to the cheapest possible region
-    #[serde(
-        rename = "BudgetRedirectedCountries",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "BudgetRedirectedCountries", skip_serializing_if = "Option::is_none")]
     pub budget_redirected_countries: Option<Vec<String>>,
     /// Sets the list of two letter Alpha2 country codes that will be blocked from accessing the zone
     #[serde(rename = "BlockedCountries", skip_serializing_if = "Option::is_none")]
     pub blocked_countries: Option<Vec<String>>,
     /// Sets the cache control override setting for this zone
-    #[serde(
-        rename = "CacheControlMaxAgeOverride",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "CacheControlMaxAgeOverride", skip_serializing_if = "Option::is_none")]
     pub cache_control_max_age_override: Option<i64>,
     /// Sets the browser cache control override setting for this zone
-    #[serde(
-        rename = "CacheControlPublicMaxAgeOverride",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "CacheControlPublicMaxAgeOverride", skip_serializing_if = "Option::is_none")]
     pub cache_control_public_max_age_override: Option<i64>,
     /// (Deprecated) Sets the browser cache control override setting for this zone
-    #[serde(
-        rename = "CacheControlBrowserMaxAgeOverride",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "CacheControlBrowserMaxAgeOverride", skip_serializing_if = "Option::is_none")]
     pub cache_control_browser_max_age_override: Option<i64>,
     /// Determines if the zone should forward the requested host header to the origin
     #[serde(rename = "AddHostHeader", skip_serializing_if = "Option::is_none")]
@@ -5004,16 +3474,10 @@ pub struct PullZoneAddModel {
     #[serde(rename = "EnableLogging", skip_serializing_if = "Option::is_none")]
     pub enable_logging: Option<bool>,
     /// Determines if the log anonoymization should be enabled
-    #[serde(
-        rename = "LoggingIPAnonymizationEnabled",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "LoggingIPAnonymizationEnabled", skip_serializing_if = "Option::is_none")]
     pub logging_ip_anonymization_enabled: Option<bool>,
     /// The ID of the storage zone that should be used as the Perma-Cache
-    #[serde(
-        rename = "PermaCacheStorageZoneId",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "PermaCacheStorageZoneId", skip_serializing_if = "Option::is_none")]
     pub perma_cache_storage_zone_id: Option<i64>,
     /// Determines Perma-Cache behavior
     ///
@@ -5028,10 +3492,7 @@ pub struct PullZoneAddModel {
     #[serde(rename = "AWSSigningKey", skip_serializing_if = "Option::is_none")]
     pub aws_signing_key: Option<String>,
     /// Sets the AWS signing region name
-    #[serde(
-        rename = "AWSSigningRegionName",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "AWSSigningRegionName", skip_serializing_if = "Option::is_none")]
     pub aws_signing_region_name: Option<String>,
     /// Sets the AWS signing secret key
     #[serde(rename = "AWSSigningSecret", skip_serializing_if = "Option::is_none")]
@@ -5040,10 +3501,7 @@ pub struct PullZoneAddModel {
     #[serde(rename = "EnableOriginShield", skip_serializing_if = "Option::is_none")]
     pub enable_origin_shield: Option<bool>,
     /// Determines the zone code where the origin shield should be set up
-    #[serde(
-        rename = "OriginShieldZoneCode",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "OriginShieldZoneCode", skip_serializing_if = "Option::is_none")]
     pub origin_shield_zone_code: Option<String>,
     /// Determines if the TLS 1 should be enabled on this zone
     #[serde(rename = "EnableTLS1", skip_serializing_if = "Option::is_none")]
@@ -5059,25 +3517,16 @@ pub struct PullZoneAddModel {
     #[serde(rename = "TlsSecurityLevel", skip_serializing_if = "Option::is_none")]
     pub tls_security_level: Option<TlsSecurityLevelType>,
     /// Determines if the cache error responses should be enabled on the zone
-    #[serde(
-        rename = "CacheErrorResponses",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "CacheErrorResponses", skip_serializing_if = "Option::is_none")]
     pub cache_error_responses: Option<bool>,
     /// Determines if the SSL certificate should be verified when connecting to the origin
     #[serde(rename = "VerifyOriginSSL", skip_serializing_if = "Option::is_none")]
     pub verify_origin_ssl: Option<bool>,
     /// Sets the log forwarding token for the zone
-    #[serde(
-        rename = "LogForwardingEnabled",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "LogForwardingEnabled", skip_serializing_if = "Option::is_none")]
     pub log_forwarding_enabled: Option<bool>,
     /// Sets the log forwarding destination hostname for the zone
-    #[serde(
-        rename = "LogForwardingHostname",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "LogForwardingHostname", skip_serializing_if = "Option::is_none")]
     pub log_forwarding_hostname: Option<String>,
     /// Sets the log forwarding port for the zone
     #[serde(rename = "LogForwardingPort", skip_serializing_if = "Option::is_none")]
@@ -5091,31 +3540,19 @@ pub struct PullZoneAddModel {
     /// 1 = TCP
     /// 2 = TCP Encrypted
     /// 3 = Datadog
-    #[serde(
-        rename = "LogForwardingProtocol",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "LogForwardingProtocol", skip_serializing_if = "Option::is_none")]
     pub log_forwarding_protocol: Option<PullZoneLogForwarderProtocolType>,
     /// Determines if the logging permanent storage should be enabled
-    #[serde(
-        rename = "LoggingSaveToStorage",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "LoggingSaveToStorage", skip_serializing_if = "Option::is_none")]
     pub logging_save_to_storage: Option<bool>,
     /// Sets the Storage Zone id that should contain the logs from this Pull Zone
-    #[serde(
-        rename = "LoggingStorageZoneId",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "LoggingStorageZoneId", skip_serializing_if = "Option::is_none")]
     pub logging_storage_zone_id: Option<i64>,
     /// Determines if the zone should follow redirects return by the origin and cache the response
     #[serde(rename = "FollowRedirects", skip_serializing_if = "Option::is_none")]
     pub follow_redirects: Option<bool>,
     /// Determines the maximum number of connections per IP that will be allowed to connect to this Pull Zone
-    #[serde(
-        rename = "ConnectionLimitPerIPCount",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "ConnectionLimitPerIPCount", skip_serializing_if = "Option::is_none")]
     pub connection_limit_per_ip_count: Option<i32>,
     /// Determines the maximum number of requests per second that will be allowed to connect to this Pull Zone
     #[serde(rename = "RequestLimit", skip_serializing_if = "Option::is_none")]
@@ -5130,125 +3567,71 @@ pub struct PullZoneAddModel {
     #[serde(rename = "BurstSize", skip_serializing_if = "Option::is_none")]
     pub burst_size: Option<i32>,
     /// Determines if custom error page code should be enabled.
-    #[serde(
-        rename = "ErrorPageEnableCustomCode",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "ErrorPageEnableCustomCode", skip_serializing_if = "Option::is_none")]
     pub error_page_enable_custom_code: Option<bool>,
     /// Contains the custom error page code that will be returned
-    #[serde(
-        rename = "ErrorPageCustomCode",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "ErrorPageCustomCode", skip_serializing_if = "Option::is_none")]
     pub error_page_custom_code: Option<String>,
     /// Determines if the statuspage widget should be displayed on the error pages
-    #[serde(
-        rename = "ErrorPageEnableStatuspageWidget",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "ErrorPageEnableStatuspageWidget", skip_serializing_if = "Option::is_none")]
     pub error_page_enable_statuspage_widget: Option<bool>,
     /// The statuspage code that will be used to build the status widget
-    #[serde(
-        rename = "ErrorPageStatuspageCode",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "ErrorPageStatuspageCode", skip_serializing_if = "Option::is_none")]
     pub error_page_statuspage_code: Option<String>,
     /// Determines if the error pages should be whitelabel or not
-    #[serde(
-        rename = "ErrorPageWhitelabel",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "ErrorPageWhitelabel", skip_serializing_if = "Option::is_none")]
     pub error_page_whitelabel: Option<bool>,
     /// Determines if the optimizer should be enabled for this zone
     #[serde(rename = "OptimizerEnabled", skip_serializing_if = "Option::is_none")]
     pub optimizer_enabled: Option<bool>,
     /// Determines if the optimizer origin tunnel system should be enabled for this zone
-    #[serde(
-        rename = "OptimizerTunnelEnabled",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "OptimizerTunnelEnabled", skip_serializing_if = "Option::is_none")]
     pub optimizer_tunnel_enabled: Option<bool>,
     /// Determines if the optimizer tunnel system active probing should be enabled for this zone
-    #[serde(
-        rename = "OptimizerTunnelActiveProbingEnabled",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "OptimizerTunnelActiveProbingEnabled", skip_serializing_if = "Option::is_none")]
     pub optimizer_tunnel_active_probing_enabled: Option<bool>,
     /// Determines the maximum automatic image size for desktop clients
-    #[serde(
-        rename = "OptimizerDesktopMaxWidth",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "OptimizerDesktopMaxWidth", skip_serializing_if = "Option::is_none")]
     pub optimizer_desktop_max_width: Option<i32>,
     /// Determines the maximum automatic image size for mobile clients
-    #[serde(
-        rename = "OptimizerMobileMaxWidth",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "OptimizerMobileMaxWidth", skip_serializing_if = "Option::is_none")]
     pub optimizer_mobile_max_width: Option<i32>,
     /// Determines the image quality for desktop clients
-    #[serde(
-        rename = "OptimizerImageQuality",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "OptimizerImageQuality", skip_serializing_if = "Option::is_none")]
     pub optimizer_image_quality: Option<i32>,
     /// Determines the image quality for mobile clients
-    #[serde(
-        rename = "OptimizerMobileImageQuality",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "OptimizerMobileImageQuality", skip_serializing_if = "Option::is_none")]
     pub optimizer_mobile_image_quality: Option<i32>,
     /// Determines if the WebP optimization should be enabled
-    #[serde(
-        rename = "OptimizerEnableWebP",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "OptimizerEnableWebP", skip_serializing_if = "Option::is_none")]
     pub optimizer_enable_web_p: Option<bool>,
     /// Determines if the SEO HTML prerender should be enabled
-    #[serde(
-        rename = "OptimizerPrerenderHtml",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "OptimizerPrerenderHtml", skip_serializing_if = "Option::is_none")]
     pub optimizer_prerender_html: Option<bool>,
     /// Determines if Markdown automatic generation for AI systems is enabled and which pipeline to use
     ///
     /// 0 = Off
     /// 1 = Simple
     /// 2 = Prerendered
-    #[serde(
-        rename = "OptimizerHtmlToMarkdown",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "OptimizerHtmlToMarkdown", skip_serializing_if = "Option::is_none")]
     pub optimizer_html_to_markdown: Option<OptimizerHtmlToMarkdownType>,
     /// Determines if the llms.txt file should be served when requested
     #[serde(rename = "OptimizerLlmsTxt", skip_serializing_if = "Option::is_none")]
     pub optimizer_llms_txt: Option<bool>,
     /// Determines the image manipulation should be enabled
-    #[serde(
-        rename = "OptimizerEnableManipulationEngine",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "OptimizerEnableManipulationEngine", skip_serializing_if = "Option::is_none")]
     pub optimizer_enable_manipulation_engine: Option<bool>,
     /// Determines if the CSS minifcation should be enabled
     #[serde(rename = "OptimizerMinifyCSS", skip_serializing_if = "Option::is_none")]
     pub optimizer_minify_css: Option<bool>,
     /// Determines if the JavaScript minifcation should be enabled
-    #[serde(
-        rename = "OptimizerMinifyJavaScript",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "OptimizerMinifyJavaScript", skip_serializing_if = "Option::is_none")]
     pub optimizer_minify_java_script: Option<bool>,
     /// Determines if image watermarking should be enabled
-    #[serde(
-        rename = "OptimizerWatermarkEnabled",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "OptimizerWatermarkEnabled", skip_serializing_if = "Option::is_none")]
     pub optimizer_watermark_enabled: Option<bool>,
     /// Sets the URL of the watermark image
-    #[serde(
-        rename = "OptimizerWatermarkUrl",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "OptimizerWatermarkUrl", skip_serializing_if = "Option::is_none")]
     pub optimizer_watermark_url: Option<String>,
     /// Sets the position of the watermark image
     ///
@@ -5258,55 +3641,31 @@ pub struct PullZoneAddModel {
     /// 3 = Top Right
     /// 4 = Center
     /// 5 = Center Stretch
-    #[serde(
-        rename = "OptimizerWatermarkPosition",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "OptimizerWatermarkPosition", skip_serializing_if = "Option::is_none")]
     pub optimizer_watermark_position: Option<OptimizerWatermarkPosition>,
     /// Sets the offset of the watermark image
-    #[serde(
-        rename = "OptimizerWatermarkOffset",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "OptimizerWatermarkOffset", skip_serializing_if = "Option::is_none")]
     pub optimizer_watermark_offset: Option<f64>,
     /// Sets the minimum image size to which the watermark will be added
-    #[serde(
-        rename = "OptimizerWatermarkMinImageSize",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "OptimizerWatermarkMinImageSize", skip_serializing_if = "Option::is_none")]
     pub optimizer_watermark_min_image_size: Option<i32>,
     /// Determines if the automatic image optimization should be enabled
-    #[serde(
-        rename = "OptimizerAutomaticOptimizationEnabled",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "OptimizerAutomaticOptimizationEnabled", skip_serializing_if = "Option::is_none")]
     pub optimizer_automatic_optimization_enabled: Option<bool>,
     /// Determines the list of optimizer classes
     #[serde(rename = "OptimizerClasses", skip_serializing_if = "Option::is_none")]
     pub optimizer_classes: Option<Vec<PullZoneOptimizerClassModel>>,
     /// Determines if the optimizer classes should be forced
-    #[serde(
-        rename = "OptimizerForceClasses",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "OptimizerForceClasses", skip_serializing_if = "Option::is_none")]
     pub optimizer_force_classes: Option<bool>,
     /// Determines whether optimizer static html feature enabled
-    #[serde(
-        rename = "OptimizerStaticHtmlEnabled",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "OptimizerStaticHtmlEnabled", skip_serializing_if = "Option::is_none")]
     pub optimizer_static_html_enabled: Option<bool>,
     /// Wordpress html path which should be bypassed by permacache in edge rule
-    #[serde(
-        rename = "OptimizerStaticHtmlWordPressPath",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "OptimizerStaticHtmlWordPressPath", skip_serializing_if = "Option::is_none")]
     pub optimizer_static_html_word_press_path: Option<String>,
     /// Wordpress cookie which should be bypassed by permacache in edge rule
-    #[serde(
-        rename = "OptimizerStaticHtmlWordPressBypassCookie",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "OptimizerStaticHtmlWordPressBypassCookie", skip_serializing_if = "Option::is_none")]
     pub optimizer_static_html_word_press_bypass_cookie: Option<String>,
     /// The type of the pull zone
     ///
@@ -5318,46 +3677,25 @@ pub struct PullZoneAddModel {
     #[serde(rename = "OriginRetries", skip_serializing_if = "Option::is_none")]
     pub origin_retries: Option<i32>,
     /// The amount of seconds to wait when connecting to the origin. Otherwise the request will fail or retry.
-    #[serde(
-        rename = "OriginConnectTimeout",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "OriginConnectTimeout", skip_serializing_if = "Option::is_none")]
     pub origin_connect_timeout: Option<i32>,
     /// The amount of seconds to wait when waiting for the origin reply. Otherwise the request will fail or retry.
-    #[serde(
-        rename = "OriginResponseTimeout",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "OriginResponseTimeout", skip_serializing_if = "Option::is_none")]
     pub origin_response_timeout: Option<i32>,
     /// Determines if we should use stale cache while cache is updating
-    #[serde(
-        rename = "UseStaleWhileUpdating",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "UseStaleWhileUpdating", skip_serializing_if = "Option::is_none")]
     pub use_stale_while_updating: Option<bool>,
     /// Determines if we should use stale cache while the origin is offline
-    #[serde(
-        rename = "UseStaleWhileOffline",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "UseStaleWhileOffline", skip_serializing_if = "Option::is_none")]
     pub use_stale_while_offline: Option<bool>,
     /// Determines if we should retry the request in case of a 5XX response.
-    #[serde(
-        rename = "OriginRetry5XXResponses",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "OriginRetry5XXResponses", skip_serializing_if = "Option::is_none")]
     pub origin_retry5_xx_responses: Option<bool>,
     /// Determines if we should retry the request in case of a connection timeout.
-    #[serde(
-        rename = "OriginRetryConnectionTimeout",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "OriginRetryConnectionTimeout", skip_serializing_if = "Option::is_none")]
     pub origin_retry_connection_timeout: Option<bool>,
     /// Determines if we should retry the request in case of a response timeout.
-    #[serde(
-        rename = "OriginRetryResponseTimeout",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "OriginRetryResponseTimeout", skip_serializing_if = "Option::is_none")]
     pub origin_retry_response_timeout: Option<bool>,
     /// Determines the amount of time that the CDN should wait before retrying an origin request.
     #[serde(rename = "OriginRetryDelay", skip_serializing_if = "Option::is_none")]
@@ -5369,51 +3707,30 @@ pub struct PullZoneAddModel {
     #[serde(rename = "DnsOriginScheme", skip_serializing_if = "Option::is_none")]
     pub dns_origin_scheme: Option<String>,
     /// Contains the list of vary parameters that will be used for vary cache by query string. Only alphanumeric characters, dashes and underscores are allowed (values that contain other characters are ignorred). If empty, all parameters will be used to construct the key.
-    #[serde(
-        rename = "QueryStringVaryParameters",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "QueryStringVaryParameters", skip_serializing_if = "Option::is_none")]
     pub query_string_vary_parameters: Option<Vec<String>>,
     /// Determines if the origin shield concurrency limit is enabled.
-    #[serde(
-        rename = "OriginShieldEnableConcurrencyLimit",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "OriginShieldEnableConcurrencyLimit", skip_serializing_if = "Option::is_none")]
     pub origin_shield_enable_concurrency_limit: Option<bool>,
     /// Determines the number of maximum concurrent requests allowed to the origin.
-    #[serde(
-        rename = "OriginShieldMaxConcurrentRequests",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "OriginShieldMaxConcurrentRequests", skip_serializing_if = "Option::is_none")]
     pub origin_shield_max_concurrent_requests: Option<i32>,
     /// Determines if the Cookie Vary feature is enabled.
     #[serde(rename = "EnableCookieVary", skip_serializing_if = "Option::is_none")]
     pub enable_cookie_vary: Option<bool>,
     /// Contains the list of vary parameters that will be used for vary cache by cookie string.Only alphanumeric characters, dashes and underscores are allowed (values that contain other characters are ignorred). If empty, cookie vary will not be used.
-    #[serde(
-        rename = "CookieVaryParameters",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "CookieVaryParameters", skip_serializing_if = "Option::is_none")]
     pub cookie_vary_parameters: Option<Vec<String>>,
     #[serde(rename = "EnableSafeHop", skip_serializing_if = "Option::is_none")]
     pub enable_safe_hop: Option<bool>,
     /// Determines the max queue wait time
-    #[serde(
-        rename = "OriginShieldQueueMaxWaitTime",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "OriginShieldQueueMaxWaitTime", skip_serializing_if = "Option::is_none")]
     pub origin_shield_queue_max_wait_time: Option<i32>,
     /// Determines the max number of origin requests that will remain in the queue
-    #[serde(
-        rename = "OriginShieldMaxQueuedRequests",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "OriginShieldMaxQueuedRequests", skip_serializing_if = "Option::is_none")]
     pub origin_shield_max_queued_requests: Option<i32>,
     /// Determines if cache update is performed in the background.
-    #[serde(
-        rename = "UseBackgroundUpdate",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "UseBackgroundUpdate", skip_serializing_if = "Option::is_none")]
     pub use_background_update: Option<bool>,
     /// If set to true, any hostnames added to this Pull Zone will automatically enable SSL.
     #[serde(rename = "EnableAutoSSL", skip_serializing_if = "Option::is_none")]
@@ -5422,10 +3739,7 @@ pub struct PullZoneAddModel {
     ///
     /// 0 = One Digit
     /// 1 = Drop
-    #[serde(
-        rename = "LogAnonymizationType",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "LogAnonymizationType", skip_serializing_if = "Option::is_none")]
     pub log_anonymization_type: Option<LogAnonymizationType>,
     /// The ID of the storage zone that will be used as the origin
     #[serde(rename = "StorageZoneId", skip_serializing_if = "Option::is_none")]
@@ -5441,10 +3755,7 @@ pub struct PullZoneAddModel {
     /// 0 = Cache
     /// 1 = Load Balancer
     /// 2 = Pre-Cache
-    #[serde(
-        rename = "EdgeScriptExecutionPhase",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "EdgeScriptExecutionPhase", skip_serializing_if = "Option::is_none")]
     pub edge_script_execution_phase: Option<ExecutionPhase>,
     /// Determine the type of the origin for this Pull Zone
     ///
@@ -5457,15 +3768,9 @@ pub struct PullZoneAddModel {
     /// 6 = Push Zone
     #[serde(rename = "OriginType", skip_serializing_if = "Option::is_none")]
     pub origin_type: Option<PullZoneOriginType>,
-    #[serde(
-        rename = "MagicContainersAppId",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "MagicContainersAppId", skip_serializing_if = "Option::is_none")]
     pub magic_containers_app_id: Option<String>,
-    #[serde(
-        rename = "MagicContainersEndpointId",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "MagicContainersEndpointId", skip_serializing_if = "Option::is_none")]
     pub magic_containers_endpoint_id: Option<String>,
     /// 0 = Plain
     /// 1 = JSON
@@ -5473,23 +3778,14 @@ pub struct PullZoneAddModel {
     pub log_format: Option<PullZoneLogFormat>,
     /// 0 = Plain
     /// 1 = JSON
-    #[serde(
-        rename = "LogForwardingFormat",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "LogForwardingFormat", skip_serializing_if = "Option::is_none")]
     pub log_forwarding_format: Option<PullZoneLogFormat>,
     /// 0 = Detect Only
     /// 1 = Active Standard
     /// 2 = Active Aggressive
-    #[serde(
-        rename = "ShieldDDosProtectionType",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "ShieldDDosProtectionType", skip_serializing_if = "Option::is_none")]
     pub shield_d_dos_protection_type: Option<ShieldDDosProtectionType>,
-    #[serde(
-        rename = "ShieldDDosProtectionEnabled",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "ShieldDDosProtectionEnabled", skip_serializing_if = "Option::is_none")]
     pub shield_d_dos_protection_enabled: Option<bool>,
     /// Sets the host header that will be sent to the origin
     #[serde(rename = "OriginHostHeader", skip_serializing_if = "Option::is_none")]
@@ -5497,71 +3793,41 @@ pub struct PullZoneAddModel {
     #[serde(rename = "EnableSmartCache", skip_serializing_if = "Option::is_none")]
     pub enable_smart_cache: Option<bool>,
     /// Determines if request coalescing is currently enabled.
-    #[serde(
-        rename = "EnableRequestCoalescing",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "EnableRequestCoalescing", skip_serializing_if = "Option::is_none")]
     pub enable_request_coalescing: Option<bool>,
     /// Determines the lock time for coalesced requests.
-    #[serde(
-        rename = "RequestCoalescingTimeout",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "RequestCoalescingTimeout", skip_serializing_if = "Option::is_none")]
     pub request_coalescing_timeout: Option<i32>,
     /// If set to true, the built-in let's encrypt will be disabled and requests are passed to the origin.
     #[serde(rename = "DisableLetsEncrypt", skip_serializing_if = "Option::is_none")]
     pub disable_lets_encrypt: Option<bool>,
     #[serde(rename = "EnableBunnyImageAi", skip_serializing_if = "Option::is_none")]
     pub enable_bunny_image_ai: Option<bool>,
-    #[serde(
-        rename = "BunnyAiImageBlueprints",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "BunnyAiImageBlueprints", skip_serializing_if = "Option::is_none")]
     pub bunny_ai_image_blueprints: Option<Vec<BunnyAiImageBlueprintModel>>,
     /// Determines if the preloading screen is currently enabled
-    #[serde(
-        rename = "PreloadingScreenEnabled",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "PreloadingScreenEnabled", skip_serializing_if = "Option::is_none")]
     pub preloading_screen_enabled: Option<bool>,
     /// The custom preloading screen coed
-    #[serde(
-        rename = "PreloadingScreenCode",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "PreloadingScreenCode", skip_serializing_if = "Option::is_none")]
     pub preloading_screen_code: Option<String>,
     /// The preloading screen logo URL
-    #[serde(
-        rename = "PreloadingScreenLogoUrl",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "PreloadingScreenLogoUrl", skip_serializing_if = "Option::is_none")]
     pub preloading_screen_logo_url: Option<String>,
     /// Determines if the preloading screen is shown on the first load from a user.
-    #[serde(
-        rename = "PreloadingScreenShowOnFirstVisit",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "PreloadingScreenShowOnFirstVisit", skip_serializing_if = "Option::is_none")]
     pub preloading_screen_show_on_first_visit: Option<bool>,
     /// The currently configured preloading screem theme. (0 - Light, 1 - Dark)
     ///
     /// 0 = Light
     /// 1 = Dark
-    #[serde(
-        rename = "PreloadingScreenTheme",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "PreloadingScreenTheme", skip_serializing_if = "Option::is_none")]
     pub preloading_screen_theme: Option<PreloadingScreenTheme>,
     /// Determines if the custom preloader screen should be enabled
-    #[serde(
-        rename = "PreloadingScreenCodeEnabled",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "PreloadingScreenCodeEnabled", skip_serializing_if = "Option::is_none")]
     pub preloading_screen_code_enabled: Option<bool>,
     /// The delay in miliseconds after which the preloading screen will be displayed (0 - 10000ms)
-    #[serde(
-        rename = "PreloadingScreenDelay",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "PreloadingScreenDelay", skip_serializing_if = "Option::is_none")]
     pub preloading_screen_delay: Option<i32>,
     /// The list of routing filters enabled for this zone
     #[serde(rename = "RoutingFilters", skip_serializing_if = "Option::is_none")]
@@ -5573,31 +3839,19 @@ pub struct PullZoneAddModel {
     #[serde(rename = "StickySessionType", skip_serializing_if = "Option::is_none")]
     pub sticky_session_type: Option<StickySessionType>,
     /// Sticky Session Cookie Name
-    #[serde(
-        rename = "StickySessionCookieName",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "StickySessionCookieName", skip_serializing_if = "Option::is_none")]
     pub sticky_session_cookie_name: Option<String>,
     /// A set of comma-separated header names used to identify clients
-    #[serde(
-        rename = "StickySessionClientHeaders",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "StickySessionClientHeaders", skip_serializing_if = "Option::is_none")]
     pub sticky_session_client_headers: Option<String>,
     /// Determines if Optimizer is allowed to upscale images
-    #[serde(
-        rename = "OptimizerEnableUpscaling",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "OptimizerEnableUpscaling", skip_serializing_if = "Option::is_none")]
     pub optimizer_enable_upscaling: Option<bool>,
     /// Determines if WebSocket connections are allowed for this Pull Zone.
     #[serde(rename = "EnableWebSockets", skip_serializing_if = "Option::is_none")]
     pub enable_web_sockets: Option<bool>,
     /// The maximum global simultaneous WebSocket connections allowed for this Pull Zone. Allowed tiers: 500, 1,000, 2,500, 5,000, 10,000, 25,000. If you send a non-tier value, the value is rounded up to the next tier. Values over 25,000 are rejected, please contact sales if required.
-    #[serde(
-        rename = "MaxWebSocketConnections",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "MaxWebSocketConnections", skip_serializing_if = "Option::is_none")]
     pub max_web_socket_connections: Option<i32>,
     /// Vary Cache by Request Headers (comma delimited)
     #[serde(rename = "CacheKeyHeaders", skip_serializing_if = "Option::is_none")]
@@ -5729,10 +3983,7 @@ pub struct RegionModel {
     #[serde(rename = "Longitude", skip_serializing_if = "Option::is_none")]
     pub longitude: Option<f64>,
     /// Determines weather this region can be selected as a DNS latency routing region
-    #[serde(
-        rename = "AllowLatencyRouting",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "AllowLatencyRouting", skip_serializing_if = "Option::is_none")]
     pub allow_latency_routing: Option<bool>,
 }
 
@@ -5763,10 +4014,7 @@ pub struct StorageRegionModel {
     #[serde(rename = "Tier", skip_serializing_if = "Option::is_none")]
     pub tier: Option<i32>,
     /// Whether the region can be selected as the main region for this storage tier
-    #[serde(
-        rename = "IsMainRegionSupported",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "IsMainRegionSupported", skip_serializing_if = "Option::is_none")]
     pub is_main_region_supported: Option<bool>,
     /// Supports S3 replication; main-region use also requires IsMainRegionSupported
     #[serde(rename = "IsS3Supported", skip_serializing_if = "Option::is_none")]
@@ -5837,10 +4085,7 @@ pub struct StorageZoneModel {
     #[serde(rename = "ZoneTier", skip_serializing_if = "Option::is_none")]
     pub zone_tier: Option<StorageZoneTier>,
     /// Determines if the storage zone is currently enabling a new replication region
-    #[serde(
-        rename = "ReplicationChangeInProgress",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "ReplicationChangeInProgress", skip_serializing_if = "Option::is_none")]
     pub replication_change_in_progress: Option<bool>,
     /// The custom price override for this zone. Unit is $/TB/month.
     ///
@@ -5961,16 +4206,10 @@ pub struct VideoLibraryModel {
     #[serde(rename = "HasWatermark", skip_serializing_if = "Option::is_none")]
     pub has_watermark: Option<bool>,
     /// The left offset of the watermark position (in %)
-    #[serde(
-        rename = "WatermarkPositionLeft",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "WatermarkPositionLeft", skip_serializing_if = "Option::is_none")]
     pub watermark_position_left: Option<i32>,
     /// The top offset of the watermark position (in %)
-    #[serde(
-        rename = "WatermarkPositionTop",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "WatermarkPositionTop", skip_serializing_if = "Option::is_none")]
     pub watermark_position_top: Option<i32>,
     /// The width of the watermark (in %)
     #[serde(rename = "WatermarkWidth", skip_serializing_if = "Option::is_none")]
@@ -6012,10 +4251,7 @@ pub struct VideoLibraryModel {
     #[serde(rename = "AllowEarlyPlay", skip_serializing_if = "Option::is_none")]
     pub allow_early_play: Option<bool>,
     /// Determines if the player token authentication is enabled
-    #[serde(
-        rename = "PlayerTokenAuthenticationEnabled",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "PlayerTokenAuthenticationEnabled", skip_serializing_if = "Option::is_none")]
     pub player_token_authentication_enabled: Option<bool>,
     /// The list of allowed referrer domains allowed to access the library
     #[serde(rename = "AllowedReferrers", skip_serializing_if = "Option::is_none")]
@@ -6078,10 +4314,7 @@ pub struct VideoLibraryModel {
     #[serde(rename = "ShowHeatmap", skip_serializing_if = "Option::is_none")]
     pub show_heatmap: Option<bool>,
     /// Determines if content tagging should be enabled for this library.
-    #[serde(
-        rename = "EnableContentTagging",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "EnableContentTagging", skip_serializing_if = "Option::is_none")]
     pub enable_content_tagging: Option<bool>,
     /// The type of the pull zone attached
     ///
@@ -6110,58 +4343,31 @@ pub struct VideoLibraryModel {
     #[serde(rename = "EnableTranscribing", skip_serializing_if = "Option::is_none")]
     pub enable_transcribing: Option<bool>,
     /// Determines if automatic transcribing title generation is currently enabled.
-    #[serde(
-        rename = "EnableTranscribingTitleGeneration",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "EnableTranscribingTitleGeneration", skip_serializing_if = "Option::is_none")]
     pub enable_transcribing_title_generation: Option<bool>,
     /// Determines if automatic transcribing description generation is currently enabled.
-    #[serde(
-        rename = "EnableTranscribingDescriptionGeneration",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "EnableTranscribingDescriptionGeneration", skip_serializing_if = "Option::is_none")]
     pub enable_transcribing_description_generation: Option<bool>,
     /// Determines if automatic transcribing chapters generation is currently enabled.
-    #[serde(
-        rename = "EnableTranscribingChaptersGeneration",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "EnableTranscribingChaptersGeneration", skip_serializing_if = "Option::is_none")]
     pub enable_transcribing_chapters_generation: Option<bool>,
     /// Determines if automatic transcribing moments generation is currently enabled.
-    #[serde(
-        rename = "EnableTranscribingMomentsGeneration",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "EnableTranscribingMomentsGeneration", skip_serializing_if = "Option::is_none")]
     pub enable_transcribing_moments_generation: Option<bool>,
     /// The list of languages that the captions will be automatically transcribed to.
-    #[serde(
-        rename = "TranscribingCaptionLanguages",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "TranscribingCaptionLanguages", skip_serializing_if = "Option::is_none")]
     pub transcribing_caption_languages: Option<Vec<String>>,
     /// Determines if any associated captions will be automatically signaled in the HLS master playlist via EXT-X-MEDIA tags, allowing client players to show captions.
-    #[serde(
-        rename = "EnableCaptionsInPlaylist",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "EnableCaptionsInPlaylist", skip_serializing_if = "Option::is_none")]
     pub enable_captions_in_playlist: Option<bool>,
     /// Determines if the player will automatically remember the playback position.
-    #[serde(
-        rename = "RememberPlayerPosition",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "RememberPlayerPosition", skip_serializing_if = "Option::is_none")]
     pub remember_player_position: Option<bool>,
     /// Determines if multiple output audio track support is enabled on video library.
-    #[serde(
-        rename = "EnableMultiAudioTrackSupport",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "EnableMultiAudioTrackSupport", skip_serializing_if = "Option::is_none")]
     pub enable_multi_audio_track_support: Option<bool>,
     /// Determines whether output audio stream should be split from video stream segments.
-    #[serde(
-        rename = "UseSeparateAudioStream",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "UseSeparateAudioStream", skip_serializing_if = "Option::is_none")]
     pub use_separate_audio_stream: Option<bool>,
     /// Determines whether JIT encoding should be used for the library. Supported in premium encoding only.
     #[serde(rename = "JitEncodingEnabled", skip_serializing_if = "Option::is_none")]
@@ -6178,79 +4384,46 @@ pub struct VideoLibraryModel {
     /// DRM (enterprise) monthly base price for this video library if it differs from list price.
     ///
     /// A decimal number, parsed as `f64` (about 15 significant digits).
-    #[serde(
-        rename = "DrmBasePriceOverride",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "DrmBasePriceOverride", skip_serializing_if = "Option::is_none")]
     pub drm_base_price_override: Option<f64>,
     /// DRM (enterprise) cost per license for this video library if it differs from list price.
     ///
     /// A decimal number, parsed as `f64` (about 15 significant digits).
-    #[serde(
-        rename = "DrmCostPerLicenseOverride",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "DrmCostPerLicenseOverride", skip_serializing_if = "Option::is_none")]
     pub drm_cost_per_license_override: Option<f64>,
     /// A decimal number, parsed as `f64` (about 15 significant digits).
-    #[serde(
-        rename = "TranscribingPriceOverride",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "TranscribingPriceOverride", skip_serializing_if = "Option::is_none")]
     pub transcribing_price_override: Option<f64>,
     /// A decimal number, parsed as `f64` (about 15 significant digits).
-    #[serde(
-        rename = "PremiumEncodingPriceOverride",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "PremiumEncodingPriceOverride", skip_serializing_if = "Option::is_none")]
     pub premium_encoding_price_override: Option<f64>,
     /// A decimal number, parsed as `f64` (about 15 significant digits).
-    #[serde(
-        rename = "MonthlyChargesTranscribing",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "MonthlyChargesTranscribing", skip_serializing_if = "Option::is_none")]
     pub monthly_charges_transcribing: Option<f64>,
     /// A decimal number, parsed as `f64` (about 15 significant digits).
-    #[serde(
-        rename = "MonthlyChargesPremiumEncoding",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "MonthlyChargesPremiumEncoding", skip_serializing_if = "Option::is_none")]
     pub monthly_charges_premium_encoding: Option<f64>,
     /// A decimal number, parsed as `f64` (about 15 significant digits).
-    #[serde(
-        rename = "MonthlyChargesEnterpriseDrm",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "MonthlyChargesEnterpriseDrm", skip_serializing_if = "Option::is_none")]
     pub monthly_charges_enterprise_drm: Option<f64>,
     #[serde(rename = "FeatureFlags", skip_serializing_if = "Option::is_none")]
     pub feature_flags: Option<String>,
     #[serde(rename = "PlayerVersion", skip_serializing_if = "Option::is_none")]
     pub player_version: Option<i32>,
     /// Marks whether all potential video metadata should be removed from the fallback files. Default false.
-    #[serde(
-        rename = "RemoveMetadataFromFallbackVideos",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "RemoveMetadataFromFallbackVideos", skip_serializing_if = "Option::is_none")]
     pub remove_metadata_from_fallback_videos: Option<bool>,
     /// Marks whether videos should be scaled using both dimensions. Prevents videos being upscaled or unexpected aspect ratio changes. Default true.
-    #[serde(
-        rename = "ScaleVideoUsingBothDimensions",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "ScaleVideoUsingBothDimensions", skip_serializing_if = "Option::is_none")]
     pub scale_video_using_both_dimensions: Option<bool>,
     /// Marks whether original video files are exposed via CDN. Always false while EnableDRM is true; original files are not protected by DRM.
     #[serde(rename = "ExposeOriginals", skip_serializing_if = "Option::is_none")]
     pub expose_originals: Option<bool>,
     /// Marks whether video metadata in form of schema meta tags and LD+JSON should be exposed.
-    #[serde(
-        rename = "ExposeVideoMetadata",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "ExposeVideoMetadata", skip_serializing_if = "Option::is_none")]
     pub expose_video_metadata: Option<bool>,
     /// Marks whether compact controls should be enabled for the player.
-    #[serde(
-        rename = "EnableCompactControls",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "EnableCompactControls", skip_serializing_if = "Option::is_none")]
     pub enable_compact_controls: Option<bool>,
     /// Geo-blocking settings for the video library.
     #[serde(rename = "GeoBlocking", skip_serializing_if = "Option::is_none")]
@@ -6275,10 +4448,7 @@ pub struct AppleFairPlayDrm {
     pub enabled: Option<bool>,
     #[serde(rename = "CertificateId", skip_serializing_if = "Option::is_none")]
     pub certificate_id: Option<i64>,
-    #[serde(
-        rename = "CertificateExpirationDate",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "CertificateExpirationDate", skip_serializing_if = "Option::is_none")]
     pub certificate_expiration_date: Option<String>,
     #[serde(rename = "Provider", skip_serializing_if = "Option::is_none")]
     pub provider: Option<String>,
@@ -6291,10 +4461,7 @@ pub struct GoogleWidevineDrm {
     pub enabled: Option<bool>,
     #[serde(rename = "CertificateId", skip_serializing_if = "Option::is_none")]
     pub certificate_id: Option<i64>,
-    #[serde(
-        rename = "CertificateExpirationDate",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "CertificateExpirationDate", skip_serializing_if = "Option::is_none")]
     pub certificate_expiration_date: Option<String>,
     #[serde(rename = "Provider", skip_serializing_if = "Option::is_none")]
     pub provider: Option<String>,
@@ -6304,10 +4471,7 @@ pub struct GoogleWidevineDrm {
     /// 1 = L1
     /// 2 = L2
     /// 3 = L3
-    #[serde(
-        rename = "MinClientSecurityLevel",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "MinClientSecurityLevel", skip_serializing_if = "Option::is_none")]
     pub min_client_security_level: Option<WidevineMinClientSecurityLevel>,
 }
 
@@ -6387,43 +4551,25 @@ pub struct VideoLibraryCreateModel {
     #[serde(rename = "AllowDirectPlay", skip_serializing_if = "Option::is_none")]
     pub allow_direct_play: Option<bool>,
     /// (Optional) Determines if multiple output audio track support is enabled on video library.
-    #[serde(
-        rename = "EnableMultiAudioTrackSupport",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "EnableMultiAudioTrackSupport", skip_serializing_if = "Option::is_none")]
     pub enable_multi_audio_track_support: Option<bool>,
     /// (Optional) Enables automatic audio transcribing for this library.
     #[serde(rename = "EnableTranscribing", skip_serializing_if = "Option::is_none")]
     pub enable_transcribing: Option<bool>,
     /// (Optional) Languages that captions will be automatically transcribed to.
-    #[serde(
-        rename = "TranscribingCaptionLanguages",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "TranscribingCaptionLanguages", skip_serializing_if = "Option::is_none")]
     pub transcribing_caption_languages: Option<Vec<String>>,
     /// (Optional) Determines if automatic transcribing title generation is enabled for this library. Enabling any smart generation feature turns on transcribing automatically.
-    #[serde(
-        rename = "EnableTranscribingTitleGeneration",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "EnableTranscribingTitleGeneration", skip_serializing_if = "Option::is_none")]
     pub enable_transcribing_title_generation: Option<bool>,
     /// (Optional) Determines if automatic transcribing description generation is enabled for this library. Enabling any smart generation feature turns on transcribing automatically.
-    #[serde(
-        rename = "EnableTranscribingDescriptionGeneration",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "EnableTranscribingDescriptionGeneration", skip_serializing_if = "Option::is_none")]
     pub enable_transcribing_description_generation: Option<bool>,
     /// (Optional) Determines if automatic transcribing chapters generation is enabled for this library. Enabling any smart generation feature turns on transcribing automatically.
-    #[serde(
-        rename = "EnableTranscribingChaptersGeneration",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "EnableTranscribingChaptersGeneration", skip_serializing_if = "Option::is_none")]
     pub enable_transcribing_chapters_generation: Option<bool>,
     /// (Optional) Determines if automatic transcribing moments generation is enabled for this library. Enabling any smart generation feature turns on transcribing automatically.
-    #[serde(
-        rename = "EnableTranscribingMomentsGeneration",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "EnableTranscribingMomentsGeneration", skip_serializing_if = "Option::is_none")]
     pub enable_transcribing_moments_generation: Option<bool>,
     /// (Optional) Enables Early Play. Enabling this also exposes originals via CDN settings consistent with the video library update API.
     #[serde(rename = "AllowEarlyPlay", skip_serializing_if = "Option::is_none")]
@@ -6437,20 +4583,11 @@ pub struct VideoLibraryLanguage {
     pub short_code: Option<String>,
     #[serde(rename = "Name", skip_serializing_if = "Option::is_none")]
     pub name: Option<String>,
-    #[serde(
-        rename = "SupportPlayerTranslation",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "SupportPlayerTranslation", skip_serializing_if = "Option::is_none")]
     pub support_player_translation: Option<bool>,
-    #[serde(
-        rename = "SupportTranscribing",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "SupportTranscribing", skip_serializing_if = "Option::is_none")]
     pub support_transcribing: Option<bool>,
-    #[serde(
-        rename = "TranscribingAccuracy",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "TranscribingAccuracy", skip_serializing_if = "Option::is_none")]
     pub transcribing_accuracy: Option<i32>,
 }
 
@@ -6488,31 +4625,19 @@ pub struct VideoLibraryUpdateModel {
     #[serde(rename = "PlayerKeyColor", skip_serializing_if = "Option::is_none")]
     pub player_key_color: Option<String>,
     /// (Optional) Determines if the token authentication should be enabled
-    #[serde(
-        rename = "EnableTokenAuthentication",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "EnableTokenAuthentication", skip_serializing_if = "Option::is_none")]
     pub enable_token_authentication: Option<bool>,
     /// (Optional) Determines if the token IP verification should be enabled
-    #[serde(
-        rename = "EnableTokenIPVerification",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "EnableTokenIPVerification", skip_serializing_if = "Option::is_none")]
     pub enable_token_ip_verification: Option<bool>,
     /// (Optional) Set to true to reset the CDN and embed view token key
     #[serde(rename = "ResetToken", skip_serializing_if = "Option::is_none")]
     pub reset_token: Option<bool>,
     /// (Optional) Sets the left offset of the watermark position (in %)
-    #[serde(
-        rename = "WatermarkPositionLeft",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "WatermarkPositionLeft", skip_serializing_if = "Option::is_none")]
     pub watermark_position_left: Option<i32>,
     /// (Optional) Sets the top offset of the watermark position (in %)
-    #[serde(
-        rename = "WatermarkPositionTop",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "WatermarkPositionTop", skip_serializing_if = "Option::is_none")]
     pub watermark_position_top: Option<i32>,
     /// (Optional) Sets the width of the watermark (in %)
     #[serde(rename = "WatermarkWidth", skip_serializing_if = "Option::is_none")]
@@ -6548,10 +4673,7 @@ pub struct VideoLibraryUpdateModel {
     #[serde(rename = "AllowEarlyPlay", skip_serializing_if = "Option::is_none")]
     pub allow_early_play: Option<bool>,
     /// (Optional) Determines if the token authentication should be enabled.
-    #[serde(
-        rename = "PlayerTokenAuthenticationEnabled",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "PlayerTokenAuthenticationEnabled", skip_serializing_if = "Option::is_none")]
     pub player_token_authentication_enabled: Option<bool>,
     /// (Optional) Determines if requests without a referer should be blocked.
     #[serde(rename = "BlockNoneReferrer", skip_serializing_if = "Option::is_none")]
@@ -6606,10 +4728,7 @@ pub struct VideoLibraryUpdateModel {
     #[serde(rename = "ShowHeatmap", skip_serializing_if = "Option::is_none")]
     pub show_heatmap: Option<bool>,
     /// (Optional) Determines if content tagging should be enabled for this library.
-    #[serde(
-        rename = "EnableContentTagging",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "EnableContentTagging", skip_serializing_if = "Option::is_none")]
     pub enable_content_tagging: Option<bool>,
     /// (Optional) The captions font family.
     #[serde(rename = "FontFamily", skip_serializing_if = "Option::is_none")]
@@ -6618,58 +4737,31 @@ pub struct VideoLibraryUpdateModel {
     #[serde(rename = "EnableTranscribing", skip_serializing_if = "Option::is_none")]
     pub enable_transcribing: Option<bool>,
     /// (Optional) Determines if automatic transcribing title generation is currently enabled.
-    #[serde(
-        rename = "EnableTranscribingTitleGeneration",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "EnableTranscribingTitleGeneration", skip_serializing_if = "Option::is_none")]
     pub enable_transcribing_title_generation: Option<bool>,
     /// (Optional) Determines if automatic transcribing description generation is currently enabled.
-    #[serde(
-        rename = "EnableTranscribingDescriptionGeneration",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "EnableTranscribingDescriptionGeneration", skip_serializing_if = "Option::is_none")]
     pub enable_transcribing_description_generation: Option<bool>,
     /// (Optional) Determines if automatic transcribing chapters generation is currently enabled.
-    #[serde(
-        rename = "EnableTranscribingChaptersGeneration",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "EnableTranscribingChaptersGeneration", skip_serializing_if = "Option::is_none")]
     pub enable_transcribing_chapters_generation: Option<bool>,
     /// (Optional) Determines if automatic transcribing moments generation is currently enabled.
-    #[serde(
-        rename = "EnableTranscribingMomentsGeneration",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "EnableTranscribingMomentsGeneration", skip_serializing_if = "Option::is_none")]
     pub enable_transcribing_moments_generation: Option<bool>,
     /// (Optional) The list of languages that the captions will be automatically transcribed to.
-    #[serde(
-        rename = "TranscribingCaptionLanguages",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "TranscribingCaptionLanguages", skip_serializing_if = "Option::is_none")]
     pub transcribing_caption_languages: Option<Vec<String>>,
     /// (Optional) Determines if any associated captions will be automatically signaled in the HLS master playlist via EXT-X-MEDIA tags, allowing client players to show captions.
-    #[serde(
-        rename = "EnableCaptionsInPlaylist",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "EnableCaptionsInPlaylist", skip_serializing_if = "Option::is_none")]
     pub enable_captions_in_playlist: Option<bool>,
     /// (Optional) Determines if the player will automatically remember the playback position.
-    #[serde(
-        rename = "RememberPlayerPosition",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "RememberPlayerPosition", skip_serializing_if = "Option::is_none")]
     pub remember_player_position: Option<bool>,
     /// (Optional) Determines if multiple output audio track support is enabled on video library.
-    #[serde(
-        rename = "EnableMultiAudioTrackSupport",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "EnableMultiAudioTrackSupport", skip_serializing_if = "Option::is_none")]
     pub enable_multi_audio_track_support: Option<bool>,
     /// (Optional) Determines whether output audio stream should be split from video stream segments.
-    #[serde(
-        rename = "UseSeparateAudioStream",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "UseSeparateAudioStream", skip_serializing_if = "Option::is_none")]
     pub use_separate_audio_stream: Option<bool>,
     /// (Optional) Determines whether JIT encoding should be used for the library. Supported in premium encoding only.
     #[serde(rename = "JitEncodingEnabled", skip_serializing_if = "Option::is_none")]
@@ -6693,31 +4785,19 @@ pub struct VideoLibraryUpdateModel {
     #[serde(rename = "PlayerVersion", skip_serializing_if = "Option::is_none")]
     pub player_version: Option<i32>,
     /// (Optional) Marks whether all potential video metadata should be removed from the fallback files
-    #[serde(
-        rename = "RemoveMetadataFromFallbackVideos",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "RemoveMetadataFromFallbackVideos", skip_serializing_if = "Option::is_none")]
     pub remove_metadata_from_fallback_videos: Option<bool>,
     /// (Optional) Marks whether videos should be scaled using both dimensions. Prevents videos being upscaled or unexpected aspect ratio changes.
-    #[serde(
-        rename = "ScaleVideoUsingBothDimensions",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "ScaleVideoUsingBothDimensions", skip_serializing_if = "Option::is_none")]
     pub scale_video_using_both_dimensions: Option<bool>,
     /// (Optional) Marks whether original video files should be exposed via CDN. Original files are not protected by DRM, so this cannot be true while EnableDRM is true, and EnableDRM cannot be set to true while this is true. Setting AllowEarlyPlay to true sets this to true.
     #[serde(rename = "ExposeOriginals", skip_serializing_if = "Option::is_none")]
     pub expose_originals: Option<bool>,
     /// (Optional) Marks whether video metadata in form of schema meta tags and LD+JSON should be exposed.
-    #[serde(
-        rename = "ExposeVideoMetadata",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "ExposeVideoMetadata", skip_serializing_if = "Option::is_none")]
     pub expose_video_metadata: Option<bool>,
     /// (Optional) Marks whether compact controls should be enabled for the player.
-    #[serde(
-        rename = "EnableCompactControls",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "EnableCompactControls", skip_serializing_if = "Option::is_none")]
     pub enable_compact_controls: Option<bool>,
     /// (Optional) Geo-blocking settings for the video library.
     #[serde(rename = "GeoBlocking", skip_serializing_if = "Option::is_none")]
@@ -6747,10 +4827,7 @@ pub struct GoogleWidevineDrmUpdateModel {
     /// 1 = L1
     /// 2 = L2
     /// 3 = L3
-    #[serde(
-        rename = "MinClientSecurityLevel",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "MinClientSecurityLevel", skip_serializing_if = "Option::is_none")]
     pub min_client_security_level: Option<WidevineMinClientSecurityLevel>,
 }
 
@@ -6771,30 +4848,18 @@ pub struct VideoGeoBlockingUpdateModel {
 #[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
 #[serde(default)]
 pub struct VideoLibraryTranscriptionStatisticsModel {
-    #[serde(
-        rename = "TotalTranscriptionSeconds",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "TotalTranscriptionSeconds", skip_serializing_if = "Option::is_none")]
     pub total_transcription_seconds: Option<i64>,
-    #[serde(
-        rename = "TranscriptionSecondsChart",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "TranscriptionSecondsChart", skip_serializing_if = "Option::is_none")]
     pub transcription_seconds_chart: Option<std::collections::HashMap<String, f64>>,
 }
 
 #[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
 #[serde(default)]
 pub struct VideoLibraryDrmStatisticsModel {
-    #[serde(
-        rename = "TotalLicensesIssued",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "TotalLicensesIssued", skip_serializing_if = "Option::is_none")]
     pub total_licenses_issued: Option<i64>,
-    #[serde(
-        rename = "LicensesIssuedChart",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "LicensesIssuedChart", skip_serializing_if = "Option::is_none")]
     pub licenses_issued_chart: Option<std::collections::HashMap<String, f64>>,
 }
 
@@ -6869,10 +4934,7 @@ pub struct StorageZoneEgressStatisticsModel {
     #[serde(rename = "S3EgressChart", skip_serializing_if = "Option::is_none")]
     pub s3_egress_chart: Option<std::collections::HashMap<String, i64>>,
     /// Download traffic served over presigned S3 URLs
-    #[serde(
-        rename = "S3PresignedEgressChart",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "S3PresignedEgressChart", skip_serializing_if = "Option::is_none")]
     pub s3_presigned_egress_chart: Option<std::collections::HashMap<String, i64>>,
     /// Download traffic served over FTP
     #[serde(rename = "FtpEgressChart", skip_serializing_if = "Option::is_none")]
@@ -6890,10 +4952,7 @@ pub struct StorageZoneEgressStatisticsModel {
     #[serde(rename = "S3EgressTotal", skip_serializing_if = "Option::is_none")]
     pub s3_egress_total: Option<i64>,
     /// Total download traffic over presigned S3 URLs
-    #[serde(
-        rename = "S3PresignedEgressTotal",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "S3PresignedEgressTotal", skip_serializing_if = "Option::is_none")]
     pub s3_presigned_egress_total: Option<i64>,
     /// Total download traffic over FTP
     #[serde(rename = "FtpEgressTotal", skip_serializing_if = "Option::is_none")]
@@ -6921,46 +4980,28 @@ pub struct StorageZoneStatisticsModel {
 #[serde(default)]
 pub struct OptimizerStatisticsModel {
     /// The constructed chart of optimized requests
-    #[serde(
-        rename = "RequestsOptimizedChart",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "RequestsOptimizedChart", skip_serializing_if = "Option::is_none")]
     pub requests_optimized_chart: Option<std::collections::HashMap<String, i64>>,
     /// Average compression chart of the responses
-    #[serde(
-        rename = "AverageCompressionChart",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "AverageCompressionChart", skip_serializing_if = "Option::is_none")]
     pub average_compression_chart: Option<std::collections::HashMap<String, i64>>,
     /// The constructed chart of saved traffic
     #[serde(rename = "TrafficSavedChart", skip_serializing_if = "Option::is_none")]
     pub traffic_saved_chart: Option<std::collections::HashMap<String, i64>>,
     /// The constructed chart of saved traffic
-    #[serde(
-        rename = "AverageProcessingTimeChart",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "AverageProcessingTimeChart", skip_serializing_if = "Option::is_none")]
     pub average_processing_time_chart: Option<std::collections::HashMap<String, i64>>,
     /// The total number of optimized requests
-    #[serde(
-        rename = "TotalRequestsOptimized",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "TotalRequestsOptimized", skip_serializing_if = "Option::is_none")]
     pub total_requests_optimized: Option<f64>,
     /// The total requests saved
     #[serde(rename = "TotalTrafficSaved", skip_serializing_if = "Option::is_none")]
     pub total_traffic_saved: Option<f64>,
     /// The average processing time of each request
-    #[serde(
-        rename = "AverageProcessingTime",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "AverageProcessingTime", skip_serializing_if = "Option::is_none")]
     pub average_processing_time: Option<f64>,
     /// The average compression ratio of CDN responses
-    #[serde(
-        rename = "AverageCompressionRatio",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "AverageCompressionRatio", skip_serializing_if = "Option::is_none")]
     pub average_compression_ratio: Option<f64>,
 }
 
@@ -6968,16 +5009,10 @@ pub struct OptimizerStatisticsModel {
 #[serde(default)]
 pub struct OriginShieldConcurrencyStatisticsModel {
     /// The constructed chart of origin shield concurrent requests
-    #[serde(
-        rename = "ConcurrentRequestsChart",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "ConcurrentRequestsChart", skip_serializing_if = "Option::is_none")]
     pub concurrent_requests_chart: Option<std::collections::HashMap<String, i64>>,
     /// The constructed chart of origin shield requests chart
-    #[serde(
-        rename = "QueuedRequestsChart",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "QueuedRequestsChart", skip_serializing_if = "Option::is_none")]
     pub queued_requests_chart: Option<std::collections::HashMap<String, i64>>,
 }
 
@@ -6985,19 +5020,13 @@ pub struct OriginShieldConcurrencyStatisticsModel {
 #[serde(default)]
 pub struct SafeHopStatisticsModel {
     /// The constructed chart of requests retried
-    #[serde(
-        rename = "RequestsRetriedChart",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "RequestsRetriedChart", skip_serializing_if = "Option::is_none")]
     pub requests_retried_chart: Option<std::collections::HashMap<String, i64>>,
     /// The constructed chart of requests saved
     #[serde(rename = "RequestsSavedChart", skip_serializing_if = "Option::is_none")]
     pub requests_saved_chart: Option<std::collections::HashMap<String, i64>>,
     /// The total number of retried requests
-    #[serde(
-        rename = "TotalRequestsRetried",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "TotalRequestsRetried", skip_serializing_if = "Option::is_none")]
     pub total_requests_retried: Option<f64>,
     /// The total number of saved requests
     #[serde(rename = "TotalRequestsSaved", skip_serializing_if = "Option::is_none")]
@@ -7014,22 +5043,13 @@ pub struct StatisticsModel {
     #[serde(rename = "TotalOriginTraffic", skip_serializing_if = "Option::is_none")]
     pub total_origin_traffic: Option<i64>,
     /// The median response time origin
-    #[serde(
-        rename = "AverageOriginResponseTime",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "AverageOriginResponseTime", skip_serializing_if = "Option::is_none")]
     pub average_origin_response_time: Option<i32>,
     /// The constructed origin response time chart data
-    #[serde(
-        rename = "OriginResponseTimeChart",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "OriginResponseTimeChart", skip_serializing_if = "Option::is_none")]
     pub origin_response_time_chart: Option<std::collections::HashMap<String, f64>>,
     /// The total requests served by the response in the given time range
-    #[serde(
-        rename = "TotalRequestsServed",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "TotalRequestsServed", skip_serializing_if = "Option::is_none")]
     pub total_requests_served: Option<i64>,
     /// The average cache hit rate in the response in the given time range
     #[serde(rename = "CacheHitRate", skip_serializing_if = "Option::is_none")]
@@ -7038,52 +5058,31 @@ pub struct StatisticsModel {
     #[serde(rename = "BandwidthUsedChart", skip_serializing_if = "Option::is_none")]
     pub bandwidth_used_chart: Option<std::collections::HashMap<String, f64>>,
     /// The constructed cached bandwdidth used chart data
-    #[serde(
-        rename = "BandwidthCachedChart",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "BandwidthCachedChart", skip_serializing_if = "Option::is_none")]
     pub bandwidth_cached_chart: Option<std::collections::HashMap<String, f64>>,
     /// The constructed cache hit rate chart data
     #[serde(rename = "CacheHitRateChart", skip_serializing_if = "Option::is_none")]
     pub cache_hit_rate_chart: Option<std::collections::HashMap<String, f64>>,
     /// The constructed requests served chart data
-    #[serde(
-        rename = "RequestsServedChart",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "RequestsServedChart", skip_serializing_if = "Option::is_none")]
     pub requests_served_chart: Option<std::collections::HashMap<String, f64>>,
     /// The constructed uncached requests served chart data
-    #[serde(
-        rename = "PullRequestsPulledChart",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "PullRequestsPulledChart", skip_serializing_if = "Option::is_none")]
     pub pull_requests_pulled_chart: Option<std::collections::HashMap<String, f64>>,
     /// The constructed origin shield bandwdidth used chart data
-    #[serde(
-        rename = "OriginShieldBandwidthUsedChart",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "OriginShieldBandwidthUsedChart", skip_serializing_if = "Option::is_none")]
     pub origin_shield_bandwidth_used_chart: Option<std::collections::HashMap<String, f64>>,
     /// The constructed origin shield internal bandwdidth used chart data
-    #[serde(
-        rename = "OriginShieldInternalBandwidthUsedChart",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "OriginShieldInternalBandwidthUsedChart", skip_serializing_if = "Option::is_none")]
     pub origin_shield_internal_bandwidth_used_chart: Option<std::collections::HashMap<String, f64>>,
     /// The constructed origin traffic used chart data
     #[serde(rename = "OriginTrafficChart", skip_serializing_if = "Option::is_none")]
     pub origin_traffic_chart: Option<std::collections::HashMap<String, f64>>,
     /// The constructed user balance history chart data
-    #[serde(
-        rename = "UserBalanceHistoryChart",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "UserBalanceHistoryChart", skip_serializing_if = "Option::is_none")]
     pub user_balance_history_chart: Option<std::collections::HashMap<String, f64>>,
     /// The geo traffic distribution data
-    #[serde(
-        rename = "GeoTrafficDistribution",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "GeoTrafficDistribution", skip_serializing_if = "Option::is_none")]
     pub geo_traffic_distribution: Option<std::collections::HashMap<String, i64>>,
     /// The constructed 3XX error responses chart data
     #[serde(rename = "Error3xxChart", skip_serializing_if = "Option::is_none")]
@@ -7375,10 +5374,7 @@ pub struct LoadBalancerOriginModel {
     #[serde(rename = "StandardOrigin", skip_serializing_if = "Option::is_none")]
     pub standard_origin: Option<StandardOriginModel>,
     /// Magic Containers Origin settings - Required with Magic Containers origin type
-    #[serde(
-        rename = "MagicContainersOrigin",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "MagicContainersOrigin", skip_serializing_if = "Option::is_none")]
     pub magic_containers_origin: Option<MagicContainersOriginModel>,
 }
 
@@ -7459,10 +5455,7 @@ pub struct LoadBalancerOriginCreateModel {
     #[serde(rename = "StandardOrigin", skip_serializing_if = "Option::is_none")]
     pub standard_origin: Option<StandardOriginModel>,
     /// Magic Containers origin settings - required when using the Magic Containers origin type
-    #[serde(
-        rename = "MagicContainersOrigin",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "MagicContainersOrigin", skip_serializing_if = "Option::is_none")]
     pub magic_containers_origin: Option<MagicContainersOriginModel>,
 }
 
@@ -7496,19 +5489,13 @@ pub struct LoadBalancerOriginGroupModel {
     /// 1 = Weighted Random
     /// 2 = Least Connections
     /// 3 = Latency
-    #[serde(
-        rename = "OriginLoadBalancingMethod",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "OriginLoadBalancingMethod", skip_serializing_if = "Option::is_none")]
     pub origin_load_balancing_method: Option<OriginLoadBalancingMethod>,
     /// The list of origins associated with the origin group
     #[serde(rename = "Origins", skip_serializing_if = "Option::is_none")]
     pub origins: Option<Vec<LoadBalancerOriginModel>>,
     /// Health settings for the origin group
-    #[serde(
-        rename = "HealthCheckSettings",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "HealthCheckSettings", skip_serializing_if = "Option::is_none")]
     pub health_check_settings: Option<HealthCheckSettings>,
 }
 
@@ -7546,10 +5533,7 @@ pub struct OriginGroupCreateModel {
     #[serde(rename = "Enabled", skip_serializing_if = "Option::is_none")]
     pub enabled: Option<bool>,
     /// Health check settings for monitoring origins in the group
-    #[serde(
-        rename = "HealthCheckSettings",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "HealthCheckSettings", skip_serializing_if = "Option::is_none")]
     pub health_check_settings: Option<HealthCheckSettings>,
     /// The load balancing method used for selecting origins within the group
     ///
@@ -7557,10 +5541,7 @@ pub struct OriginGroupCreateModel {
     /// 1 = Weighted Random
     /// 2 = Least Connections
     /// 3 = Latency
-    #[serde(
-        rename = "OriginLoadBalancingMethod",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "OriginLoadBalancingMethod", skip_serializing_if = "Option::is_none")]
     pub origin_load_balancing_method: Option<OriginLoadBalancingMethod>,
     /// The latitude of the origin group location
     #[serde(rename = "Latitude", skip_serializing_if = "Option::is_none")]
@@ -7591,10 +5572,7 @@ pub struct LoadBalancerProfileModel {
     /// 1 = Round Robin
     /// 2 = Geolocation
     /// 3 = Lowest Average Latency
-    #[serde(
-        rename = "OriginGroupLoadBalancingMethod",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "OriginGroupLoadBalancingMethod", skip_serializing_if = "Option::is_none")]
     pub origin_group_load_balancing_method: Option<OriginGroupLoadBalancingMethod>,
     /// The sticky session type used for persisting client sessions
     ///
@@ -7647,10 +5625,7 @@ pub struct LoadBalancerSettingsModel {
     /// 1 = Round Robin
     /// 2 = Geolocation
     /// 3 = Lowest Average Latency
-    #[serde(
-        rename = "OriginGroupLoadBalancingMethod",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "OriginGroupLoadBalancingMethod", skip_serializing_if = "Option::is_none")]
     pub origin_group_load_balancing_method: Option<OriginGroupLoadBalancingMethod>,
 }
 
@@ -7661,10 +5636,7 @@ pub struct LoadBalancerStatisticsModel {
     pub summary: Option<LoadBalancerStatisticsSummaryModel>,
     #[serde(rename = "RequestsByOrigin", skip_serializing_if = "Option::is_none")]
     pub requests_by_origin: Option<Vec<LoadBalancerOriginRequestsSeriesModel>>,
-    #[serde(
-        rename = "RequestsByOriginGroup",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "RequestsByOriginGroup", skip_serializing_if = "Option::is_none")]
     pub requests_by_origin_group: Option<Vec<LoadBalancerOriginGroupRequestsSeriesModel>>,
     #[serde(rename = "TrafficByOrigin", skip_serializing_if = "Option::is_none")]
     pub traffic_by_origin: Option<Vec<LoadBalancerOriginRequestsSeriesModel>>,
@@ -7683,17 +5655,11 @@ pub struct LoadBalancerStatisticsSummaryModel {
     pub total_traffic: Option<f64>,
     #[serde(rename = "AverageOriginRttMs", skip_serializing_if = "Option::is_none")]
     pub average_origin_rtt_ms: Option<f64>,
-    #[serde(
-        rename = "AllOriginsExhausted",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "AllOriginsExhausted", skip_serializing_if = "Option::is_none")]
     pub all_origins_exhausted: Option<f64>,
     #[serde(rename = "OriginErrorsServed", skip_serializing_if = "Option::is_none")]
     pub origin_errors_served: Option<f64>,
-    #[serde(
-        rename = "HealthyResponsesServed",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "HealthyResponsesServed", skip_serializing_if = "Option::is_none")]
     pub healthy_responses_served: Option<f64>,
     #[serde(rename = "FailoverCapped", skip_serializing_if = "Option::is_none")]
     pub failover_capped: Option<f64>,
@@ -7773,10 +5739,7 @@ pub struct LoadBalancerAccountSummaryModel {
     pub total_requests: Option<f64>,
     #[serde(rename = "TotalTraffic", skip_serializing_if = "Option::is_none")]
     pub total_traffic: Option<f64>,
-    #[serde(
-        rename = "AttachedPullZoneCount",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "AttachedPullZoneCount", skip_serializing_if = "Option::is_none")]
     pub attached_pull_zone_count: Option<i32>,
 }
 
@@ -7805,15 +5768,9 @@ pub struct LoadBalancerUsageModel {
 #[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
 #[serde(default)]
 pub struct LoadBalancerPricingTierModel {
-    #[serde(
-        rename = "ThresholdFromMillions",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "ThresholdFromMillions", skip_serializing_if = "Option::is_none")]
     pub threshold_from_millions: Option<i64>,
-    #[serde(
-        rename = "ThresholdToMillions",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "ThresholdToMillions", skip_serializing_if = "Option::is_none")]
     pub threshold_to_millions: Option<i64>,
     /// A decimal number, parsed as `f64` (about 15 significant digits).
     #[serde(rename = "PricePerMillion", skip_serializing_if = "Option::is_none")]
@@ -7940,15 +5897,9 @@ pub struct DnsZoneStatisticsModel {
     pub total_queries_served: Option<i64>,
     #[serde(rename = "QueriesServedChart", skip_serializing_if = "Option::is_none")]
     pub queries_served_chart: Option<std::collections::HashMap<String, f64>>,
-    #[serde(
-        rename = "NormalQueriesServedChart",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "NormalQueriesServedChart", skip_serializing_if = "Option::is_none")]
     pub normal_queries_served_chart: Option<std::collections::HashMap<String, f64>>,
-    #[serde(
-        rename = "SmartQueriesServedChart",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "SmartQueriesServedChart", skip_serializing_if = "Option::is_none")]
     pub smart_queries_served_chart: Option<std::collections::HashMap<String, f64>>,
     #[serde(rename = "QueriesByTypeChart", skip_serializing_if = "Option::is_none")]
     pub queries_by_type_chart: Option<std::collections::HashMap<String, i64>>,
@@ -8011,10 +5962,7 @@ pub struct BillingModel {
     #[serde(rename = "ThisMonthCharges", skip_serializing_if = "Option::is_none")]
     pub this_month_charges: Option<f64>,
     /// Last recharge amount balance
-    #[serde(
-        rename = "LastRechargeBalance",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "LastRechargeBalance", skip_serializing_if = "Option::is_none")]
     pub last_recharge_balance: Option<f64>,
     /// The current account balance plus available (unexpired) coupon credit
     #[serde(rename = "AvailableBalance", skip_serializing_if = "Option::is_none")]
@@ -8033,111 +5981,60 @@ pub struct BillingModel {
     #[serde(rename = "BillingRecords", skip_serializing_if = "Option::is_none")]
     pub billing_records: Option<Vec<BillingRecordModel>>,
     /// The constructed billing history chart data
-    #[serde(
-        rename = "BillingHistoryChart",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "BillingHistoryChart", skip_serializing_if = "Option::is_none")]
     pub billing_history_chart: Option<std::collections::HashMap<String, i64>>,
     /// The total charges this month paid for European traffic
-    #[serde(
-        rename = "MonthlyChargesEUTraffic",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "MonthlyChargesEUTraffic", skip_serializing_if = "Option::is_none")]
     pub monthly_charges_eu_traffic: Option<f64>,
     /// The total charges this month paid for North American traffic
-    #[serde(
-        rename = "MonthlyChargesUSTraffic",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "MonthlyChargesUSTraffic", skip_serializing_if = "Option::is_none")]
     pub monthly_charges_us_traffic: Option<f64>,
     /// The total charges this month paid for Asian and Oceanian traffic
-    #[serde(
-        rename = "MonthlyChargesASIATraffic",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "MonthlyChargesASIATraffic", skip_serializing_if = "Option::is_none")]
     pub monthly_charges_asia_traffic: Option<f64>,
     /// The total charges this month paid for African traffic
-    #[serde(
-        rename = "MonthlyChargesAFTraffic",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "MonthlyChargesAFTraffic", skip_serializing_if = "Option::is_none")]
     pub monthly_charges_af_traffic: Option<f64>,
     /// The total charges this month paid for South American traffic
-    #[serde(
-        rename = "MonthlyChargesSATraffic",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "MonthlyChargesSATraffic", skip_serializing_if = "Option::is_none")]
     pub monthly_charges_sa_traffic: Option<f64>,
     /// The total charges this month paid for Edge Storage
-    #[serde(
-        rename = "MonthlyChargesStorage",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "MonthlyChargesStorage", skip_serializing_if = "Option::is_none")]
     pub monthly_charges_storage: Option<f64>,
     /// The total monthly charges for Bunny DNS
     #[serde(rename = "MonthlyChargesDNS", skip_serializing_if = "Option::is_none")]
     pub monthly_charges_dns: Option<f64>,
     /// The monthly charges caused by optimizer.
-    #[serde(
-        rename = "MonthlyChargesOptimizer",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "MonthlyChargesOptimizer", skip_serializing_if = "Option::is_none")]
     pub monthly_charges_optimizer: Option<f64>,
     /// The total monthly charges for Bunny Stream Transcribe
-    #[serde(
-        rename = "MonthlyChargesTranscribe",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "MonthlyChargesTranscribe", skip_serializing_if = "Option::is_none")]
     pub monthly_charges_transcribe: Option<f64>,
     /// The total monthly charges for Bunny Stream Premium Encoding
     ///
     /// A decimal number, parsed as `f64` (about 15 significant digits).
-    #[serde(
-        rename = "MonthlyChargesPremiumEncoding",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "MonthlyChargesPremiumEncoding", skip_serializing_if = "Option::is_none")]
     pub monthly_charges_premium_encoding: Option<f64>,
     /// The monthly charges caused by extra pull zones.
-    #[serde(
-        rename = "MonthlyChargesExtraPullZones",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "MonthlyChargesExtraPullZones", skip_serializing_if = "Option::is_none")]
     pub monthly_charges_extra_pull_zones: Option<f64>,
     /// The monthly charges caused by extra storage zones.
-    #[serde(
-        rename = "MonthlyChargesExtraStorageZones",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "MonthlyChargesExtraStorageZones", skip_serializing_if = "Option::is_none")]
     pub monthly_charges_extra_storage_zones: Option<f64>,
     /// The monthly charges caused by extra DNS zones.
-    #[serde(
-        rename = "MonthlyChargesExtraDnsZones",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "MonthlyChargesExtraDnsZones", skip_serializing_if = "Option::is_none")]
     pub monthly_charges_extra_dns_zones: Option<f64>,
     /// The monthly charges caused by extra video libraries.
-    #[serde(
-        rename = "MonthlyChargesExtraVideoLibraries",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "MonthlyChargesExtraVideoLibraries", skip_serializing_if = "Option::is_none")]
     pub monthly_charges_extra_video_libraries: Option<f64>,
     /// The total monthly charges for Bunny Edge Scripting
-    #[serde(
-        rename = "MonthlyChargesScripting",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "MonthlyChargesScripting", skip_serializing_if = "Option::is_none")]
     pub monthly_charges_scripting: Option<f64>,
     /// The total monthly charges for Bunny Edge Scripting Requests
-    #[serde(
-        rename = "MonthlyChargesScriptingRequests",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "MonthlyChargesScriptingRequests", skip_serializing_if = "Option::is_none")]
     pub monthly_charges_scripting_requests: Option<f64>,
     /// The total monthly charges for Bunny Edge Scripting CPU usage
-    #[serde(
-        rename = "MonthlyChargesScriptingCpu",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "MonthlyChargesScriptingCpu", skip_serializing_if = "Option::is_none")]
     pub monthly_charges_scripting_cpu: Option<f64>,
     /// The total monthly charges for DRM
     #[serde(rename = "MonthlyChargesDrm", skip_serializing_if = "Option::is_none")]
@@ -8145,10 +6042,7 @@ pub struct BillingModel {
     /// The total monthly charges for Magic Containers
     ///
     /// A decimal number, parsed as `f64` (about 15 significant digits).
-    #[serde(
-        rename = "MonthlyChargesMagicContainers",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "MonthlyChargesMagicContainers", skip_serializing_if = "Option::is_none")]
     pub monthly_charges_magic_containers: Option<f64>,
     /// The monthly charges and usage for Magic Containers CPU
     #[serde(rename = "MonthlyMcCpu", skip_serializing_if = "Option::is_none")]
@@ -8160,16 +6054,10 @@ pub struct BillingModel {
     #[serde(rename = "MonthlyMcIp", skip_serializing_if = "Option::is_none")]
     pub monthly_mc_ip: Option<UsageBreakdown>,
     /// The monthly charges and usage for Magic Containers Ingress Traffic
-    #[serde(
-        rename = "MonthlyMcIngressTraffic",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "MonthlyMcIngressTraffic", skip_serializing_if = "Option::is_none")]
     pub monthly_mc_ingress_traffic: Option<UsageBreakdown>,
     /// The monthly charges and usage for Magic Containers Egress Traffic
-    #[serde(
-        rename = "MonthlyMcEgressTraffic",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "MonthlyMcEgressTraffic", skip_serializing_if = "Option::is_none")]
     pub monthly_mc_egress_traffic: Option<UsageBreakdown>,
     /// The monthly charges and usage for Magic Containers Persistent Volumes
     #[serde(rename = "MonthlyMcVolumes", skip_serializing_if = "Option::is_none")]
@@ -8177,26 +6065,17 @@ pub struct BillingModel {
     /// The total monthly charges for Shield
     ///
     /// A decimal number, parsed as `f64` (about 15 significant digits).
-    #[serde(
-        rename = "MonthlyChargesShield",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "MonthlyChargesShield", skip_serializing_if = "Option::is_none")]
     pub monthly_charges_shield: Option<f64>,
     /// The total monthly charges for Taxes
     ///
     /// A decimal number, parsed as `f64` (about 15 significant digits).
-    #[serde(
-        rename = "MonthlyChargesTaxes",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "MonthlyChargesTaxes", skip_serializing_if = "Option::is_none")]
     pub monthly_charges_taxes: Option<f64>,
     /// The total monthly charges for WebSockets
     ///
     /// A decimal number, parsed as `f64` (about 15 significant digits).
-    #[serde(
-        rename = "MonthlyChargesWebSockets",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "MonthlyChargesWebSockets", skip_serializing_if = "Option::is_none")]
     pub monthly_charges_web_sockets: Option<f64>,
     /// The total monthly charges for DB
     ///
@@ -8206,10 +6085,7 @@ pub struct BillingModel {
     /// The total monthly charges for Load Balancer
     ///
     /// A decimal number, parsed as `f64` (about 15 significant digits).
-    #[serde(
-        rename = "MonthlyChargesLoadBalancer",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "MonthlyChargesLoadBalancer", skip_serializing_if = "Option::is_none")]
     pub monthly_charges_load_balancer: Option<f64>,
     /// The monthly charges and usage for BunnyDB row writes
     #[serde(rename = "MonthlyDBWrites", skip_serializing_if = "Option::is_none")]
@@ -8226,91 +6102,49 @@ pub struct BillingModel {
     /// The total monthly charges for AI Gateway
     ///
     /// A decimal number, parsed as `f64` (about 15 significant digits).
-    #[serde(
-        rename = "MonthlyChargesAiGateway",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "MonthlyChargesAiGateway", skip_serializing_if = "Option::is_none")]
     pub monthly_charges_ai_gateway: Option<f64>,
     /// The monthly charges and usage for AI Gateway input tokens
-    #[serde(
-        rename = "MonthlyAiGatewayInputTokens",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "MonthlyAiGatewayInputTokens", skip_serializing_if = "Option::is_none")]
     pub monthly_ai_gateway_input_tokens: Option<UsageBreakdown>,
     /// The monthly charges and usage for AI Gateway output tokens
-    #[serde(
-        rename = "MonthlyAiGatewayOutputTokens",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "MonthlyAiGatewayOutputTokens", skip_serializing_if = "Option::is_none")]
     pub monthly_ai_gateway_output_tokens: Option<UsageBreakdown>,
     /// The monthly charges and usage for AI Gateway cached tokens
-    #[serde(
-        rename = "MonthlyAiGatewayCachedTokens",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "MonthlyAiGatewayCachedTokens", skip_serializing_if = "Option::is_none")]
     pub monthly_ai_gateway_cached_tokens: Option<UsageBreakdown>,
     /// The monthly AI Gateway charges that aren't for input, output or cached tokens, and the number of requests that had them
-    #[serde(
-        rename = "MonthlyAiGatewayOtherCharges",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "MonthlyAiGatewayOtherCharges", skip_serializing_if = "Option::is_none")]
     pub monthly_ai_gateway_other_charges: Option<UsageBreakdown>,
     /// Total bandwidth used by the account during this month.
-    #[serde(
-        rename = "MonthlyBandwidthUsed",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "MonthlyBandwidthUsed", skip_serializing_if = "Option::is_none")]
     pub monthly_bandwidth_used: Option<i64>,
     /// Total number of Bunny DNS smart queries served this month.
-    #[serde(
-        rename = "MonthlyDnsSmartQueriesServed",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "MonthlyDnsSmartQueriesServed", skip_serializing_if = "Option::is_none")]
     pub monthly_dns_smart_queries_served: Option<i64>,
     /// Total number of Bunny DNS normal queries served this month.
-    #[serde(
-        rename = "MonthlyDnsNormalQueriesServed",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "MonthlyDnsNormalQueriesServed", skip_serializing_if = "Option::is_none")]
     pub monthly_dns_normal_queries_served: Option<i64>,
     /// Total minutes used for Bunny Stream Transcribe this month.
-    #[serde(
-        rename = "MonthlyTranscriptionMinutes",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "MonthlyTranscriptionMinutes", skip_serializing_if = "Option::is_none")]
     pub monthly_transcription_minutes: Option<i64>,
     /// Total billable minutes used for Bunny Stream Premium Encoding this month.
-    #[serde(
-        rename = "MonthlyPremiumEncodingBillableMinutes",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "MonthlyPremiumEncodingBillableMinutes", skip_serializing_if = "Option::is_none")]
     pub monthly_premium_encoding_billable_minutes: Option<i64>,
     /// DRM (enterprise) licenses issued this month.
-    #[serde(
-        rename = "MonthlyDRMLicensesIssued",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "MonthlyDRMLicensesIssued", skip_serializing_if = "Option::is_none")]
     pub monthly_drm_licenses_issued: Option<i64>,
     /// Total number of edge script requests this month.
-    #[serde(
-        rename = "MonthlyScriptingRequests",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "MonthlyScriptingRequests", skip_serializing_if = "Option::is_none")]
     pub monthly_scripting_requests: Option<i64>,
     /// Total edge script CPU time (milliseconds) used this month.
-    #[serde(
-        rename = "MonthlyScriptingCpuTime",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "MonthlyScriptingCpuTime", skip_serializing_if = "Option::is_none")]
     pub monthly_scripting_cpu_time: Option<i64>,
     /// Determines if billing is currently enabled for this user.
     #[serde(rename = "BillingEnabled", skip_serializing_if = "Option::is_none")]
     pub billing_enabled: Option<bool>,
     /// Determines the minimum monthly commit of the user.
-    #[serde(
-        rename = "MinimumMonthlyCommit",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "MinimumMonthlyCommit", skip_serializing_if = "Option::is_none")]
     pub minimum_monthly_commit: Option<f64>,
     /// The VAT rate for the user's account.
     ///
@@ -8323,90 +6157,54 @@ pub struct BillingModel {
     #[serde(rename = "NextMonthVATRate", skip_serializing_if = "Option::is_none")]
     pub next_month_vat_rate: Option<f64>,
     /// If an automatic payment method is configured, this will contain the image url of the payment method
-    #[serde(
-        rename = "AutomaticPaymentImageUrl",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "AutomaticPaymentImageUrl", skip_serializing_if = "Option::is_none")]
     pub automatic_payment_image_url: Option<String>,
     /// If an automatic payment method is configured with a credit card, this will contain the name of the payment credit card
-    #[serde(
-        rename = "AutomaticPaymentCardType",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "AutomaticPaymentCardType", skip_serializing_if = "Option::is_none")]
     pub automatic_payment_card_type: Option<String>,
     /// If an automatic payment method is configured, this will contain the identifier of the payment method
-    #[serde(
-        rename = "AutomaticPaymentIdentifier",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "AutomaticPaymentIdentifier", skip_serializing_if = "Option::is_none")]
     pub automatic_payment_identifier: Option<String>,
     /// If an automatic payments are configured, this contains the payment amount that will be made during an automatic recharge
     ///
     /// A decimal number, parsed as `f64` (about 15 significant digits).
-    #[serde(
-        rename = "AutomaticPaymentAmount",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "AutomaticPaymentAmount", skip_serializing_if = "Option::is_none")]
     pub automatic_payment_amount: Option<f64>,
     /// If an automatic payments are configured, this contains the account balance amount that will trigger an automatic recharge
     ///
     /// A decimal number, parsed as `f64` (about 15 significant digits).
-    #[serde(
-        rename = "AutomaticRechargeTreshold",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "AutomaticRechargeTreshold", skip_serializing_if = "Option::is_none")]
     pub automatic_recharge_treshold: Option<f64>,
     /// Determines if automatic recharge is currently enabled.
-    #[serde(
-        rename = "AutomaticRechargeEnabled",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "AutomaticRechargeEnabled", skip_serializing_if = "Option::is_none")]
     pub automatic_recharge_enabled: Option<bool>,
     /// Determines the number of failed automatic recharges that the system made since the last successful payment.
-    #[serde(
-        rename = "AutomaticPaymentFailureCount",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "AutomaticPaymentFailureCount", skip_serializing_if = "Option::is_none")]
     pub automatic_payment_failure_count: Option<i32>,
     /// Contains the list of saved payment methods on the user's account
-    #[serde(
-        rename = "SavedPaymentMethods",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "SavedPaymentMethods", skip_serializing_if = "Option::is_none")]
     pub saved_payment_methods: Option<Vec<BillingSavedPaymentMethod>>,
     /// The account wide pricing discount for EU and US region.
     #[serde(rename = "EUUSDiscount", skip_serializing_if = "Option::is_none")]
     pub euus_discount: Option<i32>,
     /// The account wide pricing discount for South America region.
-    #[serde(
-        rename = "SouthAmericaDiscount",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "SouthAmericaDiscount", skip_serializing_if = "Option::is_none")]
     pub south_america_discount: Option<i32>,
     /// The account wide pricing discount for Africa region.
     #[serde(rename = "AfricaDiscount", skip_serializing_if = "Option::is_none")]
     pub africa_discount: Option<i32>,
     /// The account wide pricing discount for Asia & Oceania region.
-    #[serde(
-        rename = "AsiaOceaniaDiscount",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "AsiaOceaniaDiscount", skip_serializing_if = "Option::is_none")]
     pub asia_oceania_discount: Option<i32>,
     /// Optimizer monthly price per pull zone for this account (unless overridden on pull zone level).
     ///
     /// A decimal number, parsed as `f64` (about 15 significant digits).
-    #[serde(
-        rename = "OptimizerMonthlyPrice",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "OptimizerMonthlyPrice", skip_serializing_if = "Option::is_none")]
     pub optimizer_monthly_price: Option<f64>,
     /// DRM (Enterprise) base monthly price per video library.
     ///
     /// A decimal number, parsed as `f64` (about 15 significant digits).
-    #[serde(
-        rename = "DrmBaseMonthlyPrice",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "DrmBaseMonthlyPrice", skip_serializing_if = "Option::is_none")]
     pub drm_base_monthly_price: Option<f64>,
     /// DRM (Enterprise) cost per license or default pricing tier applied if null.
     ///
@@ -8449,16 +6247,10 @@ pub struct BillingRecordModel {
     #[serde(rename = "InvoiceAvailable", skip_serializing_if = "Option::is_none")]
     pub invoice_available: Option<bool>,
     /// The URL where the invoice or document can be downloaded. Null if this is not available.
-    #[serde(
-        rename = "DocumentDownloadUrl",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "DocumentDownloadUrl", skip_serializing_if = "Option::is_none")]
     pub document_download_url: Option<String>,
     /// The URL where the document with product usage breakdown can be downloaded. Null if this is not available.
-    #[serde(
-        rename = "DetailedDocumentDownloadUrl",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "DetailedDocumentDownloadUrl", skip_serializing_if = "Option::is_none")]
     pub detailed_document_download_url: Option<String>,
 }
 
@@ -8492,8 +6284,10 @@ pub struct UsageBreakdown {
     #[serde(rename = "Usage", skip_serializing_if = "Option::is_none")]
     pub usage: Option<f64>,
     /// The billed quantity for the related product
+    ///
+    /// A decimal number, parsed as `f64` (about 15 significant digits).
     #[serde(rename = "TotalUnits", skip_serializing_if = "Option::is_none")]
-    pub total_units: Option<i64>,
+    pub total_units: Option<f64>,
     /// Measuring Unit for TotalUnits (e.g. Rows, GB, Seconds, Bytes, Block-seconds)
     #[serde(rename = "MeasuringUnit", skip_serializing_if = "Option::is_none")]
     pub measuring_unit: Option<String>,
@@ -8534,15 +6328,9 @@ pub struct PaymentRequestModel {
     pub date_paid: Option<String>,
     #[serde(rename = "BillingInvoiceId", skip_serializing_if = "Option::is_none")]
     pub billing_invoice_id: Option<i64>,
-    #[serde(
-        rename = "BillingInvoiceDownloadLink",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "BillingInvoiceDownloadLink", skip_serializing_if = "Option::is_none")]
     pub billing_invoice_download_link: Option<String>,
-    #[serde(
-        rename = "BankTransferReference",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "BankTransferReference", skip_serializing_if = "Option::is_none")]
     pub bank_transfer_reference: Option<String>,
     /// A decimal number, parsed as `f64` (about 15 significant digits).
     #[serde(rename = "TaxRate", skip_serializing_if = "Option::is_none")]
@@ -8564,10 +6352,7 @@ pub struct BillingSummaryItem {
     #[serde(rename = "MonthlyUsage", skip_serializing_if = "Option::is_none")]
     pub monthly_usage: Option<f64>,
     /// The total monthly bandwidth used by the pull zone
-    #[serde(
-        rename = "MonthlyBandwidthUsed",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "MonthlyBandwidthUsed", skip_serializing_if = "Option::is_none")]
     pub monthly_bandwidth_used: Option<i64>,
 }
 
@@ -8609,36 +6394,21 @@ pub struct BillingAffiliateDetailsModel {
     /// The bonus percentage given when claiming affiliate balance as bunny credits
     ///
     /// A decimal number, parsed as `f64` (about 15 significant digits).
-    #[serde(
-        rename = "ClaimBonusPercentage",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "ClaimBonusPercentage", skip_serializing_if = "Option::is_none")]
     pub claim_bonus_percentage: Option<f64>,
     /// The smallest cash payout that can be requested
     ///
     /// A decimal number, parsed as `f64` (about 15 significant digits).
-    #[serde(
-        rename = "MinimumPayoutAmount",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "MinimumPayoutAmount", skip_serializing_if = "Option::is_none")]
     pub minimum_payout_amount: Option<f64>,
     /// The constructed affiliate click history chart data
-    #[serde(
-        rename = "AffiliateClicksChart",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "AffiliateClicksChart", skip_serializing_if = "Option::is_none")]
     pub affiliate_clicks_chart: Option<std::collections::HashMap<String, i64>>,
     /// The constructed affiliate signup history chart data
-    #[serde(
-        rename = "AffiliateSignupsChart",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "AffiliateSignupsChart", skip_serializing_if = "Option::is_none")]
     pub affiliate_signups_chart: Option<std::collections::HashMap<String, i64>>,
     /// The constructed affiliate conversion history chart data
-    #[serde(
-        rename = "AffiliateConversionsChart",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "AffiliateConversionsChart", skip_serializing_if = "Option::is_none")]
     pub affiliate_conversions_chart: Option<std::collections::HashMap<String, i64>>,
 }
 
@@ -8773,10 +6543,7 @@ pub struct ListStorageZonesQuery {
 #[derive(Debug, Clone, Default, PartialEq, Serialize)]
 pub struct DeleteStorageZoneQuery {
     /// Deletes all pull zones linked to this storage zone (default behavior)
-    #[serde(
-        rename = "deleteLinkedPullZones",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "deleteLinkedPullZones", skip_serializing_if = "Option::is_none")]
     pub delete_linked_pull_zones: Option<bool>,
 }
 
@@ -8933,10 +6700,7 @@ pub struct GetStatisticsQuery {
     #[serde(rename = "exactRange", skip_serializing_if = "Option::is_none")]
     pub exact_range: Option<bool>,
     /// Load Origin Response Times
-    #[serde(
-        rename = "loadOriginResponseTimes",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "loadOriginResponseTimes", skip_serializing_if = "Option::is_none")]
     pub load_origin_response_times: Option<bool>,
     /// Load Origin Traffic
     #[serde(rename = "loadOriginTraffic", skip_serializing_if = "Option::is_none")]
@@ -8948,22 +6712,13 @@ pub struct GetStatisticsQuery {
     #[serde(rename = "loadBandwidthUsed", skip_serializing_if = "Option::is_none")]
     pub load_bandwidth_used: Option<bool>,
     /// Load Origin Shield Bandwidth
-    #[serde(
-        rename = "loadOriginShieldBandwidth",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "loadOriginShieldBandwidth", skip_serializing_if = "Option::is_none")]
     pub load_origin_shield_bandwidth: Option<bool>,
     /// Load Geographic Traffic Distribution
-    #[serde(
-        rename = "loadGeographicTrafficDistribution",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "loadGeographicTrafficDistribution", skip_serializing_if = "Option::is_none")]
     pub load_geographic_traffic_distribution: Option<bool>,
     /// Load User Balance History
-    #[serde(
-        rename = "loadUserBalanceHistory",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "loadUserBalanceHistory", skip_serializing_if = "Option::is_none")]
     pub load_user_balance_history: Option<bool>,
 }
 
@@ -9060,3 +6815,5 @@ pub struct ListApiKeysQuery {
     #[serde(rename = "perPage", skip_serializing_if = "Option::is_none")]
     pub per_page: Option<i32>,
 }
+
+

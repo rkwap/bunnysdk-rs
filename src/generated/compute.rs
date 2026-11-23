@@ -4,12 +4,12 @@
 //! Do not edit by hand.
 
 #![allow(
-    deprecated,
-    clippy::all,
-    rustdoc::bare_urls,
-    rustdoc::broken_intra_doc_links,
-    rustdoc::invalid_html_tags,
-    rustdoc::invalid_rust_codeblocks
+deprecated,
+clippy::all,
+rustdoc::bare_urls,
+rustdoc::broken_intra_doc_links,
+rustdoc::invalid_html_tags,
+rustdoc::invalid_rust_codeblocks
 )]
 
 use serde::{Deserialize, Serialize};
@@ -22,21 +22,19 @@ pub const BASE_URL: &str = "https://api.bunny.net";
 /// Authenticates with your account API key. Cheap to clone; clones share the connection pool.
 #[derive(Debug, Clone)]
 pub struct ComputeClient {
-    pub(crate) transport: crate::transport::Transport,
+pub(crate) transport: crate::transport::Transport,
 }
 
 impl ComputeClient {
-    /// Creates a client authenticated with your account API key.
-    pub fn new(api_key: &str) -> crate::Result<Self> {
-        Self::with_config(api_key, crate::Config::default())
-    }
+/// Creates a client authenticated with your account API key.
+pub fn new(api_key: &str) -> crate::Result<Self> {
+Self::with_config(api_key, crate::Config::default())
+}
 
-    /// Like [`ComputeClient::new`], with custom settings.
-    pub fn with_config(api_key: &str, config: crate::Config) -> crate::Result<Self> {
-        Ok(Self {
-            transport: crate::transport::Transport::new(api_key, BASE_URL, config)?,
-        })
-    }
+/// Like [`ComputeClient::new`], with custom settings.
+pub fn with_config(api_key: &str, config: crate::Config) -> crate::Result<Self> {
+Ok(Self { transport: crate::transport::Transport::new(api_key, BASE_URL, config)? })
+}
 
     /// Get Code
     ///
@@ -44,26 +42,17 @@ impl ComputeClient {
     ///
     /// `GET /compute/script/{id}/code`
     pub async fn get_code(&self, id: i64) -> crate::Result<EdgeScriptCodeModel> {
-        let request = self.transport.request(
-            reqwest::Method::GET,
-            &format!("/compute/script/{}/code", crate::transport::segment(id)),
-        );
-        self.transport.json(request).await
-    }
+let request = self.transport.request(reqwest::Method::GET, &format!("/compute/script/{}/code", crate::transport::segment(id)));
+self.transport.json(request).await
+}
 
     /// Set Code
     ///
     /// `POST /compute/script/{id}/code`
     pub async fn set_code(&self, id: i64, body: &UpdateEdgeScriptCodeModel) -> crate::Result<()> {
-        let request = self
-            .transport
-            .request(
-                reqwest::Method::POST,
-                &format!("/compute/script/{}/code", crate::transport::segment(id)),
-            )
-            .json(body);
-        self.transport.empty(request).await
-    }
+let request = self.transport.request(reqwest::Method::POST, &format!("/compute/script/{}/code", crate::transport::segment(id))).json(body);
+self.transport.empty(request).await
+}
 
     /// Get Edge Script
     ///
@@ -71,223 +60,113 @@ impl ComputeClient {
     ///
     /// `GET /compute/script/{id}`
     pub async fn get_edge_script(&self, id: i64) -> crate::Result<EdgeScriptModel> {
-        let request = self.transport.request(
-            reqwest::Method::GET,
-            &format!("/compute/script/{}", crate::transport::segment(id)),
-        );
-        self.transport.json(request).await
-    }
+let request = self.transport.request(reqwest::Method::GET, &format!("/compute/script/{}", crate::transport::segment(id)));
+self.transport.json(request).await
+}
 
     /// Update Edge Script
     ///
     /// Returns: The script with the requested ID
     ///
     /// `POST /compute/script/{id}`
-    pub async fn update_edge_script(
-        &self,
-        id: i64,
-        body: &UpdateEdgeScriptModel,
-    ) -> crate::Result<EdgeScriptModel> {
-        let request = self
-            .transport
-            .request(
-                reqwest::Method::POST,
-                &format!("/compute/script/{}", crate::transport::segment(id)),
-            )
-            .json(body);
-        self.transport.json(request).await
-    }
+    pub async fn update_edge_script(&self, id: i64, body: &UpdateEdgeScriptModel) -> crate::Result<EdgeScriptModel> {
+let request = self.transport.request(reqwest::Method::POST, &format!("/compute/script/{}", crate::transport::segment(id))).json(body);
+self.transport.json(request).await
+}
 
     /// Delete Edge Script
     ///
     /// `DELETE /compute/script/{id}`
-    pub async fn delete_edge_script(
-        &self,
-        id: i64,
-        query: &DeleteEdgeScriptQuery,
-    ) -> crate::Result<()> {
-        let request = self.transport.request_with_query(
-            reqwest::Method::DELETE,
-            &format!("/compute/script/{}", crate::transport::segment(id)),
-            query,
-        )?;
-        self.transport.empty(request).await
-    }
+    pub async fn delete_edge_script(&self, id: i64, query: &DeleteEdgeScriptQuery) -> crate::Result<()> {
+let request = self.transport.request_with_query(reqwest::Method::DELETE, &format!("/compute/script/{}", crate::transport::segment(id)), query)?;
+self.transport.empty(request).await
+}
 
     /// Get Edge Script Statistics
     ///
     /// Returns: Returns the statistics for the Edge Script with the given ID
     ///
     /// `GET /compute/script/{id}/statistics`
-    pub async fn get_edge_script_statistics(
-        &self,
-        id: i64,
-        query: &GetEdgeScriptStatisticsQuery,
-    ) -> crate::Result<EdgeScriptStatisticsModel> {
-        let request = self.transport.request_with_query(
-            reqwest::Method::GET,
-            &format!(
-                "/compute/script/{}/statistics",
-                crate::transport::segment(id)
-            ),
-            query,
-        )?;
-        self.transport.json(request).await
-    }
+    pub async fn get_edge_script_statistics(&self, id: i64, query: &GetEdgeScriptStatisticsQuery) -> crate::Result<EdgeScriptStatisticsModel> {
+let request = self.transport.request_with_query(reqwest::Method::GET, &format!("/compute/script/{}/statistics", crate::transport::segment(id)), query)?;
+self.transport.json(request).await
+}
 
     /// List Edge Scripts
     ///
     /// Returns: The list of scripts on the account.
     ///
     /// `GET /compute/script`
-    pub async fn list_edge_scripts(
-        &self,
-        query: &ListEdgeScriptsQuery,
-    ) -> crate::Result<PaginationListModelOfEdgeScriptModel> {
-        let request =
-            self.transport
-                .request_with_query(reqwest::Method::GET, "/compute/script", query)?;
-        self.transport
-            .json_list(request, crate::transport::ListShape::Page("Items"))
-            .await
-    }
+    pub async fn list_edge_scripts(&self, query: &ListEdgeScriptsQuery) -> crate::Result<PaginationListModelOfEdgeScriptModel> {
+let request = self.transport.request_with_query(reqwest::Method::GET, "/compute/script", query)?;
+self.transport.json_list(request, crate::transport::ListShape::Page("Items")).await
+}
 
     /// Add Edge Script
     ///
     /// Returns: The script was successfully added
     ///
     /// `POST /compute/script`
-    pub async fn add_edge_script(
-        &self,
-        body: &AddEdgeScriptModel,
-    ) -> crate::Result<EdgeScriptModel> {
-        let request = self
-            .transport
-            .request(reqwest::Method::POST, "/compute/script")
-            .json(body);
-        self.transport.json(request).await
-    }
+    pub async fn add_edge_script(&self, body: &AddEdgeScriptModel) -> crate::Result<EdgeScriptModel> {
+let request = self.transport.request(reqwest::Method::POST, "/compute/script").json(body);
+self.transport.json(request).await
+}
 
     /// Rotate Deployment Key
     ///
     /// `POST /compute/script/{id}/deploymentKey/rotate`
     pub async fn rotate_deployment_key(&self, id: i64) -> crate::Result<()> {
-        let request = self.transport.request(
-            reqwest::Method::POST,
-            &format!(
-                "/compute/script/{}/deploymentKey/rotate",
-                crate::transport::segment(id)
-            ),
-        );
-        self.transport.empty(request).await
-    }
+let request = self.transport.request(reqwest::Method::POST, &format!("/compute/script/{}/deploymentKey/rotate", crate::transport::segment(id)));
+self.transport.empty(request).await
+}
 
     /// Add Variable
     ///
     /// Returns: The script with the requested ID
     ///
     /// `POST /compute/script/{id}/variables/add`
-    pub async fn add_variable(
-        &self,
-        id: i64,
-        body: &AddEdgeScriptVariableModel,
-    ) -> crate::Result<EdgeScriptVariableModel> {
-        let request = self
-            .transport
-            .request(
-                reqwest::Method::POST,
-                &format!(
-                    "/compute/script/{}/variables/add",
-                    crate::transport::segment(id)
-                ),
-            )
-            .json(body);
-        self.transport.json(request).await
-    }
+    pub async fn add_variable(&self, id: i64, body: &AddEdgeScriptVariableModel) -> crate::Result<EdgeScriptVariableModel> {
+let request = self.transport.request(reqwest::Method::POST, &format!("/compute/script/{}/variables/add", crate::transport::segment(id))).json(body);
+self.transport.json(request).await
+}
 
     /// Get Variable
     ///
     /// Returns: The script with the requested ID
     ///
     /// `GET /compute/script/{id}/variables/{variableId}`
-    pub async fn get_variable(
-        &self,
-        id: i64,
-        variable_id: i64,
-    ) -> crate::Result<EdgeScriptVariableModel> {
-        let request = self.transport.request(
-            reqwest::Method::GET,
-            &format!(
-                "/compute/script/{}/variables/{}",
-                crate::transport::segment(id),
-                crate::transport::segment(variable_id)
-            ),
-        );
-        self.transport.json(request).await
-    }
+    pub async fn get_variable(&self, id: i64, variable_id: i64) -> crate::Result<EdgeScriptVariableModel> {
+let request = self.transport.request(reqwest::Method::GET, &format!("/compute/script/{}/variables/{}", crate::transport::segment(id), crate::transport::segment(variable_id)));
+self.transport.json(request).await
+}
 
     /// Update Variable
     ///
     /// Returns: The script with the requested ID
     ///
     /// `POST /compute/script/{id}/variables/{variableId}`
-    pub async fn update_variable(
-        &self,
-        id: i64,
-        variable_id: i64,
-        body: &UpdateEdgeScriptVariableModel,
-    ) -> crate::Result<EdgeScriptVariableModel> {
-        let request = self
-            .transport
-            .request(
-                reqwest::Method::POST,
-                &format!(
-                    "/compute/script/{}/variables/{}",
-                    crate::transport::segment(id),
-                    crate::transport::segment(variable_id)
-                ),
-            )
-            .json(body);
-        self.transport.json(request).await
-    }
+    pub async fn update_variable(&self, id: i64, variable_id: i64, body: &UpdateEdgeScriptVariableModel) -> crate::Result<EdgeScriptVariableModel> {
+let request = self.transport.request(reqwest::Method::POST, &format!("/compute/script/{}/variables/{}", crate::transport::segment(id), crate::transport::segment(variable_id))).json(body);
+self.transport.json(request).await
+}
 
     /// Delete Variable
     ///
     /// `DELETE /compute/script/{id}/variables/{variableId}`
     pub async fn delete_variable(&self, id: i64, variable_id: i64) -> crate::Result<()> {
-        let request = self.transport.request(
-            reqwest::Method::DELETE,
-            &format!(
-                "/compute/script/{}/variables/{}",
-                crate::transport::segment(id),
-                crate::transport::segment(variable_id)
-            ),
-        );
-        self.transport.empty(request).await
-    }
+let request = self.transport.request(reqwest::Method::DELETE, &format!("/compute/script/{}/variables/{}", crate::transport::segment(id), crate::transport::segment(variable_id)));
+self.transport.empty(request).await
+}
 
     /// Upsert Variable
     ///
     /// Returns: The variable was created
     ///
     /// `PUT /compute/script/{id}/variables`
-    pub async fn upsert_variable(
-        &self,
-        id: i64,
-        body: &UpsertEdgeScriptVariableModel,
-    ) -> crate::Result<Option<EdgeScriptVariableModel>> {
-        let request = self
-            .transport
-            .request(
-                reqwest::Method::PUT,
-                &format!(
-                    "/compute/script/{}/variables",
-                    crate::transport::segment(id)
-                ),
-            )
-            .json(body);
-        self.transport.json(request).await
-    }
+    pub async fn upsert_variable(&self, id: i64, body: &UpsertEdgeScriptVariableModel) -> crate::Result<Option<EdgeScriptVariableModel>> {
+let request = self.transport.request(reqwest::Method::PUT, &format!("/compute/script/{}/variables", crate::transport::segment(id))).json(body);
+self.transport.json(request).await
+}
 
     /// List Secrets
     ///
@@ -295,92 +174,47 @@ impl ComputeClient {
     ///
     /// `GET /compute/script/{id}/secrets`
     pub async fn list_secrets(&self, id: i64) -> crate::Result<ListEdgeScriptSecretsModel> {
-        let request = self.transport.request(
-            reqwest::Method::GET,
-            &format!("/compute/script/{}/secrets", crate::transport::segment(id)),
-        );
-        self.transport.json(request).await
-    }
+let request = self.transport.request(reqwest::Method::GET, &format!("/compute/script/{}/secrets", crate::transport::segment(id)));
+self.transport.json(request).await
+}
 
     /// Upsert Secret
     ///
     /// Returns: A new secret was created
     ///
     /// `PUT /compute/script/{id}/secrets`
-    pub async fn upsert_secret(
-        &self,
-        id: i64,
-        body: &EdgeScriptUpsertSecretModel,
-    ) -> crate::Result<Option<EdgeScriptSecretModel>> {
-        let request = self
-            .transport
-            .request(
-                reqwest::Method::PUT,
-                &format!("/compute/script/{}/secrets", crate::transport::segment(id)),
-            )
-            .json(body);
-        self.transport.json(request).await
-    }
+    pub async fn upsert_secret(&self, id: i64, body: &EdgeScriptUpsertSecretModel) -> crate::Result<Option<EdgeScriptSecretModel>> {
+let request = self.transport.request(reqwest::Method::PUT, &format!("/compute/script/{}/secrets", crate::transport::segment(id))).json(body);
+self.transport.json(request).await
+}
 
     /// Add Secret
     ///
     /// Returns: The script with the requested ID
     ///
     /// `POST /compute/script/{id}/secrets`
-    pub async fn add_secret(
-        &self,
-        id: i64,
-        body: &EdgeScriptAddSecretModel,
-    ) -> crate::Result<EdgeScriptSecretModel> {
-        let request = self
-            .transport
-            .request(
-                reqwest::Method::POST,
-                &format!("/compute/script/{}/secrets", crate::transport::segment(id)),
-            )
-            .json(body);
-        self.transport.json(request).await
-    }
+    pub async fn add_secret(&self, id: i64, body: &EdgeScriptAddSecretModel) -> crate::Result<EdgeScriptSecretModel> {
+let request = self.transport.request(reqwest::Method::POST, &format!("/compute/script/{}/secrets", crate::transport::segment(id))).json(body);
+self.transport.json(request).await
+}
 
     /// Update Secret
     ///
     /// Returns: The script with the requested ID
     ///
     /// `POST /compute/script/{id}/secrets/{secretId}`
-    pub async fn update_secret(
-        &self,
-        id: i64,
-        secret_id: i64,
-        body: &EdgeScriptUpdateSecretModel,
-    ) -> crate::Result<EdgeScriptSecretModel> {
-        let request = self
-            .transport
-            .request(
-                reqwest::Method::POST,
-                &format!(
-                    "/compute/script/{}/secrets/{}",
-                    crate::transport::segment(id),
-                    crate::transport::segment(secret_id)
-                ),
-            )
-            .json(body);
-        self.transport.json(request).await
-    }
+    pub async fn update_secret(&self, id: i64, secret_id: i64, body: &EdgeScriptUpdateSecretModel) -> crate::Result<EdgeScriptSecretModel> {
+let request = self.transport.request(reqwest::Method::POST, &format!("/compute/script/{}/secrets/{}", crate::transport::segment(id), crate::transport::segment(secret_id))).json(body);
+self.transport.json(request).await
+}
 
     /// Delete Secret
     ///
     /// `DELETE /compute/script/{id}/secrets/{secretId}`
     pub async fn delete_secret(&self, id: i64, secret_id: i64) -> crate::Result<()> {
-        let request = self.transport.request(
-            reqwest::Method::DELETE,
-            &format!(
-                "/compute/script/{}/secrets/{}",
-                crate::transport::segment(id),
-                crate::transport::segment(secret_id)
-            ),
-        );
-        self.transport.empty(request).await
-    }
+let request = self.transport.request(reqwest::Method::DELETE, &format!("/compute/script/{}/secrets/{}", crate::transport::segment(id), crate::transport::segment(secret_id)));
+self.transport.empty(request).await
+}
 
     /// Get Active Release
     ///
@@ -388,76 +222,36 @@ impl ComputeClient {
     ///
     /// `GET /compute/script/{id}/releases/active`
     pub async fn get_active_release(&self, id: i64) -> crate::Result<EdgeScriptReleaseModel> {
-        let request = self.transport.request(
-            reqwest::Method::GET,
-            &format!(
-                "/compute/script/{}/releases/active",
-                crate::transport::segment(id)
-            ),
-        );
-        self.transport.json(request).await
-    }
+let request = self.transport.request(reqwest::Method::GET, &format!("/compute/script/{}/releases/active", crate::transport::segment(id)));
+self.transport.json(request).await
+}
 
     /// Get Releases
     ///
     /// Returns: Published releases of the script with the requested ID
     ///
     /// `GET /compute/script/{id}/releases`
-    pub async fn get_releases(
-        &self,
-        id: i64,
-        query: &GetReleasesQuery,
-    ) -> crate::Result<PaginationListModelOfEdgeScriptReleaseModel> {
-        let request = self.transport.request_with_query(
-            reqwest::Method::GET,
-            &format!("/compute/script/{}/releases", crate::transport::segment(id)),
-            query,
-        )?;
-        self.transport
-            .json_list(request, crate::transport::ListShape::Page("Items"))
-            .await
-    }
+    pub async fn get_releases(&self, id: i64, query: &GetReleasesQuery) -> crate::Result<PaginationListModelOfEdgeScriptReleaseModel> {
+let request = self.transport.request_with_query(reqwest::Method::GET, &format!("/compute/script/{}/releases", crate::transport::segment(id)), query)?;
+self.transport.json_list(request, crate::transport::ListShape::Page("Items")).await
+}
 
     /// Publish Release
     ///
     /// `POST /compute/script/{id}/publish`
-    pub async fn publish_release(
-        &self,
-        id: i64,
-        body: &PublishEdgeScriptModel,
-    ) -> crate::Result<()> {
-        let request = self
-            .transport
-            .request(
-                reqwest::Method::POST,
-                &format!("/compute/script/{}/publish", crate::transport::segment(id)),
-            )
-            .json(body);
-        self.transport.empty(request).await
-    }
+    pub async fn publish_release(&self, id: i64, body: &PublishEdgeScriptModel) -> crate::Result<()> {
+let request = self.transport.request(reqwest::Method::POST, &format!("/compute/script/{}/publish", crate::transport::segment(id))).json(body);
+self.transport.empty(request).await
+}
 
     /// Publish Release
     ///
     /// `POST /compute/script/{id}/publish/{uuid}`
-    pub async fn publish_release_by_uuid(
-        &self,
-        id: i64,
-        uuid: &str,
-        body: &PublishEdgeScriptModel,
-    ) -> crate::Result<()> {
-        let request = self
-            .transport
-            .request(
-                reqwest::Method::POST,
-                &format!(
-                    "/compute/script/{}/publish/{}",
-                    crate::transport::segment(id),
-                    crate::transport::segment(uuid)
-                ),
-            )
-            .json(body);
-        self.transport.empty(request).await
-    }
+    pub async fn publish_release_by_uuid(&self, id: i64, uuid: &str, body: &PublishEdgeScriptModel) -> crate::Result<()> {
+let request = self.transport.request(reqwest::Method::POST, &format!("/compute/script/{}/publish/{}", crate::transport::segment(id), crate::transport::segment(uuid))).json(body);
+self.transport.empty(request).await
+}
+
 }
 
 #[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
@@ -483,30 +277,18 @@ pub struct ApiErrorData {
 #[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
 #[serde(default)]
 pub struct EdgeScriptStatisticsModel {
-    #[serde(
-        rename = "TotalRequestsServed",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "TotalRequestsServed", skip_serializing_if = "Option::is_none")]
     pub total_requests_served: Option<i64>,
     #[serde(rename = "TotalCpuUsed", skip_serializing_if = "Option::is_none")]
     pub total_cpu_used: Option<f64>,
     /// A decimal number, parsed as `f64` (about 15 significant digits).
     #[serde(rename = "TotalMonthlyCost", skip_serializing_if = "Option::is_none")]
     pub total_monthly_cost: Option<f64>,
-    #[serde(
-        rename = "AverageCpuTimePerExecution",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "AverageCpuTimePerExecution", skip_serializing_if = "Option::is_none")]
     pub average_cpu_time_per_execution: Option<f64>,
-    #[serde(
-        rename = "RequestsServedChart",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "RequestsServedChart", skip_serializing_if = "Option::is_none")]
     pub requests_served_chart: Option<std::collections::HashMap<String, f64>>,
-    #[serde(
-        rename = "AverageCpuTimeChart",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "AverageCpuTimeChart", skip_serializing_if = "Option::is_none")]
     pub average_cpu_time_chart: Option<std::collections::HashMap<String, f64>>,
     #[serde(rename = "TotalCpuTimeChart", skip_serializing_if = "Option::is_none")]
     pub total_cpu_time_chart: Option<std::collections::HashMap<String, f64>>,
@@ -522,16 +304,13 @@ pub struct EdgeScriptModel {
     #[serde(rename = "LastModified", skip_serializing_if = "Option::is_none")]
     pub last_modified: Option<String>,
     /// 0 = DNS
-    /// 1 = CDN
+    /// 1 = Standalone
     /// 2 = Middleware
     #[serde(rename = "ScriptType", skip_serializing_if = "Option::is_none")]
     pub script_type: Option<EdgeScriptTypes>,
     #[serde(rename = "CurrentReleaseId", skip_serializing_if = "Option::is_none")]
     pub current_release_id: Option<i64>,
-    #[serde(
-        rename = "EdgeScriptVariables",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "EdgeScriptVariables", skip_serializing_if = "Option::is_none")]
     pub edge_script_variables: Option<Vec<EdgeScriptVariableModel>>,
     #[serde(rename = "Deleted", skip_serializing_if = "Option::is_none")]
     pub deleted: Option<bool>,
@@ -552,10 +331,7 @@ pub struct EdgeScriptModel {
     /// A decimal number, parsed as `f64` (about 15 significant digits).
     #[serde(rename = "MonthlyCost", skip_serializing_if = "Option::is_none")]
     pub monthly_cost: Option<f64>,
-    #[serde(
-        rename = "MonthlyRequestCount",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "MonthlyRequestCount", skip_serializing_if = "Option::is_none")]
     pub monthly_request_count: Option<i64>,
     #[serde(rename = "MonthlyCpuTime", skip_serializing_if = "Option::is_none")]
     pub monthly_cpu_time: Option<i64>,
@@ -563,7 +339,7 @@ pub struct EdgeScriptModel {
 
 int_enum! {
     /// 0 = DNS
-    /// 1 = CDN
+    /// 1 = Standalone
     /// 2 = Middleware
     EdgeScriptTypes {
         Dns = 0,
@@ -603,10 +379,7 @@ pub struct SourceCodeIntegrationModel {
     pub integration_id: Option<i64>,
     #[serde(rename = "RepositorySettings", skip_serializing_if = "Option::is_none")]
     pub repository_settings: Option<SourceCodeRepositorySettingsModel>,
-    #[serde(
-        rename = "DeployConfiguration",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "DeployConfiguration", skip_serializing_if = "Option::is_none")]
     pub deploy_configuration: Option<DeployConfigurationModel>,
 }
 
@@ -668,7 +441,7 @@ pub struct UpdateEdgeScriptModel {
     #[serde(rename = "Name", skip_serializing_if = "Option::is_none")]
     pub name: Option<String>,
     /// 0 = DNS
-    /// 1 = CDN
+    /// 1 = Standalone
     /// 2 = Middleware
     #[serde(rename = "ScriptType", skip_serializing_if = "Option::is_none")]
     pub script_type: Option<EdgeScriptTypes>,
@@ -814,14 +587,11 @@ pub struct AddEdgeScriptModel {
     #[serde(rename = "Code", skip_serializing_if = "Option::is_none")]
     pub code: Option<String>,
     /// 0 = DNS
-    /// 1 = CDN
+    /// 1 = Standalone
     /// 2 = Middleware
     #[serde(rename = "ScriptType", skip_serializing_if = "Option::is_none")]
     pub script_type: Option<EdgeScriptTypes>,
-    #[serde(
-        rename = "CreateLinkedPullZone",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "CreateLinkedPullZone", skip_serializing_if = "Option::is_none")]
     pub create_linked_pull_zone: Option<bool>,
     #[serde(rename = "LinkedPullZoneName", skip_serializing_if = "Option::is_none")]
     pub linked_pull_zone_name: Option<String>,
@@ -840,10 +610,7 @@ pub struct UpdateEdgeScriptCodeModel {
 #[derive(Debug, Clone, Default, PartialEq, Serialize)]
 pub struct DeleteEdgeScriptQuery {
     /// Deletes all pull zones linked to this edge script if true, otherwise changes origin to landing page
-    #[serde(
-        rename = "deleteLinkedPullZones",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "deleteLinkedPullZones", skip_serializing_if = "Option::is_none")]
     pub delete_linked_pull_zones: Option<bool>,
 }
 
@@ -882,10 +649,7 @@ pub struct ListEdgeScriptsQuery {
     #[serde(rename = "search", skip_serializing_if = "Option::is_none")]
     pub search: Option<String>,
     /// Include linked pullzones
-    #[serde(
-        rename = "includeLinkedPullzones",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "includeLinkedPullzones", skip_serializing_if = "Option::is_none")]
     pub include_linked_pullzones: Option<bool>,
     /// Filter by linked integration
     #[serde(rename = "integrationId", skip_serializing_if = "Option::is_none")]
@@ -900,3 +664,5 @@ pub struct GetReleasesQuery {
     #[serde(rename = "perPage", skip_serializing_if = "Option::is_none")]
     pub per_page: Option<i32>,
 }
+
+
