@@ -4,12 +4,12 @@
 //! Do not edit by hand.
 
 #![allow(
-    deprecated,
-    clippy::all,
-    rustdoc::bare_urls,
-    rustdoc::broken_intra_doc_links,
-    rustdoc::invalid_html_tags,
-    rustdoc::invalid_rust_codeblocks
+deprecated,
+clippy::all,
+rustdoc::bare_urls,
+rustdoc::broken_intra_doc_links,
+rustdoc::invalid_html_tags,
+rustdoc::invalid_rust_codeblocks
 )]
 
 use serde::{Deserialize, Serialize};
@@ -22,1132 +22,540 @@ pub const BASE_URL: &str = "https://api.bunny.net";
 /// Authenticates with your account API key. Cheap to clone; clones share the connection pool.
 #[derive(Debug, Clone)]
 pub struct ShieldClient {
-    pub(crate) transport: crate::transport::Transport,
+pub(crate) transport: crate::transport::Transport,
 }
 
 impl ShieldClient {
-    /// Creates a client authenticated with your account API key.
-    pub fn new(api_key: &str) -> crate::Result<Self> {
-        Self::with_config(api_key, crate::Config::default())
-    }
+/// Creates a client authenticated with your account API key.
+pub fn new(api_key: &str) -> crate::Result<Self> {
+Self::with_config(api_key, crate::Config::default())
+}
 
-    /// Like [`ShieldClient::new`], with custom settings.
-    pub fn with_config(api_key: &str, config: crate::Config) -> crate::Result<Self> {
-        Ok(Self {
-            transport: crate::transport::Transport::new(api_key, BASE_URL, config)?,
-        })
-    }
+/// Like [`ShieldClient::new`], with custom settings.
+pub fn with_config(api_key: &str, config: crate::Config) -> crate::Result<Self> {
+Ok(Self { transport: crate::transport::Transport::new(api_key, BASE_URL, config)? })
+}
 
     /// Get all Access Lists available for a Shield Zone
     ///
     /// `GET /shield/shield-zone/{shieldZoneId}/access-lists`
-    pub async fn get_access_lists(
-        &self,
-        shield_zone_id: i32,
-    ) -> crate::Result<AccessListsDetailsResponse> {
-        let request = self.transport.request(
-            reqwest::Method::GET,
-            &format!(
-                "/shield/shield-zone/{}/access-lists",
-                crate::transport::segment(shield_zone_id)
-            ),
-        );
-        self.transport.json(request).await
-    }
+    pub async fn get_access_lists(&self, shield_zone_id: i32) -> crate::Result<AccessListsDetailsResponse> {
+let request = self.transport.request(reqwest::Method::GET, &format!("/shield/shield-zone/{}/access-lists", crate::transport::segment(shield_zone_id)));
+self.transport.json(request).await
+}
 
     /// Create a new Custom Access List associated with a Shield Zone
     ///
     /// `POST /shield/shield-zone/{shieldZoneId}/access-lists`
-    pub async fn create_custom_access_list(
-        &self,
-        shield_zone_id: i32,
-        body: &CreateCustomAccessListRequest,
-    ) -> crate::Result<CustomAccessListResponse> {
-        let request = self
-            .transport
-            .request(
-                reqwest::Method::POST,
-                &format!(
-                    "/shield/shield-zone/{}/access-lists",
-                    crate::transport::segment(shield_zone_id)
-                ),
-            )
-            .json(body);
-        self.transport.json(request).await
-    }
+    pub async fn create_custom_access_list(&self, shield_zone_id: i32, body: &CreateCustomAccessListRequest) -> crate::Result<CustomAccessListResponse> {
+let request = self.transport.request(reqwest::Method::POST, &format!("/shield/shield-zone/{}/access-lists", crate::transport::segment(shield_zone_id))).json(body);
+self.transport.json(request).await
+}
 
     /// Update Access List Configuration for a Shield Zone
     ///
     /// `PATCH /shield/shield-zone/{shieldZoneId}/access-lists/configurations/{id}`
-    pub async fn update_access_list_configuration(
-        &self,
-        shield_zone_id: i32,
-        id: i64,
-        body: &UpdateAccessListConfigurationRequest,
-    ) -> crate::Result<UpdateAccessListConfigurationResponse> {
-        let request = self
-            .transport
-            .request(
-                reqwest::Method::PATCH,
-                &format!(
-                    "/shield/shield-zone/{}/access-lists/configurations/{}",
-                    crate::transport::segment(shield_zone_id),
-                    crate::transport::segment(id)
-                ),
-            )
-            .json(body);
-        self.transport.json(request).await
-    }
+    pub async fn update_access_list_configuration(&self, shield_zone_id: i32, id: i64, body: &UpdateAccessListConfigurationRequest) -> crate::Result<UpdateAccessListConfigurationResponse> {
+let request = self.transport.request(reqwest::Method::PATCH, &format!("/shield/shield-zone/{}/access-lists/configurations/{}", crate::transport::segment(shield_zone_id), crate::transport::segment(id))).json(body);
+self.transport.json(request).await
+}
 
     /// Get the specified Custom Access List associated with a Shield Zone
     ///
     /// `GET /shield/shield-zone/{shieldZoneId}/access-lists/{id}`
-    pub async fn get_custom_access_list(
-        &self,
-        shield_zone_id: i32,
-        id: i64,
-    ) -> crate::Result<CustomAccessListResponse> {
-        let request = self.transport.request(
-            reqwest::Method::GET,
-            &format!(
-                "/shield/shield-zone/{}/access-lists/{}",
-                crate::transport::segment(shield_zone_id),
-                crate::transport::segment(id)
-            ),
-        );
-        self.transport.json(request).await
-    }
+    pub async fn get_custom_access_list(&self, shield_zone_id: i32, id: i64) -> crate::Result<CustomAccessListResponse> {
+let request = self.transport.request(reqwest::Method::GET, &format!("/shield/shield-zone/{}/access-lists/{}", crate::transport::segment(shield_zone_id), crate::transport::segment(id)));
+self.transport.json(request).await
+}
 
     /// Delete the specified Custom Access List associated with a Shield Zone
     ///
     /// `DELETE /shield/shield-zone/{shieldZoneId}/access-lists/{id}`
-    pub async fn delete_custom_access_list(
-        &self,
-        shield_zone_id: i32,
-        id: i64,
-    ) -> crate::Result<GenericRequestResponse> {
-        let request = self.transport.request(
-            reqwest::Method::DELETE,
-            &format!(
-                "/shield/shield-zone/{}/access-lists/{}",
-                crate::transport::segment(shield_zone_id),
-                crate::transport::segment(id)
-            ),
-        );
-        self.transport.json(request).await
-    }
+    pub async fn delete_custom_access_list(&self, shield_zone_id: i32, id: i64) -> crate::Result<GenericRequestResponse> {
+let request = self.transport.request(reqwest::Method::DELETE, &format!("/shield/shield-zone/{}/access-lists/{}", crate::transport::segment(shield_zone_id), crate::transport::segment(id)));
+self.transport.json(request).await
+}
 
     /// Update the specified Custom Access List associated with a Shield Zone
     ///
     /// `PATCH /shield/shield-zone/{shieldZoneId}/access-lists/{id}`
-    pub async fn update_custom_access_list(
-        &self,
-        shield_zone_id: i32,
-        id: i64,
-        body: &UpdateCustomAccessListRequest,
-    ) -> crate::Result<CustomAccessListResponse> {
-        let request = self
-            .transport
-            .request(
-                reqwest::Method::PATCH,
-                &format!(
-                    "/shield/shield-zone/{}/access-lists/{}",
-                    crate::transport::segment(shield_zone_id),
-                    crate::transport::segment(id)
-                ),
-            )
-            .json(body);
-        self.transport.json(request).await
-    }
+    pub async fn update_custom_access_list(&self, shield_zone_id: i32, id: i64, body: &UpdateCustomAccessListRequest) -> crate::Result<CustomAccessListResponse> {
+let request = self.transport.request(reqwest::Method::PATCH, &format!("/shield/shield-zone/{}/access-lists/{}", crate::transport::segment(shield_zone_id), crate::transport::segment(id))).json(body);
+self.transport.json(request).await
+}
 
     /// Get all Access Lists API enumeration types and their values
     ///
     /// `GET /shield/shield-zone/{shieldZoneId}/access-lists/enums`
-    pub async fn get_access_list_enums(
-        &self,
-        shield_zone_id: &str,
-    ) -> crate::Result<std::collections::HashMap<String, std::collections::HashMap<String, String>>>
-    {
-        let request = self.transport.request(
-            reqwest::Method::GET,
-            &format!(
-                "/shield/shield-zone/{}/access-lists/enums",
-                crate::transport::segment(shield_zone_id)
-            ),
-        );
-        self.transport.json(request).await
-    }
+    pub async fn get_access_list_enums(&self, shield_zone_id: &str) -> crate::Result<std::collections::HashMap<String, std::collections::HashMap<String, String>>> {
+let request = self.transport.request(reqwest::Method::GET, &format!("/shield/shield-zone/{}/access-lists/enums", crate::transport::segment(shield_zone_id)));
+self.transport.json(request).await
+}
 
     /// Get the API Guardian configuration and endpoints.
     ///
     /// `GET /shield/shield-zone/{shieldZoneId}/api-guardian`
-    pub async fn get_api_guardian(
-        &self,
-        shield_zone_id: i32,
-    ) -> crate::Result<GetApiGuardianResponse> {
-        let request = self.transport.request(
-            reqwest::Method::GET,
-            &format!(
-                "/shield/shield-zone/{}/api-guardian",
-                crate::transport::segment(shield_zone_id)
-            ),
-        );
-        self.transport.json(request).await
-    }
+    pub async fn get_api_guardian(&self, shield_zone_id: i32) -> crate::Result<GetApiGuardianResponse> {
+let request = self.transport.request(reqwest::Method::GET, &format!("/shield/shield-zone/{}/api-guardian", crate::transport::segment(shield_zone_id)));
+self.transport.json(request).await
+}
 
     /// Update the API Guardian configuration (enabled, execution mode, body limit action)
     ///
     /// `PATCH /shield/shield-zone/{shieldZoneId}/api-guardian`
-    pub async fn update_api_guardian_configuration(
-        &self,
-        shield_zone_id: i32,
-        body: &UpdateApiGuardianConfigurationRequest,
-    ) -> crate::Result<UpdateApiGuardianConfigurationResponse> {
-        let request = self
-            .transport
-            .request(
-                reqwest::Method::PATCH,
-                &format!(
-                    "/shield/shield-zone/{}/api-guardian",
-                    crate::transport::segment(shield_zone_id)
-                ),
-            )
-            .json(body);
-        self.transport.json(request).await
-    }
+    pub async fn update_api_guardian_configuration(&self, shield_zone_id: i32, body: &UpdateApiGuardianConfigurationRequest) -> crate::Result<UpdateApiGuardianConfigurationResponse> {
+let request = self.transport.request(reqwest::Method::PATCH, &format!("/shield/shield-zone/{}/api-guardian", crate::transport::segment(shield_zone_id))).json(body);
+self.transport.json(request).await
+}
 
     /// Update your API Guardian Endpoint configuration
     ///
     /// `PATCH /shield/shield-zone/{shieldZoneId}/api-guardian/endpoint/{endpointId}`
-    pub async fn update_api_guardian_endpoint(
-        &self,
-        shield_zone_id: i32,
-        endpoint_id: i64,
-        body: &UpdateApiGuardianEndpointRequest,
-    ) -> crate::Result<UpdateApiGuardianEndpointResponse> {
-        let request = self
-            .transport
-            .request(
-                reqwest::Method::PATCH,
-                &format!(
-                    "/shield/shield-zone/{}/api-guardian/endpoint/{}",
-                    crate::transport::segment(shield_zone_id),
-                    crate::transport::segment(endpoint_id)
-                ),
-            )
-            .json(body);
-        self.transport.json(request).await
-    }
+    pub async fn update_api_guardian_endpoint(&self, shield_zone_id: i32, endpoint_id: i64, body: &UpdateApiGuardianEndpointRequest) -> crate::Result<UpdateApiGuardianEndpointResponse> {
+let request = self.transport.request(reqwest::Method::PATCH, &format!("/shield/shield-zone/{}/api-guardian/endpoint/{}", crate::transport::segment(shield_zone_id), crate::transport::segment(endpoint_id))).json(body);
+self.transport.json(request).await
+}
 
     /// Upload your OpenAPI specification
     ///
     /// `POST /shield/shield-zone/{shieldZoneId}/api-guardian/spec`
-    pub async fn upload_open_api_specification(
-        &self,
-        shield_zone_id: i32,
-        body: &UpsertOpenApiSpecificationRequest,
-    ) -> crate::Result<UpsertOpenApiSpecificationResponse> {
-        let request = self
-            .transport
-            .request(
-                reqwest::Method::POST,
-                &format!(
-                    "/shield/shield-zone/{}/api-guardian/spec",
-                    crate::transport::segment(shield_zone_id)
-                ),
-            )
-            .json(body);
-        self.transport.json(request).await
-    }
+    pub async fn upload_open_api_specification(&self, shield_zone_id: i32, body: &UpsertOpenApiSpecificationRequest) -> crate::Result<UpsertOpenApiSpecificationResponse> {
+let request = self.transport.request(reqwest::Method::POST, &format!("/shield/shield-zone/{}/api-guardian/spec", crate::transport::segment(shield_zone_id))).json(body);
+self.transport.json(request).await
+}
 
     /// Update your OpenAPI specification
     ///
     /// `PATCH /shield/shield-zone/{shieldZoneId}/api-guardian/spec`
-    pub async fn update_open_api_specification(
-        &self,
-        shield_zone_id: i32,
-        body: &UpsertOpenApiSpecificationRequest,
-    ) -> crate::Result<UpsertOpenApiSpecificationResponse> {
-        let request = self
-            .transport
-            .request(
-                reqwest::Method::PATCH,
-                &format!(
-                    "/shield/shield-zone/{}/api-guardian/spec",
-                    crate::transport::segment(shield_zone_id)
-                ),
-            )
-            .json(body);
-        self.transport.json(request).await
-    }
+    pub async fn update_open_api_specification(&self, shield_zone_id: i32, body: &UpsertOpenApiSpecificationRequest) -> crate::Result<UpsertOpenApiSpecificationResponse> {
+let request = self.transport.request(reqwest::Method::PATCH, &format!("/shield/shield-zone/{}/api-guardian/spec", crate::transport::segment(shield_zone_id))).json(body);
+self.transport.json(request).await
+}
 
     /// Get all API Guardian enumeration types and their values
     ///
     /// `GET /shield/shield-zone/{shieldZoneId}/api-guardian/enums`
-    pub async fn get_api_guardian_enums(
-        &self,
-        shield_zone_id: &str,
-    ) -> crate::Result<std::collections::HashMap<String, std::collections::HashMap<String, String>>>
-    {
-        let request = self.transport.request(
-            reqwest::Method::GET,
-            &format!(
-                "/shield/shield-zone/{}/api-guardian/enums",
-                crate::transport::segment(shield_zone_id)
-            ),
-        );
-        self.transport.json(request).await
-    }
+    pub async fn get_api_guardian_enums(&self, shield_zone_id: &str) -> crate::Result<std::collections::HashMap<String, std::collections::HashMap<String, String>>> {
+let request = self.transport.request(reqwest::Method::GET, &format!("/shield/shield-zone/{}/api-guardian/enums", crate::transport::segment(shield_zone_id)));
+self.transport.json(request).await
+}
 
     /// List bots available for explicit allow/block configuration on this Shield Zone, grouped by category.
     ///
     /// `GET /shield/shield-zone/{shieldZoneId}/bot-categorization`
-    pub async fn list_bot_categorizations(
-        &self,
-        shield_zone_id: i32,
-    ) -> crate::Result<BotCategorizationListResponse> {
-        let request = self.transport.request(
-            reqwest::Method::GET,
-            &format!(
-                "/shield/shield-zone/{}/bot-categorization",
-                crate::transport::segment(shield_zone_id)
-            ),
-        );
-        self.transport.json(request).await
-    }
+    pub async fn list_bot_categorizations(&self, shield_zone_id: i32) -> crate::Result<BotCategorizationListResponse> {
+let request = self.transport.request(reqwest::Method::GET, &format!("/shield/shield-zone/{}/bot-categorization", crate::transport::segment(shield_zone_id)));
+self.transport.json(request).await
+}
 
     /// Set or clear the action applied to a categorised bot for this Shield Zone.
     ///
     /// `PUT /shield/shield-zone/{shieldZoneId}/bot-categorization/bots/{botId}`
-    pub async fn set_bot_categorization_action(
-        &self,
-        shield_zone_id: i32,
-        bot_id: i32,
-        body: &UpdateBotCategorizationConfigurationRequest,
-    ) -> crate::Result<UpdateBotCategorizationConfigurationResponse> {
-        let request = self
-            .transport
-            .request(
-                reqwest::Method::PUT,
-                &format!(
-                    "/shield/shield-zone/{}/bot-categorization/bots/{}",
-                    crate::transport::segment(shield_zone_id),
-                    crate::transport::segment(bot_id)
-                ),
-            )
-            .json(body);
-        self.transport.json(request).await
-    }
+    pub async fn set_bot_categorization_action(&self, shield_zone_id: i32, bot_id: i32, body: &UpdateBotCategorizationConfigurationRequest) -> crate::Result<UpdateBotCategorizationConfigurationResponse> {
+let request = self.transport.request(reqwest::Method::PUT, &format!("/shield/shield-zone/{}/bot-categorization/bots/{}", crate::transport::segment(shield_zone_id), crate::transport::segment(bot_id))).json(body);
+self.transport.json(request).await
+}
 
     /// Set or clear the action applied to every bot in a category for this Shield Zone.
     ///
     /// `PUT /shield/shield-zone/{shieldZoneId}/bot-categorization/categories/{category}`
-    pub async fn set_bot_category_action(
-        &self,
-        shield_zone_id: i32,
-        category: &str,
-        body: &UpdateBotCategoryConfigurationRequest,
-    ) -> crate::Result<UpdateBotCategoryConfigurationResponse> {
-        let request = self
-            .transport
-            .request(
-                reqwest::Method::PUT,
-                &format!(
-                    "/shield/shield-zone/{}/bot-categorization/categories/{}",
-                    crate::transport::segment(shield_zone_id),
-                    crate::transport::segment(category)
-                ),
-            )
-            .json(body);
-        self.transport.json(request).await
-    }
+    pub async fn set_bot_category_action(&self, shield_zone_id: i32, category: &str, body: &UpdateBotCategoryConfigurationRequest) -> crate::Result<UpdateBotCategoryConfigurationResponse> {
+let request = self.transport.request(reqwest::Method::PUT, &format!("/shield/shield-zone/{}/bot-categorization/categories/{}", crate::transport::segment(shield_zone_id), crate::transport::segment(category))).json(body);
+self.transport.json(request).await
+}
 
     /// Your current Bot Detection configuration
     ///
     /// `GET /shield/shield-zone/{shieldZoneId}/bot-detection`
-    pub async fn get_current_bot_detection(
-        &self,
-        shield_zone_id: i32,
-    ) -> crate::Result<BotDetectionConfigurationResponse> {
-        let request = self.transport.request(
-            reqwest::Method::GET,
-            &format!(
-                "/shield/shield-zone/{}/bot-detection",
-                crate::transport::segment(shield_zone_id)
-            ),
-        );
-        self.transport.json(request).await
-    }
+    pub async fn get_current_bot_detection(&self, shield_zone_id: i32) -> crate::Result<BotDetectionConfigurationResponse> {
+let request = self.transport.request(reqwest::Method::GET, &format!("/shield/shield-zone/{}/bot-detection", crate::transport::segment(shield_zone_id)));
+self.transport.json(request).await
+}
 
     /// Update your current Bot Detection configuration
     ///
     /// `PATCH /shield/shield-zone/{shieldZoneId}/bot-detection`
-    pub async fn update_bot_detection(
-        &self,
-        shield_zone_id: i32,
-        body: &UpdateBotDetectionRequest,
-    ) -> crate::Result<UpdateBotDetectionResponse> {
-        let request = self
-            .transport
-            .request(
-                reqwest::Method::PATCH,
-                &format!(
-                    "/shield/shield-zone/{}/bot-detection",
-                    crate::transport::segment(shield_zone_id)
-                ),
-            )
-            .json(body);
-        self.transport.json(request).await
-    }
+    pub async fn update_bot_detection(&self, shield_zone_id: i32, body: &UpdateBotDetectionRequest) -> crate::Result<UpdateBotDetectionResponse> {
+let request = self.transport.request(reqwest::Method::PATCH, &format!("/shield/shield-zone/{}/bot-detection", crate::transport::segment(shield_zone_id))).json(body);
+self.transport.json(request).await
+}
 
     /// Get a custom HTML response page for a Shield Zone
     ///
     /// `GET /shield/shield-zone/{shieldZoneId}/custom-page/{pageType}`
-    pub async fn get_custom_response_page(
-        &self,
-        shield_zone_id: i32,
-        page_type: &str,
-    ) -> crate::Result<String> {
-        let request = self.transport.request(
-            reqwest::Method::GET,
-            &format!(
-                "/shield/shield-zone/{}/custom-page/{}",
-                crate::transport::segment(shield_zone_id),
-                crate::transport::segment(page_type)
-            ),
-        );
-        self.transport.json(request).await
-    }
+    pub async fn get_custom_response_page(&self, shield_zone_id: i32, page_type: &str) -> crate::Result<String> {
+let request = self.transport.request(reqwest::Method::GET, &format!("/shield/shield-zone/{}/custom-page/{}", crate::transport::segment(shield_zone_id), crate::transport::segment(page_type)));
+self.transport.json(request).await
+}
 
     /// Upload a custom HTML response page for a Shield Zone
     ///
     /// `PUT /shield/shield-zone/{shieldZoneId}/custom-page/{pageType}`
-    pub async fn upload_custom_response_page(
-        &self,
-        shield_zone_id: i32,
-        page_type: &str,
-    ) -> crate::Result<GenericRequestResponse> {
-        let request = self.transport.request(
-            reqwest::Method::PUT,
-            &format!(
-                "/shield/shield-zone/{}/custom-page/{}",
-                crate::transport::segment(shield_zone_id),
-                crate::transport::segment(page_type)
-            ),
-        );
-        self.transport.json(request).await
-    }
+    pub async fn upload_custom_response_page(&self, shield_zone_id: i32, page_type: &str) -> crate::Result<GenericRequestResponse> {
+let request = self.transport.request(reqwest::Method::PUT, &format!("/shield/shield-zone/{}/custom-page/{}", crate::transport::segment(shield_zone_id), crate::transport::segment(page_type)));
+self.transport.json(request).await
+}
 
     /// Delete a custom HTML response page for a Shield Zone
     ///
     /// `DELETE /shield/shield-zone/{shieldZoneId}/custom-page/{pageType}`
-    pub async fn delete_custom_response_page(
-        &self,
-        shield_zone_id: i32,
-        page_type: &str,
-    ) -> crate::Result<GenericRequestResponse> {
-        let request = self.transport.request(
-            reqwest::Method::DELETE,
-            &format!(
-                "/shield/shield-zone/{}/custom-page/{}",
-                crate::transport::segment(shield_zone_id),
-                crate::transport::segment(page_type)
-            ),
-        );
-        self.transport.json(request).await
-    }
+    pub async fn delete_custom_response_page(&self, shield_zone_id: i32, page_type: &str) -> crate::Result<GenericRequestResponse> {
+let request = self.transport.request(reqwest::Method::DELETE, &format!("/shield/shield-zone/{}/custom-page/{}", crate::transport::segment(shield_zone_id), crate::transport::segment(page_type)));
+self.transport.json(request).await
+}
 
     /// List of all DDoS Enum Mappings
     ///
     /// `GET /shield/ddos/enums`
     pub async fn get_ddos_enums(&self) -> crate::Result<GetWafEnumsResponse> {
-        let request = self
-            .transport
-            .request(reqwest::Method::GET, "/shield/ddos/enums");
-        self.transport.json(request).await
-    }
+let request = self.transport.request(reqwest::Method::GET, "/shield/ddos/enums");
+self.transport.json(request).await
+}
 
     /// Get Event Logs for Shield Zone
     ///
     /// `GET /shield/event-logs/{shieldZoneId}/{date}/{continuationToken}`
-    pub async fn get_event_logs(
-        &self,
-        shield_zone_id: i32,
-        date: &str,
-        continuation_token: &str,
-    ) -> crate::Result<WafLoggingResponse> {
-        let request = self.transport.request(
-            reqwest::Method::GET,
-            &format!(
-                "/shield/event-logs/{}/{}/{}",
-                crate::transport::segment(shield_zone_id),
-                crate::transport::segment(date),
-                crate::transport::segment(continuation_token)
-            ),
-        );
-        self.transport.json(request).await
-    }
+    pub async fn get_event_logs(&self, shield_zone_id: i32, date: &str, continuation_token: &str) -> crate::Result<WafLoggingResponse> {
+let request = self.transport.request(reqwest::Method::GET, &format!("/shield/event-logs/{}/{}/{}", crate::transport::segment(shield_zone_id), crate::transport::segment(date), crate::transport::segment(continuation_token)));
+self.transport.json(request).await
+}
 
     /// Search, filter and group Event Logs for a Shield Zone
     ///
     /// `POST /shield/event-logs/{shieldZoneId}/search`
-    pub async fn search_event_logs(
-        &self,
-        shield_zone_id: i32,
-        body: &EventLogsSearchRequest,
-    ) -> crate::Result<EventLogsSearchResponse> {
-        let request = self
-            .transport
-            .request(
-                reqwest::Method::POST,
-                &format!(
-                    "/shield/event-logs/{}/search",
-                    crate::transport::segment(shield_zone_id)
-                ),
-            )
-            .json(body);
-        self.transport.json(request).await
-    }
+    pub async fn search_event_logs(&self, shield_zone_id: i32, body: &EventLogsSearchRequest) -> crate::Result<EventLogsSearchResponse> {
+let request = self.transport.request(reqwest::Method::POST, &format!("/shield/event-logs/{}/search", crate::transport::segment(shield_zone_id))).json(body);
+self.transport.json(request).await
+}
 
     /// Export the full filtered Event Logs set for a Shield Zone as CSV
     ///
     /// `POST /shield/event-logs/{shieldZoneId}/export`
-    pub async fn export_event_logs(
-        &self,
-        shield_zone_id: i32,
-        body: &EventLogsExportRequest,
-    ) -> crate::Result<String> {
-        let request = self
-            .transport
-            .request(
-                reqwest::Method::POST,
-                &format!(
-                    "/shield/event-logs/{}/export",
-                    crate::transport::segment(shield_zone_id)
-                ),
-            )
-            .json(body)
-            .header(reqwest::header::ACCEPT, "text/csv");
-        self.transport.text(request).await
-    }
-
-    /// Get the overage breakdown for the specified Shield Zone for a given month, segmented by billing plan changes
-    ///
-    /// `GET /shield/metrics/overages/{shieldZoneId}`
-    pub async fn get_shield_zone_monthly_overages(
-        &self,
-        shield_zone_id: i32,
-        query: &GetShieldZoneMonthlyOveragesQuery,
-    ) -> crate::Result<ShieldZoneMonthlyOveragesResult> {
-        let request = self.transport.request_with_query(
-            reqwest::Method::GET,
-            &format!(
-                "/shield/metrics/overages/{}",
-                crate::transport::segment(shield_zone_id)
-            ),
-            query,
-        )?;
-        self.transport.json(request).await
-    }
-
-    /// Get an overview of metrics for the specified Shield Zone
-    ///
-    /// `GET /shield/metrics/overview/{shieldZoneId}`
-    pub async fn get_shield_zone_metrics_overview(
-        &self,
-        shield_zone_id: i32,
-    ) -> crate::Result<GetShieldZoneMetricsOverviewResponse> {
-        let request = self.transport.request(
-            reqwest::Method::GET,
-            &format!(
-                "/shield/metrics/overview/{}",
-                crate::transport::segment(shield_zone_id)
-            ),
-        );
-        self.transport.json(request).await
-    }
-
-    /// Get a detailed metrics overview for the specified Shield Zone within the selected time range and resolution
-    ///
-    /// `GET /shield/metrics/overview/{shieldZoneId}/detailed`
-    pub async fn get_shield_zone_detailed_metrics_overview(
-        &self,
-        shield_zone_id: i32,
-        query: &GetShieldZoneDetailedMetricsOverviewQuery,
-    ) -> crate::Result<ShieldOverviewMetrics> {
-        let request = self.transport.request_with_query(
-            reqwest::Method::GET,
-            &format!(
-                "/shield/metrics/overview/{}/detailed",
-                crate::transport::segment(shield_zone_id)
-            ),
-            query,
-        )?;
-        self.transport.json(request).await
-    }
-
-    /// Get aggregated rate limit metrics for the specified Shield Zone
-    ///
-    /// `GET /shield/metrics/rate-limits/{shieldZoneId}`
-    pub async fn get_shield_zone_rate_limit_metrics(
-        &self,
-        shield_zone_id: i32,
-    ) -> crate::Result<GetShieldZoneRatelimitMetricsResponse> {
-        let request = self.transport.request(
-            reqwest::Method::GET,
-            &format!(
-                "/shield/metrics/rate-limits/{}",
-                crate::transport::segment(shield_zone_id)
-            ),
-        );
-        self.transport.json(request).await
-    }
-
-    /// Get detailed metrics for the specified Rate Limit
-    ///
-    /// `GET /shield/metrics/rate-limit/{id}`
-    pub async fn get_rate_limit_metrics(
-        &self,
-        id: i32,
-    ) -> crate::Result<GetRatelimitMetricsResponse> {
-        let request = self.transport.request(
-            reqwest::Method::GET,
-            &format!(
-                "/shield/metrics/rate-limit/{}",
-                crate::transport::segment(id)
-            ),
-        );
-        self.transport.json(request).await
-    }
+    pub async fn export_event_logs(&self, shield_zone_id: i32, body: &EventLogsExportRequest) -> crate::Result<String> {
+let request = self.transport.request(reqwest::Method::POST, &format!("/shield/event-logs/{}/export", crate::transport::segment(shield_zone_id))).json(body).header(reqwest::header::ACCEPT, "text/csv");
+self.transport.text(request).await
+}
 
     /// Get metrics for a specific WAF Rule within the specified Shield Zone
     ///
     /// `GET /shield/metrics/shield-zone/{shieldZoneId}/waf-rule/{ruleId}`
-    pub async fn get_waf_rule_metrics(
-        &self,
-        shield_zone_id: i32,
-        rule_id: &str,
-    ) -> crate::Result<GetWafRuleMetricsResponse> {
-        let request = self.transport.request(
-            reqwest::Method::GET,
-            &format!(
-                "/shield/metrics/shield-zone/{}/waf-rule/{}",
-                crate::transport::segment(shield_zone_id),
-                crate::transport::segment(rule_id)
-            ),
-        );
-        self.transport.json(request).await
-    }
-
-    /// Get bot detection metrics for the specified Shield Zone
-    ///
-    /// `GET /shield/metrics/shield-zone/{shieldZoneId}/bot-detection`
-    pub async fn get_shield_zone_bot_detection_metrics(
-        &self,
-        shield_zone_id: i32,
-    ) -> crate::Result<GetShieldZoneBotDetectionMetricsResponse> {
-        let request = self.transport.request(
-            reqwest::Method::GET,
-            &format!(
-                "/shield/metrics/shield-zone/{}/bot-detection",
-                crate::transport::segment(shield_zone_id)
-            ),
-        );
-        self.transport.json(request).await
-    }
+    pub async fn get_waf_rule_metrics(&self, shield_zone_id: i32, rule_id: &str) -> crate::Result<GetWafRuleMetricsResponse> {
+let request = self.transport.request(reqwest::Method::GET, &format!("/shield/metrics/shield-zone/{}/waf-rule/{}", crate::transport::segment(shield_zone_id), crate::transport::segment(rule_id)));
+self.transport.json(request).await
+}
 
     /// Get upload scanning metrics for the specified Shield Zone
     ///
     /// `GET /shield/metrics/shield-zone/{shieldZoneId}/upload-scanning`
-    pub async fn get_shield_zone_upload_scanning_metrics(
-        &self,
-        shield_zone_id: i32,
-    ) -> crate::Result<GetShieldZoneUploadScanningMetricsResponse> {
-        let request = self.transport.request(
-            reqwest::Method::GET,
-            &format!(
-                "/shield/metrics/shield-zone/{}/upload-scanning",
-                crate::transport::segment(shield_zone_id)
-            ),
-        );
-        self.transport.json(request).await
-    }
+    pub async fn get_shield_zone_upload_scanning_metrics(&self, shield_zone_id: i32) -> crate::Result<GetShieldZoneUploadScanningMetricsResponse> {
+let request = self.transport.request(reqwest::Method::GET, &format!("/shield/metrics/shield-zone/{}/upload-scanning", crate::transport::segment(shield_zone_id)));
+self.transport.json(request).await
+}
+
+    /// Get aggregated rate limit metrics for the specified Shield Zone
+    ///
+    /// `GET /shield/metrics/rate-limits/{shieldZoneId}`
+    pub async fn get_shield_zone_rate_limit_metrics(&self, shield_zone_id: i32) -> crate::Result<GetShieldZoneRatelimitMetricsResponse> {
+let request = self.transport.request(reqwest::Method::GET, &format!("/shield/metrics/rate-limits/{}", crate::transport::segment(shield_zone_id)));
+self.transport.json(request).await
+}
+
+    /// Get detailed metrics for the specified Rate Limit
+    ///
+    /// `GET /shield/metrics/rate-limit/{id}`
+    pub async fn get_rate_limit_metrics(&self, id: i32) -> crate::Result<GetRatelimitMetricsResponse> {
+let request = self.transport.request(reqwest::Method::GET, &format!("/shield/metrics/rate-limit/{}", crate::transport::segment(id)));
+self.transport.json(request).await
+}
+
+    /// Get the overage breakdown for the specified Shield Zone for a given month, segmented by billing plan changes
+    ///
+    /// `GET /shield/metrics/overages/{shieldZoneId}`
+    pub async fn get_shield_zone_monthly_overages(&self, shield_zone_id: i32, query: &GetShieldZoneMonthlyOveragesQuery) -> crate::Result<ShieldZoneMonthlyOveragesResult> {
+let request = self.transport.request_with_query(reqwest::Method::GET, &format!("/shield/metrics/overages/{}", crate::transport::segment(shield_zone_id)), query)?;
+self.transport.json(request).await
+}
+
+    /// Get an overview of metrics for the specified Shield Zone
+    ///
+    /// `GET /shield/metrics/overview/{shieldZoneId}`
+    pub async fn get_shield_zone_metrics_overview(&self, shield_zone_id: i32) -> crate::Result<GetShieldZoneMetricsOverviewResponse> {
+let request = self.transport.request(reqwest::Method::GET, &format!("/shield/metrics/overview/{}", crate::transport::segment(shield_zone_id)));
+self.transport.json(request).await
+}
+
+    /// Get a detailed metrics overview for the specified Shield Zone within the selected time range and resolution
+    ///
+    /// `GET /shield/metrics/overview/{shieldZoneId}/detailed`
+    pub async fn get_shield_zone_detailed_metrics_overview(&self, shield_zone_id: i32, query: &GetShieldZoneDetailedMetricsOverviewQuery) -> crate::Result<ShieldOverviewMetrics> {
+let request = self.transport.request_with_query(reqwest::Method::GET, &format!("/shield/metrics/overview/{}/detailed", crate::transport::segment(shield_zone_id)), query)?;
+self.transport.json(request).await
+}
+
+    /// Get bot detection metrics for the specified Shield Zone
+    ///
+    /// `GET /shield/metrics/shield-zone/{shieldZoneId}/bot-detection`
+    pub async fn get_shield_zone_bot_detection_metrics(&self, shield_zone_id: i32) -> crate::Result<GetShieldZoneBotDetectionMetricsResponse> {
+let request = self.transport.request(reqwest::Method::GET, &format!("/shield/metrics/shield-zone/{}/bot-detection", crate::transport::segment(shield_zone_id)));
+self.transport.json(request).await
+}
 
     /// Get API Guardian metrics for the specified Shield Zone
     ///
     /// `GET /shield/metrics/shield-zone/{shieldZoneId}/api-guardian`
-    pub async fn get_shield_zone_api_guardian_metrics(
-        &self,
-        shield_zone_id: i32,
-    ) -> crate::Result<GetApiGuardianMetricsResponse> {
-        let request = self.transport.request(
-            reqwest::Method::GET,
-            &format!(
-                "/shield/metrics/shield-zone/{}/api-guardian",
-                crate::transport::segment(shield_zone_id)
-            ),
-        );
-        self.transport.json(request).await
-    }
+    pub async fn get_shield_zone_api_guardian_metrics(&self, shield_zone_id: i32) -> crate::Result<GetApiGuardianMetricsResponse> {
+let request = self.transport.request(reqwest::Method::GET, &format!("/shield/metrics/shield-zone/{}/api-guardian", crate::transport::segment(shield_zone_id)));
+self.transport.json(request).await
+}
 
     /// Get metrics for a specific API Guardian endpoint within the specified Shield Zone
     ///
     /// `GET /shield/metrics/shield-zone/{shieldZoneId}/api-guardian/endpoint/{endpointId}`
-    pub async fn get_api_guardian_endpoint_metrics(
-        &self,
-        shield_zone_id: i32,
-        endpoint_id: i64,
-    ) -> crate::Result<GetApiGuardianEndpointMetricsResponse> {
-        let request = self.transport.request(
-            reqwest::Method::GET,
-            &format!(
-                "/shield/metrics/shield-zone/{}/api-guardian/endpoint/{}",
-                crate::transport::segment(shield_zone_id),
-                crate::transport::segment(endpoint_id)
-            ),
-        );
-        self.transport.json(request).await
-    }
+    pub async fn get_api_guardian_endpoint_metrics(&self, shield_zone_id: i32, endpoint_id: i64) -> crate::Result<GetApiGuardianEndpointMetricsResponse> {
+let request = self.transport.request(reqwest::Method::GET, &format!("/shield/metrics/shield-zone/{}/api-guardian/endpoint/{}", crate::transport::segment(shield_zone_id), crate::transport::segment(endpoint_id)));
+self.transport.json(request).await
+}
 
     /// Get the current Promotion State for your Account
     ///
     /// `GET /shield/promo/state`
     pub async fn get_promotion_state(&self) -> crate::Result<bytes::Bytes> {
-        let request = self
-            .transport
-            .request(reqwest::Method::GET, "/shield/promo/state");
-        self.transport.bytes(request).await
-    }
+let request = self.transport.request(reqwest::Method::GET, "/shield/promo/state");
+self.transport.bytes(request).await
+}
 
     /// Get Rate Limits for your Shield Zone
     ///
     /// `GET /shield/rate-limits/{shieldZoneId}`
-    pub async fn get_rate_limits(
-        &self,
-        shield_zone_id: i64,
-        query: &GetRateLimitsQuery,
-    ) -> crate::Result<GetCustomWafRulesResponse> {
-        let request = self.transport.request_with_query(
-            reqwest::Method::GET,
-            &format!(
-                "/shield/rate-limits/{}",
-                crate::transport::segment(shield_zone_id)
-            ),
-            query,
-        )?;
-        self.transport.json(request).await
-    }
+    pub async fn get_rate_limits(&self, shield_zone_id: i64, query: &GetRateLimitsQuery) -> crate::Result<GetCustomWafRulesResponse> {
+let request = self.transport.request_with_query(reqwest::Method::GET, &format!("/shield/rate-limits/{}", crate::transport::segment(shield_zone_id)), query)?;
+self.transport.json(request).await
+}
 
     /// Get Individual Rate Limit for your Shield Zone
     ///
     /// `GET /shield/rate-limit/{id}`
     pub async fn get_rate_limit(&self, id: i64) -> crate::Result<CustomWafRule> {
-        let request = self.transport.request(
-            reqwest::Method::GET,
-            &format!("/shield/rate-limit/{}", crate::transport::segment(id)),
-        );
-        self.transport.json(request).await
-    }
+let request = self.transport.request(reqwest::Method::GET, &format!("/shield/rate-limit/{}", crate::transport::segment(id)));
+self.transport.json(request).await
+}
 
     /// Delete a Rate Limit on your Shield Zone
     ///
     /// `DELETE /shield/rate-limit/{id}`
     pub async fn delete_rate_limit(&self, id: i32) -> crate::Result<GenericRequestResponse> {
-        let request = self.transport.request(
-            reqwest::Method::DELETE,
-            &format!("/shield/rate-limit/{}", crate::transport::segment(id)),
-        );
-        self.transport.json(request).await
-    }
+let request = self.transport.request(reqwest::Method::DELETE, &format!("/shield/rate-limit/{}", crate::transport::segment(id)));
+self.transport.json(request).await
+}
 
     /// Update a Rate Limit configuration on your Shield Zone
     ///
     /// `PATCH /shield/rate-limit/{id}`
-    pub async fn update_rate_limit(
-        &self,
-        id: i32,
-        body: &UpdateWafRateLimitRequest,
-    ) -> crate::Result<RateLimitRule> {
-        let request = self
-            .transport
-            .request(
-                reqwest::Method::PATCH,
-                &format!("/shield/rate-limit/{}", crate::transport::segment(id)),
-            )
-            .json(body);
-        self.transport.json(request).await
-    }
+    pub async fn update_rate_limit(&self, id: i32, body: &UpdateWafRateLimitRequest) -> crate::Result<RateLimitRule> {
+let request = self.transport.request(reqwest::Method::PATCH, &format!("/shield/rate-limit/{}", crate::transport::segment(id))).json(body);
+self.transport.json(request).await
+}
 
     /// Create a Rate Limit for your Shield Zone
     ///
     /// `POST /shield/rate-limit`
-    pub async fn create_rate_limit(
-        &self,
-        body: &CreateWafRateLimitRequest,
-    ) -> crate::Result<RateLimitRule> {
-        let request = self
-            .transport
-            .request(reqwest::Method::POST, "/shield/rate-limit")
-            .json(body);
-        self.transport.json(request).await
-    }
+    pub async fn create_rate_limit(&self, body: &CreateWafRateLimitRequest) -> crate::Result<RateLimitRule> {
+let request = self.transport.request(reqwest::Method::POST, "/shield/rate-limit").json(body);
+self.transport.json(request).await
+}
 
     /// Get all of your Shield Zone Configurations
     ///
     /// `GET /shield/shield-zones`
-    pub async fn get_shield_zone_configurations(
-        &self,
-        query: &GetShieldZoneConfigurationsQuery,
-    ) -> crate::Result<GetShieldZonesResponse> {
-        let request = self.transport.request_with_query(
-            reqwest::Method::GET,
-            "/shield/shield-zones",
-            query,
-        )?;
-        self.transport.json(request).await
-    }
+    pub async fn get_shield_zone_configurations(&self, query: &GetShieldZoneConfigurationsQuery) -> crate::Result<GetShieldZonesResponse> {
+let request = self.transport.request_with_query(reqwest::Method::GET, "/shield/shield-zones", query)?;
+self.transport.json(request).await
+}
 
     /// Get Active Shield Zones for Pullzone Mapping
     ///
     /// `GET /shield/shield-zones/pullzone-mapping`
-    pub async fn get_shield_zones_pull_zone_mapping(
-        &self,
-    ) -> crate::Result<GetShieldZonePullzoneMappingResponse> {
-        let request = self.transport.request(
-            reqwest::Method::GET,
-            "/shield/shield-zones/pullzone-mapping",
-        );
-        self.transport.json(request).await
-    }
+    pub async fn get_shield_zones_pull_zone_mapping(&self) -> crate::Result<GetShieldZonePullzoneMappingResponse> {
+let request = self.transport.request(reqwest::Method::GET, "/shield/shield-zones/pullzone-mapping");
+self.transport.json(request).await
+}
 
     /// Get Singular Shield Zone Configuration
     ///
     /// `GET /shield/shield-zone/{shieldZoneId}`
-    pub async fn get_shield_zone_configuration(
-        &self,
-        shield_zone_id: i32,
-    ) -> crate::Result<GetShieldZoneResponse> {
-        let request = self.transport.request(
-            reqwest::Method::GET,
-            &format!(
-                "/shield/shield-zone/{}",
-                crate::transport::segment(shield_zone_id)
-            ),
-        );
-        self.transport.json(request).await
-    }
+    pub async fn get_shield_zone_configuration(&self, shield_zone_id: i32) -> crate::Result<GetShieldZoneResponse> {
+let request = self.transport.request(reqwest::Method::GET, &format!("/shield/shield-zone/{}", crate::transport::segment(shield_zone_id)));
+self.transport.json(request).await
+}
 
     /// Get Singular Shield Zone Configuration for PullZone
     ///
     /// `GET /shield/shield-zone/get-by-pullzone/{pullZoneId}`
-    pub async fn get_shield_zone_configuration_by_pull_zone(
-        &self,
-        pull_zone_id: i32,
-    ) -> crate::Result<GetShieldZoneResponse> {
-        let request = self.transport.request(
-            reqwest::Method::GET,
-            &format!(
-                "/shield/shield-zone/get-by-pullzone/{}",
-                crate::transport::segment(pull_zone_id)
-            ),
-        );
-        self.transport.json(request).await
-    }
+    pub async fn get_shield_zone_configuration_by_pull_zone(&self, pull_zone_id: i32) -> crate::Result<GetShieldZoneResponse> {
+let request = self.transport.request(reqwest::Method::GET, &format!("/shield/shield-zone/get-by-pullzone/{}", crate::transport::segment(pull_zone_id)));
+self.transport.json(request).await
+}
 
     /// Get the recommended defaults for creating a Shield Zone
     ///
     /// `GET /shield/shield-zone/defaults`
     pub async fn get_shield_zone_defaults(&self) -> crate::Result<GetShieldZoneDefaultsResponse> {
-        let request = self
-            .transport
-            .request(reqwest::Method::GET, "/shield/shield-zone/defaults");
-        self.transport.json(request).await
-    }
+let request = self.transport.request(reqwest::Method::GET, "/shield/shield-zone/defaults");
+self.transport.json(request).await
+}
 
     /// Create a Shield Zone in under-attack mode for your PullZone
     ///
     /// `POST /shield/shield-zone/under-attack`
-    pub async fn create_shield_zone_under_attack(
-        &self,
-        body: &CreateUnderAttackShieldZoneRequest,
-    ) -> crate::Result<CreateShieldZoneResponse> {
-        let request = self
-            .transport
-            .request(reqwest::Method::POST, "/shield/shield-zone/under-attack")
-            .json(body);
-        self.transport.json(request).await
-    }
+    pub async fn create_shield_zone_under_attack(&self, body: &CreateUnderAttackShieldZoneRequest) -> crate::Result<CreateShieldZoneResponse> {
+let request = self.transport.request(reqwest::Method::POST, "/shield/shield-zone/under-attack").json(body);
+self.transport.json(request).await
+}
 
     /// Create a Shield Zone for your PullZone
     ///
     /// `POST /shield/shield-zone`
-    pub async fn create_shield_zone(
-        &self,
-        body: &CreateShieldZoneRequest,
-    ) -> crate::Result<CreateShieldZoneResponse> {
-        let request = self
-            .transport
-            .request(reqwest::Method::POST, "/shield/shield-zone")
-            .json(body);
-        self.transport.json(request).await
-    }
+    pub async fn create_shield_zone(&self, body: &CreateShieldZoneRequest) -> crate::Result<CreateShieldZoneResponse> {
+let request = self.transport.request(reqwest::Method::POST, "/shield/shield-zone").json(body);
+self.transport.json(request).await
+}
 
     /// Update your Shield Zone configuration
     ///
     /// `PATCH /shield/shield-zone`
-    pub async fn update_shield_zone(
-        &self,
-        body: &UpdateShieldZoneRequest,
-    ) -> crate::Result<UpdateShieldZoneResponse> {
-        let request = self
-            .transport
-            .request(reqwest::Method::PATCH, "/shield/shield-zone")
-            .json(body);
-        self.transport.json(request).await
-    }
+    pub async fn update_shield_zone(&self, body: &UpdateShieldZoneRequest) -> crate::Result<UpdateShieldZoneResponse> {
+let request = self.transport.request(reqwest::Method::PATCH, "/shield/shield-zone").json(body);
+self.transport.json(request).await
+}
 
     /// Get your Current Upload Scanning Configuration
     ///
     /// `GET /shield/shield-zone/{shieldZoneId}/upload-scanning`
-    pub async fn get_upload_scanning(
-        &self,
-        shield_zone_id: i32,
-    ) -> crate::Result<UploadScanningConfigurationResponse> {
-        let request = self.transport.request(
-            reqwest::Method::GET,
-            &format!(
-                "/shield/shield-zone/{}/upload-scanning",
-                crate::transport::segment(shield_zone_id)
-            ),
-        );
-        self.transport.json(request).await
-    }
+    pub async fn get_upload_scanning(&self, shield_zone_id: i32) -> crate::Result<UploadScanningConfigurationResponse> {
+let request = self.transport.request(reqwest::Method::GET, &format!("/shield/shield-zone/{}/upload-scanning", crate::transport::segment(shield_zone_id)));
+self.transport.json(request).await
+}
 
     /// Update your Upload Scanning Configuration
     ///
     /// `PATCH /shield/shield-zone/{shieldZoneId}/upload-scanning`
-    pub async fn update_upload_scanning(
-        &self,
-        shield_zone_id: i32,
-        body: &UpdateUploadScanningConfigurationRequest,
-    ) -> crate::Result<UpdateUploadScanningConfigurationResponse> {
-        let request = self
-            .transport
-            .request(
-                reqwest::Method::PATCH,
-                &format!(
-                    "/shield/shield-zone/{}/upload-scanning",
-                    crate::transport::segment(shield_zone_id)
-                ),
-            )
-            .json(body);
-        self.transport.json(request).await
-    }
+    pub async fn update_upload_scanning(&self, shield_zone_id: i32, body: &UpdateUploadScanningConfigurationRequest) -> crate::Result<UpdateUploadScanningConfigurationResponse> {
+let request = self.transport.request(reqwest::Method::PATCH, &format!("/shield/shield-zone/{}/upload-scanning", crate::transport::segment(shield_zone_id))).json(body);
+self.transport.json(request).await
+}
 
     /// Retrieve all available WAF rules for a Shield Zone
     ///
     /// `GET /shield/waf/rules/{shieldZoneId}`
-    pub async fn get_waf_rules(
-        &self,
-        shield_zone_id: i64,
-    ) -> crate::Result<Vec<WafRuleMainGroupModel>> {
-        let request = self.transport.request(
-            reqwest::Method::GET,
-            &format!(
-                "/shield/waf/rules/{}",
-                crate::transport::segment(shield_zone_id)
-            ),
-        );
-        self.transport.json(request).await
-    }
+    pub async fn get_waf_rules(&self, shield_zone_id: i64) -> crate::Result<Vec<WafRuleMainGroupModel>> {
+let request = self.transport.request(reqwest::Method::GET, &format!("/shield/waf/rules/{}", crate::transport::segment(shield_zone_id)));
+self.transport.json(request).await
+}
 
     /// Retrieve WAF rules segmented by subscription plan
     ///
     /// `GET /shield/waf/rules/plan-segmentation`
     pub async fn get_waf_rules_by_plan(&self) -> crate::Result<GetWafRulesSegmentedByPlanResponse> {
-        let request = self
-            .transport
-            .request(reqwest::Method::GET, "/shield/waf/rules/plan-segmentation");
-        self.transport.json(request).await
-    }
+let request = self.transport.request(reqwest::Method::GET, "/shield/waf/rules/plan-segmentation");
+self.transport.json(request).await
+}
 
     /// Review all triggered WAF rules for the specified Shield Zone
     ///
     /// `GET /shield/waf/rules/review-triggered/{shieldZoneId}`
-    pub async fn get_triggered_waf_rules(
-        &self,
-        shield_zone_id: i64,
-    ) -> crate::Result<GetTriggeredRulesResponse> {
-        let request = self.transport.request(
-            reqwest::Method::GET,
-            &format!(
-                "/shield/waf/rules/review-triggered/{}",
-                crate::transport::segment(shield_zone_id)
-            ),
-        );
-        self.transport.json(request).await
-    }
+    pub async fn get_triggered_waf_rules(&self, shield_zone_id: i64) -> crate::Result<GetTriggeredRulesResponse> {
+let request = self.transport.request(reqwest::Method::GET, &format!("/shield/waf/rules/review-triggered/{}", crate::transport::segment(shield_zone_id)));
+self.transport.json(request).await
+}
 
     /// Review and update the action of a triggered WAF rule
     ///
     /// `POST /shield/waf/rules/review-triggered/{shieldZoneId}`
-    pub async fn update_triggered_waf_rule(
-        &self,
-        shield_zone_id: i64,
-        body: &UpdateReviewTriggeredRuleRequest,
-    ) -> crate::Result<UpdateReviewTriggeredRuleResponse> {
-        let request = self
-            .transport
-            .request(
-                reqwest::Method::POST,
-                &format!(
-                    "/shield/waf/rules/review-triggered/{}",
-                    crate::transport::segment(shield_zone_id)
-                ),
-            )
-            .json(body);
-        self.transport.json(request).await
-    }
+    pub async fn update_triggered_waf_rule(&self, shield_zone_id: i64, body: &UpdateReviewTriggeredRuleRequest) -> crate::Result<UpdateReviewTriggeredRuleResponse> {
+let request = self.transport.request(reqwest::Method::POST, &format!("/shield/waf/rules/review-triggered/{}", crate::transport::segment(shield_zone_id))).json(body);
+self.transport.json(request).await
+}
 
     /// Retrieve an AI recommendation for a triggered WAF rule
     ///
     /// `GET /shield/waf/rules/review-triggered/ai-recommendation/{shieldZoneId}/{ruleId}`
-    pub async fn get_triggered_rule_ai_recommendation(
-        &self,
-        shield_zone_id: i64,
-        rule_id: &str,
-    ) -> crate::Result<TriggeredRuleRecommendationResponse> {
-        let request = self.transport.request(
-            reqwest::Method::GET,
-            &format!(
-                "/shield/waf/rules/review-triggered/ai-recommendation/{}/{}",
-                crate::transport::segment(shield_zone_id),
-                crate::transport::segment(rule_id)
-            ),
-        );
-        self.transport.json(request).await
-    }
-
-    /// Retrieve custom WAF rules configured for the specified Shield Zone
-    ///
-    /// `GET /shield/waf/custom-rules/{shieldZoneId}`
-    pub async fn get_custom_waf_rules(
-        &self,
-        shield_zone_id: i64,
-        query: &GetCustomWafRulesQuery,
-    ) -> crate::Result<GetCustomWafRulesResponse> {
-        let request = self.transport.request_with_query(
-            reqwest::Method::GET,
-            &format!(
-                "/shield/waf/custom-rules/{}",
-                crate::transport::segment(shield_zone_id)
-            ),
-            query,
-        )?;
-        self.transport.json(request).await
-    }
-
-    /// Retrieve a specific custom WAF rule
-    ///
-    /// `GET /shield/waf/custom-rule/{id}`
-    pub async fn get_custom_waf_rule(&self, id: i64) -> crate::Result<CustomWafRule> {
-        let request = self.transport.request(
-            reqwest::Method::GET,
-            &format!("/shield/waf/custom-rule/{}", crate::transport::segment(id)),
-        );
-        self.transport.json(request).await
-    }
-
-    /// Update an existing custom WAF rule
-    ///
-    /// `PUT /shield/waf/custom-rule/{id}`
-    pub async fn update_custom_waf_rule(
-        &self,
-        id: i32,
-        body: &UpdateCustomWafRuleRequest,
-    ) -> crate::Result<CustomWafRule> {
-        let request = self
-            .transport
-            .request(
-                reqwest::Method::PUT,
-                &format!("/shield/waf/custom-rule/{}", crate::transport::segment(id)),
-            )
-            .json(body);
-        self.transport.json(request).await
-    }
-
-    /// Delete a custom WAF rule
-    ///
-    /// `DELETE /shield/waf/custom-rule/{id}`
-    pub async fn delete_custom_waf_rule(&self, id: i32) -> crate::Result<GenericRequestResponse> {
-        let request = self.transport.request(
-            reqwest::Method::DELETE,
-            &format!("/shield/waf/custom-rule/{}", crate::transport::segment(id)),
-        );
-        self.transport.json(request).await
-    }
-
-    /// Update an existing custom WAF rule
-    ///
-    /// `PATCH /shield/waf/custom-rule/{id}`
-    pub async fn patch_custom_waf_rule(
-        &self,
-        id: i32,
-        body: &UpdateCustomWafRuleRequest,
-    ) -> crate::Result<CustomWafRule> {
-        let request = self
-            .transport
-            .request(
-                reqwest::Method::PATCH,
-                &format!("/shield/waf/custom-rule/{}", crate::transport::segment(id)),
-            )
-            .json(body);
-        self.transport.json(request).await
-    }
-
-    /// Create a new custom WAF rule
-    ///
-    /// `POST /shield/waf/custom-rule`
-    pub async fn create_custom_waf_rule(
-        &self,
-        body: &CreateCustomWafRuleRequest,
-    ) -> crate::Result<CustomWafRule> {
-        let request = self
-            .transport
-            .request(reqwest::Method::POST, "/shield/waf/custom-rule")
-            .json(body);
-        self.transport.json(request).await
-    }
+    pub async fn get_triggered_rule_ai_recommendation(&self, shield_zone_id: i64, rule_id: &str) -> crate::Result<TriggeredRuleRecommendationResponse> {
+let request = self.transport.request(reqwest::Method::GET, &format!("/shield/waf/rules/review-triggered/ai-recommendation/{}/{}", crate::transport::segment(shield_zone_id), crate::transport::segment(rule_id)));
+self.transport.json(request).await
+}
 
     /// Retrieve all available WAF profiles
     ///
     /// `GET /shield/waf/profiles`
     pub async fn list_waf_profiles(&self) -> crate::Result<GetWafProfilesResponse> {
-        let request = self
-            .transport
-            .request(reqwest::Method::GET, "/shield/waf/profiles");
-        self.transport.json(request).await
-    }
+let request = self.transport.request(reqwest::Method::GET, "/shield/waf/profiles");
+self.transport.json(request).await
+}
 
     /// Retrieve all available WAF enum mappings
     ///
     /// `GET /shield/waf/enums`
     pub async fn get_waf_enum_mappings(&self) -> crate::Result<GetWafEnumsResponse> {
-        let request = self
-            .transport
-            .request(reqwest::Method::GET, "/shield/waf/enums");
-        self.transport.json(request).await
-    }
+let request = self.transport.request(reqwest::Method::GET, "/shield/waf/enums");
+self.transport.json(request).await
+}
 
     /// Retrieve the default WAF engine configuration
     ///
     /// `GET /shield/waf/engine-config`
     pub async fn get_waf_engine_configuration(&self) -> crate::Result<GetWafEngineConfigResponse> {
-        let request = self
-            .transport
-            .request(reqwest::Method::GET, "/shield/waf/engine-config");
-        self.transport.json(request).await
-    }
+let request = self.transport.request(reqwest::Method::GET, "/shield/waf/engine-config");
+self.transport.json(request).await
+}
+
+    /// Retrieve custom WAF rules configured for the specified Shield Zone
+    ///
+    /// `GET /shield/waf/custom-rules/{shieldZoneId}`
+    pub async fn get_custom_waf_rules(&self, shield_zone_id: i64, query: &GetCustomWafRulesQuery) -> crate::Result<GetCustomWafRulesResponse> {
+let request = self.transport.request_with_query(reqwest::Method::GET, &format!("/shield/waf/custom-rules/{}", crate::transport::segment(shield_zone_id)), query)?;
+self.transport.json(request).await
+}
+
+    /// Retrieve a specific custom WAF rule
+    ///
+    /// `GET /shield/waf/custom-rule/{id}`
+    pub async fn get_custom_waf_rule(&self, id: i64) -> crate::Result<CustomWafRule> {
+let request = self.transport.request(reqwest::Method::GET, &format!("/shield/waf/custom-rule/{}", crate::transport::segment(id)));
+self.transport.json(request).await
+}
+
+    /// Update an existing custom WAF rule
+    ///
+    /// `PUT /shield/waf/custom-rule/{id}`
+    pub async fn update_custom_waf_rule(&self, id: i32, body: &UpdateCustomWafRuleRequest) -> crate::Result<CustomWafRule> {
+let request = self.transport.request(reqwest::Method::PUT, &format!("/shield/waf/custom-rule/{}", crate::transport::segment(id))).json(body);
+self.transport.json(request).await
+}
+
+    /// Delete a custom WAF rule
+    ///
+    /// `DELETE /shield/waf/custom-rule/{id}`
+    pub async fn delete_custom_waf_rule(&self, id: i32) -> crate::Result<GenericRequestResponse> {
+let request = self.transport.request(reqwest::Method::DELETE, &format!("/shield/waf/custom-rule/{}", crate::transport::segment(id)));
+self.transport.json(request).await
+}
+
+    /// Update an existing custom WAF rule
+    ///
+    /// `PATCH /shield/waf/custom-rule/{id}`
+    pub async fn patch_custom_waf_rule(&self, id: i32, body: &UpdateCustomWafRuleRequest) -> crate::Result<CustomWafRule> {
+let request = self.transport.request(reqwest::Method::PATCH, &format!("/shield/waf/custom-rule/{}", crate::transport::segment(id))).json(body);
+self.transport.json(request).await
+}
+
+    /// Create a new custom WAF rule
+    ///
+    /// `POST /shield/waf/custom-rule`
+    pub async fn create_custom_waf_rule(&self, body: &CreateCustomWafRuleRequest) -> crate::Result<CustomWafRule> {
+let request = self.transport.request(reqwest::Method::POST, "/shield/waf/custom-rule").json(body);
+self.transport.json(request).await
+}
+
 }
 
 #[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
@@ -1232,23 +640,17 @@ int_enum! {
     }
 }
 
-/// Represents detailed information about an access list and its configuration.
 #[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
 #[serde(default)]
 pub struct AccessListDetails {
-    /// The unique identifier of the access list.
     #[serde(rename = "listId")]
     pub list_id: i64,
-    /// The unique identifier of the access list configuration.
     #[serde(rename = "configurationId")]
     pub configuration_id: i64,
-    /// The display name of the access list.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub name: Option<String>,
-    /// Optional description of the access list's purpose or contents.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub description: Option<String>,
-    /// Indicates whether the access list is currently enabled and active.
     #[serde(rename = "isEnabled")]
     pub is_enabled: bool,
     pub r#type: AccessListType,
@@ -1257,13 +659,10 @@ pub struct AccessListDetails {
     pub action: AccessListAction,
     #[serde(rename = "requiredPlan", skip_serializing_if = "Option::is_none")]
     pub required_plan: Option<ShieldPlanType>,
-    /// The total number of entries currently in the access list.
     #[serde(rename = "entryCount")]
     pub entry_count: i64,
-    /// How frequently the list is updated from its source. Only applicable to managed lists.
     #[serde(rename = "updateFrequency", skip_serializing_if = "Option::is_none")]
     pub update_frequency: Option<String>,
-    /// The timestamp when the access list was last updated.
     #[serde(rename = "lastUpdated")]
     pub last_updated: String,
 }
@@ -1285,76 +684,51 @@ int_enum! {
     }
 }
 
-/// Response containing comprehensive access list information for a Shield Zone, including both managed and custom lists.
 #[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
 #[serde(default)]
 pub struct AccessListsDetailsResponse {
-    /// List of curated threat lists maintained by Bunny Shield with automatic updates.
     #[serde(rename = "managedLists", skip_serializing_if = "Option::is_none")]
     pub managed_lists: Option<Vec<AccessListDetails>>,
-    /// List of custom access lists created and maintained by the user.
     #[serde(rename = "customLists", skip_serializing_if = "Option::is_none")]
     pub custom_lists: Option<Vec<AccessListDetails>>,
-    /// Total number of entries across all custom access lists for this Shield Zone.
     #[serde(rename = "customEntryCount", skip_serializing_if = "Option::is_none")]
     pub custom_entry_count: Option<i32>,
-    /// Maximum number of entries allowed across all custom access lists based on the Shield plan.
     #[serde(rename = "customEntryLimit", skip_serializing_if = "Option::is_none")]
     pub custom_entry_limit: Option<i32>,
-    /// Current number of custom access lists for this Shield Zone.
     #[serde(rename = "customListCount", skip_serializing_if = "Option::is_none")]
     pub custom_list_count: Option<i32>,
-    /// Maximum number of custom access lists allowed based on the Shield plan.
     #[serde(rename = "customListLimit", skip_serializing_if = "Option::is_none")]
     pub custom_list_limit: Option<i32>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub error: Option<GenericRequestResponse>,
 }
 
-/// Global API Guardian configuration for a shield zone.
 #[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
 #[serde(default)]
 pub struct ApiGuardianConfigurationDetails {
     #[serde(rename = "shieldZoneId", skip_serializing_if = "Option::is_none")]
     pub shield_zone_id: Option<i32>,
-    /// Whether API Guardian is enabled for this shield zone. When disabled, no requests are inspected.
     #[serde(rename = "isEnabled", skip_serializing_if = "Option::is_none")]
     pub is_enabled: Option<bool>,
     #[serde(rename = "executionMode", skip_serializing_if = "Option::is_none")]
     pub execution_mode: Option<WafExecutionMode>,
     #[serde(rename = "bodyLimitAction", skip_serializing_if = "Option::is_none")]
     pub body_limit_action: Option<WafPayloadLimitAction>,
-    #[serde(
-        rename = "unmatchedPathAction",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "unmatchedPathAction", skip_serializing_if = "Option::is_none")]
     pub unmatched_path_action: Option<UnmatchedPathAction>,
-    /// The `info.title` field from the uploaded OpenAPI specification.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub title: Option<String>,
-    /// The `info.version` field from the uploaded OpenAPI specification.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub version: Option<String>,
-    /// Plan limit: maximum number of endpoints that can be defined in the specification.
     #[serde(rename = "maxEndpoints", skip_serializing_if = "Option::is_none")]
     pub max_endpoints: Option<i32>,
-    /// Plan limit: maximum number of properties a single schema object may declare.
     #[serde(rename = "maxFieldsPerType", skip_serializing_if = "Option::is_none")]
     pub max_fields_per_type: Option<i32>,
-    /// Plan limit: maximum depth of nested `$ref`, `items`, and `properties` chains.
     #[serde(rename = "maxNestingDepth", skip_serializing_if = "Option::is_none")]
     pub max_nesting_depth: Option<i32>,
-    /// Plan limit: combined node count across all `components/schemas` entries.
-    #[serde(
-        rename = "maxTotalSchemaNodes",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "maxTotalSchemaNodes", skip_serializing_if = "Option::is_none")]
     pub max_total_schema_nodes: Option<i32>,
-    /// Plan limit: combined character length of all `pattern` regex strings in the specification.
-    #[serde(
-        rename = "maxTotalRegexLength",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "maxTotalRegexLength", skip_serializing_if = "Option::is_none")]
     pub max_total_regex_length: Option<i32>,
     #[serde(rename = "createdAt", skip_serializing_if = "Option::is_none")]
     pub created_at: Option<String>,
@@ -1362,12 +736,10 @@ pub struct ApiGuardianConfigurationDetails {
     pub updated_at: Option<String>,
 }
 
-/// The full API Guardian state for a shield zone: global configuration and all endpoints.
 #[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
 #[serde(default)]
 pub struct ApiGuardianConfigurationResponse {
     pub configuration: ApiGuardianConfigurationDetails,
-    /// All endpoints discovered from the uploaded OpenAPI specification.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub endpoints: Option<Vec<ApiGuardianEndpointDetails>>,
 }
@@ -1383,19 +755,12 @@ pub struct ApiGuardianEndpointActivity {
     pub rate_limited: Option<i32>,
     #[serde(rename = "requestsInspected", skip_serializing_if = "Option::is_none")]
     pub requests_inspected: Option<i32>,
-    #[serde(
-        rename = "failedRequestValidation",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "failedRequestValidation", skip_serializing_if = "Option::is_none")]
     pub failed_request_validation: Option<i32>,
-    #[serde(
-        rename = "failedAuthenticationEnforcement",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "failedAuthenticationEnforcement", skip_serializing_if = "Option::is_none")]
     pub failed_authentication_enforcement: Option<i32>,
 }
 
-/// All parameters defined in the OAS operation, grouped by location (path, query, header, cookie).
 #[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
 #[serde(default)]
 pub struct ApiGuardianEndpointDetailsAvailableParameters {
@@ -1409,8 +774,6 @@ pub struct ApiGuardianEndpointDetailsAvailableParameters {
     pub cookie: Option<Vec<String>>,
 }
 
-/// Parameters selected for XSS/SQLi injection detection, grouped by location.
-/// Null if not configured. Subset of BunnyNet.Shield.Api.Services.Shield.ApiGuardian.Models.ApiGuardianEndpointDetails.AvailableParameters.
 #[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
 #[serde(default)]
 pub struct ApiGuardianEndpointDetailsInjectionDetectionParameters {
@@ -1424,102 +787,46 @@ pub struct ApiGuardianEndpointDetailsInjectionDetectionParameters {
     pub cookie: Option<Vec<String>>,
 }
 
-/// Detailed view of a single API Guardian endpoint, including its validation settings,
-/// authentication requirements, and rate limiting configuration.
 #[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
 #[serde(default)]
 pub struct ApiGuardianEndpointDetails {
-    #[serde(
-        rename = "apiGuardianEndpointId",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "apiGuardianEndpointId", skip_serializing_if = "Option::is_none")]
     pub api_guardian_endpoint_id: Option<i64>,
     #[serde(rename = "shieldZoneId", skip_serializing_if = "Option::is_none")]
     pub shield_zone_id: Option<i32>,
-    /// The HTTP method (e.g. "GET", "POST").
     #[serde(rename = "requestMethod", skip_serializing_if = "Option::is_none")]
     pub request_method: Option<String>,
-    /// The OAS path template (e.g. "/pets/{petId}").
     #[serde(rename = "requestPath", skip_serializing_if = "Option::is_none")]
     pub request_path: Option<String>,
-    /// Whether inbound request bodies are validated against the OAS request body schema.
-    #[serde(
-        rename = "validateRequestBodySchema",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "validateRequestBodySchema", skip_serializing_if = "Option::is_none")]
     pub validate_request_body_schema: Option<bool>,
-    /// Whether outbound response bodies are validated against the OAS response schema.
-    #[serde(
-        rename = "validateResponseBodySchema",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "validateResponseBodySchema", skip_serializing_if = "Option::is_none")]
     pub validate_response_body_schema: Option<bool>,
-    /// Whether authentication credentials are enforced.
-    #[serde(
-        rename = "validateAuthorization",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "validateAuthorization", skip_serializing_if = "Option::is_none")]
     pub validate_authorization: Option<bool>,
-    /// Whether this endpoint is active. Disabled endpoints are not enforced.
     #[serde(rename = "isEnabled", skip_serializing_if = "Option::is_none")]
     pub is_enabled: Option<bool>,
-    /// Authentication schemes required by this endpoint, derived from the OAS security requirements.
-    /// Null when the endpoint has no security requirements.
     #[serde(rename = "authSchemes", skip_serializing_if = "Option::is_none")]
     pub auth_schemes: Option<Vec<AuthSchemeDetails>>,
-    /// The request body schema rendered as YAML for display purposes. Null if no request body is defined.
-    #[serde(
-        rename = "requestBodySchemaYaml",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "requestBodySchemaYaml", skip_serializing_if = "Option::is_none")]
     pub request_body_schema_yaml: Option<String>,
-    /// Response body schemas keyed by HTTP status code, rendered as YAML. Null if no response schemas are defined.
-    #[serde(
-        rename = "responseBodySchemasYaml",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "responseBodySchemasYaml", skip_serializing_if = "Option::is_none")]
     pub response_body_schemas_yaml: Option<std::collections::HashMap<String, String>>,
-    /// All parameters defined in the OAS operation, grouped by location (path, query, header, cookie).
-    #[serde(
-        rename = "availableParameters",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "availableParameters", skip_serializing_if = "Option::is_none")]
     pub available_parameters: Option<ApiGuardianEndpointDetailsAvailableParameters>,
-    /// Parameters selected for XSS/SQLi injection detection, grouped by location.
-    /// Null if not configured. Subset of BunnyNet.Shield.Api.Services.Shield.ApiGuardian.Models.ApiGuardianEndpointDetails.AvailableParameters.
-    #[serde(
-        rename = "injectionDetectionParameters",
-        skip_serializing_if = "Option::is_none"
-    )]
-    pub injection_detection_parameters:
-        Option<ApiGuardianEndpointDetailsInjectionDetectionParameters>,
-    /// Whether XSS detection is enabled for the selected parameters.
+    #[serde(rename = "injectionDetectionParameters", skip_serializing_if = "Option::is_none")]
+    pub injection_detection_parameters: Option<ApiGuardianEndpointDetailsInjectionDetectionParameters>,
     #[serde(rename = "detectParameterXss", skip_serializing_if = "Option::is_none")]
     pub detect_parameter_xss: Option<bool>,
-    /// Whether SQL injection detection is enabled for the selected parameters.
-    #[serde(
-        rename = "detectParameterSqli",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "detectParameterSqli", skip_serializing_if = "Option::is_none")]
     pub detect_parameter_sqli: Option<bool>,
-    /// Whether per-endpoint rate limiting is active.
-    #[serde(
-        rename = "rateLimitingEnabled",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "rateLimitingEnabled", skip_serializing_if = "Option::is_none")]
     pub rate_limiting_enabled: Option<bool>,
     #[serde(rename = "rateLimitingType", skip_serializing_if = "Option::is_none")]
     pub rate_limiting_type: Option<ApiGuardianRateLimitType>,
-    /// Maximum number of requests allowed within the rate limiting timeframe before blocking.
-    #[serde(
-        rename = "rateLimitingRequestCount",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "rateLimitingRequestCount", skip_serializing_if = "Option::is_none")]
     pub rate_limiting_request_count: Option<i32>,
-    #[serde(
-        rename = "rateLimitingTimeframe",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "rateLimitingTimeframe", skip_serializing_if = "Option::is_none")]
     pub rate_limiting_timeframe: Option<RateLimitTimeframe>,
     #[serde(rename = "createdAt", skip_serializing_if = "Option::is_none")]
     pub created_at: Option<String>,
@@ -1530,77 +837,39 @@ pub struct ApiGuardianEndpointDetails {
 #[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
 #[serde(default)]
 pub struct ApiGuardianEndpointMetrics {
-    #[serde(
-        rename = "totalBlockedRequests",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "totalBlockedRequests", skip_serializing_if = "Option::is_none")]
     pub total_blocked_requests: Option<i64>,
-    #[serde(
-        rename = "totalLoggedRequests",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "totalLoggedRequests", skip_serializing_if = "Option::is_none")]
     pub total_logged_requests: Option<i64>,
     #[serde(rename = "totalRateLimited", skip_serializing_if = "Option::is_none")]
     pub total_rate_limited: Option<i64>,
-    #[serde(
-        rename = "totalRequestsInspected",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "totalRequestsInspected", skip_serializing_if = "Option::is_none")]
     pub total_requests_inspected: Option<i64>,
-    #[serde(
-        rename = "totalFailedRequestValidation",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "totalFailedRequestValidation", skip_serializing_if = "Option::is_none")]
     pub total_failed_request_validation: Option<i64>,
-    #[serde(
-        rename = "totalFailedAuthenticationEnforcement",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "totalFailedAuthenticationEnforcement", skip_serializing_if = "Option::is_none")]
     pub total_failed_authentication_enforcement: Option<i64>,
-    #[serde(
-        rename = "overviewPastTwentyEightDays",
-        skip_serializing_if = "Option::is_none"
-    )]
-    pub overview_past_twenty_eight_days:
-        Option<std::collections::HashMap<String, ApiGuardianEndpointActivity>>,
+    #[serde(rename = "overviewPastTwentyEightDays", skip_serializing_if = "Option::is_none")]
+    pub overview_past_twenty_eight_days: Option<std::collections::HashMap<String, ApiGuardianEndpointActivity>>,
 }
 
 #[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
 #[serde(default)]
 pub struct ApiGuardianMetrics {
-    #[serde(
-        rename = "totalBlockedRequests",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "totalBlockedRequests", skip_serializing_if = "Option::is_none")]
     pub total_blocked_requests: Option<i64>,
-    #[serde(
-        rename = "totalLoggedRequests",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "totalLoggedRequests", skip_serializing_if = "Option::is_none")]
     pub total_logged_requests: Option<i64>,
     #[serde(rename = "totalRateLimited", skip_serializing_if = "Option::is_none")]
     pub total_rate_limited: Option<i64>,
-    #[serde(
-        rename = "totalRequestsInspected",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "totalRequestsInspected", skip_serializing_if = "Option::is_none")]
     pub total_requests_inspected: Option<i64>,
-    #[serde(
-        rename = "totalFailedRequestValidation",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "totalFailedRequestValidation", skip_serializing_if = "Option::is_none")]
     pub total_failed_request_validation: Option<i64>,
-    #[serde(
-        rename = "totalFailedAuthenticationEnforcement",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "totalFailedAuthenticationEnforcement", skip_serializing_if = "Option::is_none")]
     pub total_failed_authentication_enforcement: Option<i64>,
-    #[serde(
-        rename = "overviewPastTwentyEightDays",
-        skip_serializing_if = "Option::is_none"
-    )]
-    pub overview_past_twenty_eight_days:
-        Option<std::collections::HashMap<String, ApiGuardianEndpointActivity>>,
+    #[serde(rename = "overviewPastTwentyEightDays", skip_serializing_if = "Option::is_none")]
+    pub overview_past_twenty_eight_days: Option<std::collections::HashMap<String, ApiGuardianEndpointActivity>>,
 }
 
 str_enum! {
@@ -1611,7 +880,6 @@ str_enum! {
 }
 
 str_enum! {
-    /// Where an authentication credential is transmitted in the HTTP request.
     AuthLocation {
         Header = "Header",
         Query = "Query",
@@ -1619,29 +887,22 @@ str_enum! {
     }
 }
 
-/// Describes a single authentication scheme required by an endpoint,
-/// as extracted from the OpenAPI specification's securitySchemes.
 #[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
 #[serde(default)]
 pub struct AuthSchemeDetails {
-    /// The OpenAPI security scheme reference name (e.g. "bearerAuth", "apiKey").
     #[serde(rename = "schemeName", skip_serializing_if = "Option::is_none")]
     pub scheme_name: Option<String>,
     #[serde(rename = "schemeType", skip_serializing_if = "Option::is_none")]
     pub scheme_type: Option<AuthSchemeType>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub location: Option<AuthLocation>,
-    /// The name of the header, query parameter, or cookie that carries the credential
-    /// (e.g. "Authorization", "X-API-Key").
     #[serde(rename = "credentialName", skip_serializing_if = "Option::is_none")]
     pub credential_name: Option<String>,
-    /// For HTTP auth schemes, the scheme name (e.g. "bearer", "basic"). Null for non-HTTP schemes.
     #[serde(rename = "httpScheme", skip_serializing_if = "Option::is_none")]
     pub http_scheme: Option<String>,
 }
 
 str_enum! {
-    /// The type of security scheme as defined in the OpenAPI specification.
     AuthSchemeType {
         ApiKey = "ApiKey",
         Http = "Http",
@@ -1825,21 +1086,16 @@ pub struct ConfigVariableValueMinimal {
     pub value_encoded: Option<String>,
 }
 
-/// Request model for creating a new custom access list.
 #[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
 #[serde(default)]
 pub struct CreateCustomAccessListRequest {
-    /// The display name for the new access list.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub name: Option<String>,
-    /// Optional description of the access list's purpose or contents.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub description: Option<String>,
     pub r#type: AccessListType,
-    /// The initial content for the access list with entries separated by newlines.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub content: Option<String>,
-    /// SHA-256 checksum of the content for integrity verification. If null, it will be automatically calculated.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub checksum: Option<String>,
 }
@@ -1875,19 +1131,13 @@ pub struct CreateCustomWafRuleModelVariableTypes {
     pub request_basename: Option<String>,
     #[serde(rename = "REQUEST_BODY", skip_serializing_if = "Option::is_none")]
     pub request_body: Option<String>,
-    #[serde(
-        rename = "REQUEST_COOKIES_NAMES",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "REQUEST_COOKIES_NAMES", skip_serializing_if = "Option::is_none")]
     pub request_cookies_names: Option<String>,
     #[serde(rename = "REQUEST_COOKIES", skip_serializing_if = "Option::is_none")]
     pub request_cookies: Option<String>,
     #[serde(rename = "REQUEST_FILENAME", skip_serializing_if = "Option::is_none")]
     pub request_filename: Option<String>,
-    #[serde(
-        rename = "REQUEST_HEADERS_NAMES",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "REQUEST_HEADERS_NAMES", skip_serializing_if = "Option::is_none")]
     pub request_headers_names: Option<String>,
     #[serde(rename = "REQUEST_HEADERS", skip_serializing_if = "Option::is_none")]
     pub request_headers: Option<String>,
@@ -1905,10 +1155,7 @@ pub struct CreateCustomWafRuleModelVariableTypes {
     pub response_status: Option<String>,
     #[serde(rename = "FINGERPRINT", skip_serializing_if = "Option::is_none")]
     pub fingerprint: Option<String>,
-    #[serde(
-        rename = "VERIFIED_BOT_CATEGORY",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "VERIFIED_BOT_CATEGORY", skip_serializing_if = "Option::is_none")]
     pub verified_bot_category: Option<String>,
 }
 
@@ -1923,10 +1170,7 @@ pub struct CreateCustomWafRuleModel {
     pub operator_type: Option<WafRuleOperatorType>,
     #[serde(rename = "severityType", skip_serializing_if = "Option::is_none")]
     pub severity_type: Option<WafRuleSeverityType>,
-    #[serde(
-        rename = "transformationTypes",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "transformationTypes", skip_serializing_if = "Option::is_none")]
     pub transformation_types: Option<Vec<WafRuleTransformationType>>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub value: Option<String>,
@@ -1934,10 +1178,7 @@ pub struct CreateCustomWafRuleModel {
     pub is_negated: Option<bool>,
     #[serde(rename = "isRegexVariable", skip_serializing_if = "Option::is_none")]
     pub is_regex_variable: Option<bool>,
-    #[serde(
-        rename = "chainedRuleConditions",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "chainedRuleConditions", skip_serializing_if = "Option::is_none")]
     pub chained_rule_conditions: Option<Vec<WafChainedRuleConditionItem>>,
 }
 
@@ -1958,24 +1199,18 @@ pub struct CreateCustomWafRuleRequest {
 #[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
 #[serde(default)]
 pub struct CreateShieldZoneRequest {
+    #[serde(rename = "accessLists", skip_serializing_if = "Option::is_none")]
+    pub access_lists: Option<std::collections::HashMap<String, AccessListAction>>,
+    #[serde(rename = "botDetectionExecutionMode", skip_serializing_if = "Option::is_none")]
+    pub bot_detection_execution_mode: Option<BotDetectionExecutionMode>,
+    #[serde(rename = "csamScanningMode", skip_serializing_if = "Option::is_none")]
+    pub csam_scanning_mode: Option<UploadScanningScannerMode>,
+    #[serde(rename = "antivirusScanningMode", skip_serializing_if = "Option::is_none")]
+    pub antivirus_scanning_mode: Option<UploadScanningScannerMode>,
     #[serde(rename = "shieldZone", skip_serializing_if = "Option::is_none")]
     pub shield_zone: Option<ShieldZoneRequest>,
     #[serde(rename = "pullZoneId")]
     pub pull_zone_id: i64,
-    #[serde(rename = "accessLists", skip_serializing_if = "Option::is_none")]
-    pub access_lists: Option<std::collections::HashMap<String, AccessListAction>>,
-    #[serde(
-        rename = "botDetectionExecutionMode",
-        skip_serializing_if = "Option::is_none"
-    )]
-    pub bot_detection_execution_mode: Option<BotDetectionExecutionMode>,
-    #[serde(rename = "csamScanningMode", skip_serializing_if = "Option::is_none")]
-    pub csam_scanning_mode: Option<UploadScanningScannerMode>,
-    #[serde(
-        rename = "antivirusScanningMode",
-        skip_serializing_if = "Option::is_none"
-    )]
-    pub antivirus_scanning_mode: Option<UploadScanningScannerMode>,
 }
 
 /// Response object for creating a new Shield Zone.
@@ -2041,19 +1276,13 @@ pub struct CreateWafRateLimitRuleModelVariableTypes {
     pub request_basename: Option<String>,
     #[serde(rename = "REQUEST_BODY", skip_serializing_if = "Option::is_none")]
     pub request_body: Option<String>,
-    #[serde(
-        rename = "REQUEST_COOKIES_NAMES",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "REQUEST_COOKIES_NAMES", skip_serializing_if = "Option::is_none")]
     pub request_cookies_names: Option<String>,
     #[serde(rename = "REQUEST_COOKIES", skip_serializing_if = "Option::is_none")]
     pub request_cookies: Option<String>,
     #[serde(rename = "REQUEST_FILENAME", skip_serializing_if = "Option::is_none")]
     pub request_filename: Option<String>,
-    #[serde(
-        rename = "REQUEST_HEADERS_NAMES",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "REQUEST_HEADERS_NAMES", skip_serializing_if = "Option::is_none")]
     pub request_headers_names: Option<String>,
     #[serde(rename = "REQUEST_HEADERS", skip_serializing_if = "Option::is_none")]
     pub request_headers: Option<String>,
@@ -2071,10 +1300,7 @@ pub struct CreateWafRateLimitRuleModelVariableTypes {
     pub response_status: Option<String>,
     #[serde(rename = "FINGERPRINT", skip_serializing_if = "Option::is_none")]
     pub fingerprint: Option<String>,
-    #[serde(
-        rename = "VERIFIED_BOT_CATEGORY",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "VERIFIED_BOT_CATEGORY", skip_serializing_if = "Option::is_none")]
     pub verified_bot_category: Option<String>,
 }
 
@@ -2089,10 +1315,7 @@ pub struct CreateWafRateLimitRuleModel {
     pub operator_type: Option<WafRuleOperatorType>,
     #[serde(rename = "severityType", skip_serializing_if = "Option::is_none")]
     pub severity_type: Option<WafRuleSeverityType>,
-    #[serde(
-        rename = "transformationTypes",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "transformationTypes", skip_serializing_if = "Option::is_none")]
     pub transformation_types: Option<Vec<WafRuleTransformationType>>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub value: Option<String>,
@@ -2108,42 +1331,30 @@ pub struct CreateWafRateLimitRuleModel {
     pub timeframe: Option<WafRateLimitTimeframeType>,
     #[serde(rename = "blockTime", skip_serializing_if = "Option::is_none")]
     pub block_time: Option<WafRatelimitBlockType>,
-    #[serde(
-        rename = "chainedRuleConditions",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "chainedRuleConditions", skip_serializing_if = "Option::is_none")]
     pub chained_rule_conditions: Option<Vec<WafChainedRuleConditionItem>>,
 }
 
-/// Represents a custom access list associated with a shield zone.
 #[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
 #[serde(default)]
 pub struct CustomAccessList {
-    /// The unique identifier of the custom access list.
     pub id: i64,
-    /// The display name of the custom access list.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub name: Option<String>,
-    /// Optional description of the access list's purpose or contents.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub description: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub r#type: Option<AccessListType>,
-    /// The raw content of the access list with entries separated by newlines.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub content: Option<String>,
-    /// SHA-256 checksum of the content for integrity verification.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub checksum: Option<String>,
-    /// The total number of entries in the access list.
     #[serde(rename = "entryCount", skip_serializing_if = "Option::is_none")]
     pub entry_count: Option<i64>,
-    /// The timestamp when the access list was last modified.
     #[serde(rename = "lastModified", skip_serializing_if = "Option::is_none")]
     pub last_modified: Option<String>,
 }
 
-/// Response containing custom access list data or error information.
 #[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
 #[serde(default)]
 pub struct CustomAccessListResponse {
@@ -2213,151 +1424,112 @@ int_enum! {
     }
 }
 
-/// An aggregated group of events (returned when the search request specifies groupBy).
 #[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
 #[serde(default)]
 pub struct EventGroup {
-    /// The group key: each requested groupBy dimension mapped to its value.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub key: Option<std::collections::HashMap<String, String>>,
-    /// Number of events in the group.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub count: Option<i64>,
-    /// Earliest event time in the group (Unix time in milliseconds, UTC).
     #[serde(rename = "firstSeen", skip_serializing_if = "Option::is_none")]
     pub first_seen: Option<i64>,
-    /// Most recent event time in the group (Unix time in milliseconds, UTC).
     #[serde(rename = "lastSeen", skip_serializing_if = "Option::is_none")]
     pub last_seen: Option<i64>,
-    /// Context aggregates for the group: country, asn, per-action counts (blocked/challenged/logged),
-    /// and features/ruleIds touched. Counts are numbers; features/ruleIds are comma-joined strings.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub context: Option<serde_json::Value>,
-    /// Per-group event counts bucketed across the requested window (mini time histogram), present only
-    /// when the request set `buckets`. Bucket i covers [from + i*width, from + (i+1)*width).
+    /// The event count of this group in each time bucket of the window (a small time histogram).
+    /// Present only when the request set `buckets`. Bucket i covers
+    /// [from + i*width, from + (i+1)*width).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub sparkline: Option<Vec<i64>>,
 }
 
-/// Request body for exporting a Shield Zone's full filtered Event Logs set as CSV.
 #[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
 #[serde(default)]
 pub struct EventLogsExportRequest {
-    /// Window start as Unix time in milliseconds (UTC). Required.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub from: Option<i64>,
-    /// Window end as Unix time in milliseconds (UTC). Required; must be after BunnyNet.Shield.Api.Entities.Waf.WafLogging.EventLogsExportRequest.from and within the last 72 hours.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub to: Option<i64>,
-    /// Optional free-text search across IP, ruleId, URL, User-Agent and rule name.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub query: Option<String>,
-    /// Optional filters, combined with AND. Repeated values within one filter combine with OR.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub filters: Option<Vec<EventLogsFilter>>,
 }
 
-/// A single Event Logs filter clause.
 #[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
 #[serde(default)]
 pub struct EventLogsFilter {
-    /// Dimension to filter on: feature, ruleId, ip, ja4, ua, url, asn, country or action.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub field: Option<String>,
-    /// Operator: eq, in, contains, cidr (ip only, IPv4/IPv6) or wildcard ('*' matches any run).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub op: Option<String>,
-    /// Value(s) for the filter; multiple values are OR-combined.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub value: Option<Vec<String>>,
 }
 
-/// Request body for searching a Shield Zone's Event Logs within a time window.
 #[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
 #[serde(default)]
 pub struct EventLogsSearchRequest {
-    /// Window start as Unix time in milliseconds (UTC). Required.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub from: Option<i64>,
-    /// Window end as Unix time in milliseconds (UTC). Required; must be after BunnyNet.Shield.Api.Entities.Waf.WafLogging.EventLogsSearchRequest.from and within the last 72 hours.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub to: Option<i64>,
-    /// Optional free-text search across IP, ruleId, URL, User-Agent and rule name.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub query: Option<String>,
-    /// Optional filters, combined with AND. Repeated values within one filter combine with OR.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub filters: Option<Vec<EventLogsFilter>>,
-    /// Optional ordered dimensions to group by, e.g. ["ip","ja4"]. Omit for flat rows.
-    /// Allowed: feature, ruleId, ip, ja4, ua, url, asn, country, action.
     #[serde(rename = "groupBy", skip_serializing_if = "Option::is_none")]
     pub group_by: Option<Vec<String>>,
-    /// When grouping, the number of time buckets for each group's sparkline histogram over the
-    /// window. 0 (default) omits the sparkline; clamped to 500.
+    /// When grouping, the number of time buckets for the sparkline histogram of each group over the
+    /// window. 0 (default) omits the sparkline. The provider clamps the value to 500.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub buckets: Option<i32>,
-    /// Zero-based page index.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub page: Option<i32>,
-    /// Page size; clamped to 1–500 (defaults to 50 when unset).
     #[serde(rename = "pageSize", skip_serializing_if = "Option::is_none")]
     pub page_size: Option<i32>,
 }
 
-/// Result of an Event Logs search. Exactly one of BunnyNet.Shield.Api.Entities.Waf.WafLogging.EventLogsSearchResponse.rows or BunnyNet.Shield.Api.Entities.Waf.WafLogging.EventLogsSearchResponse.groups is populated.
 #[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
 #[serde(default)]
 pub struct EventLogsSearchResponse {
-    /// Flat event rows (populated when the request had no groupBy).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub rows: Option<Vec<EventRow>>,
-    /// Aggregated groups (populated when the request had a groupBy).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub groups: Option<Vec<EventGroup>>,
-    /// Total flat rows, or total distinct groups when grouped.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub total: Option<i64>,
-    /// Total number of pages for the current page size.
     #[serde(rename = "totalPages", skip_serializing_if = "Option::is_none")]
     pub total_pages: Option<i32>,
-    /// Zero-based index of the returned page.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub page: Option<i32>,
     #[serde(rename = "errorResponse", skip_serializing_if = "Option::is_none")]
     pub error_response: Option<GenericRequestResponse>,
 }
 
-/// A single event returned in a flat (ungrouped) search.
 #[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
 #[serde(default)]
 pub struct EventRow {
-    /// Unique event identifier.
     #[serde(rename = "logId", skip_serializing_if = "Option::is_none")]
     pub log_id: Option<String>,
-    /// Event time as Unix time in milliseconds (UTC).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub timestamp: Option<i64>,
-    /// The full request context for the event (JSON object).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub log: Option<serde_json::Value>,
-    /// Resolved dimension values for the event (e.g. ip, ruleId, url, ja4).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub fields: Option<std::collections::HashMap<String, String>>,
 }
 
-/// Generic response object containing status information for API operations.
 #[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
 #[serde(default)]
 pub struct GenericRequestResponse {
     #[serde(rename = "statusCode", skip_serializing_if = "Option::is_none")]
     pub status_code: Option<HttpStatusCode>,
-    /// Indicates whether the operation was successful.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub success: Option<bool>,
-    /// Human-readable message describing the result of the operation.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub message: Option<String>,
-    /// Unique error key for programmatic error handling, if applicable.
     #[serde(rename = "errorKey", skip_serializing_if = "Option::is_none")]
     pub error_key: Option<String>,
 }
@@ -2380,7 +1552,6 @@ pub struct GetApiGuardianMetricsResponse {
     pub data: Option<ApiGuardianMetrics>,
 }
 
-/// Represents the response for getting API Guardian configuration.
 #[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
 #[serde(default)]
 pub struct GetApiGuardianResponse {
@@ -2485,10 +1656,7 @@ pub struct GetTriggeredRulesResponse {
     pub error_response: Option<GenericRequestResponse>,
     #[serde(rename = "triggeredRules", skip_serializing_if = "Option::is_none")]
     pub triggered_rules: Option<Vec<TriggeredRuleItem>>,
-    #[serde(
-        rename = "totalTriggeredRules",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "totalTriggeredRules", skip_serializing_if = "Option::is_none")]
     pub total_triggered_rules: Option<i32>,
 }
 
@@ -2763,6 +1931,7 @@ pub struct OverviewMetric {
     pub totals: Option<std::collections::HashMap<String, i64>>,
 }
 
+/// Describes which page of Shield Zones this response contains.
 #[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
 #[serde(default)]
 pub struct PaginationResponse {
@@ -2858,12 +2027,8 @@ pub struct Ratelimit {
 pub struct RatelimitMetrics {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub overview: Option<IndividualRatelimit>,
-    #[serde(
-        rename = "ratelimitOverviewPastTwentyEightDays",
-        skip_serializing_if = "Option::is_none"
-    )]
-    pub ratelimit_overview_past_twenty_eight_days:
-        Option<std::collections::HashMap<String, IndividualRatelimit>>,
+    #[serde(rename = "ratelimitOverviewPastTwentyEightDays", skip_serializing_if = "Option::is_none")]
+    pub ratelimit_overview_past_twenty_eight_days: Option<std::collections::HashMap<String, IndividualRatelimit>>,
 }
 
 int_enum! {
@@ -2904,17 +2069,11 @@ pub struct ShieldOverview {
     pub waf_triggered_rules: Option<i32>,
     #[serde(rename = "ratelimitBreaches", skip_serializing_if = "Option::is_none")]
     pub ratelimit_breaches: Option<i32>,
-    #[serde(
-        rename = "botDetectionChallenged",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "botDetectionChallenged", skip_serializing_if = "Option::is_none")]
     pub bot_detection_challenged: Option<i32>,
     #[serde(rename = "accessListActions", skip_serializing_if = "Option::is_none")]
     pub access_list_actions: Option<i32>,
-    #[serde(
-        rename = "uploadScanningBlocks",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "uploadScanningBlocks", skip_serializing_if = "Option::is_none")]
     pub upload_scanning_blocks: Option<i32>,
     #[serde(rename = "apiGuardianBlocks", skip_serializing_if = "Option::is_none")]
     pub api_guardian_blocks: Option<i32>,
@@ -2946,15 +2105,9 @@ pub struct ShieldOverviewMetricsData {
     pub upload_scanning: Option<OverviewMetric>,
     #[serde(rename = "apiGuardian", skip_serializing_if = "Option::is_none")]
     pub api_guardian: Option<OverviewMetric>,
-    #[serde(
-        rename = "totalCleanRequestsLimit",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "totalCleanRequestsLimit", skip_serializing_if = "Option::is_none")]
     pub total_clean_requests_limit: Option<i64>,
-    #[serde(
-        rename = "totalBillableRequestsThisMonth",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "totalBillableRequestsThisMonth", skip_serializing_if = "Option::is_none")]
     pub total_billable_requests_this_month: Option<i64>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub resolution: Option<MetricsOverviewResolution>,
@@ -2976,21 +2129,11 @@ int_enum! {
 #[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
 #[serde(default)]
 pub struct ShieldZoneBotDetectionMetrics {
-    #[serde(
-        rename = "overviewPastTwentyEightDays",
-        skip_serializing_if = "Option::is_none"
-    )]
-    pub overview_past_twenty_eight_days:
-        Option<std::collections::HashMap<String, BotDetectionData>>,
-    #[serde(
-        rename = "totalLoggedRequests",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "overviewPastTwentyEightDays", skip_serializing_if = "Option::is_none")]
+    pub overview_past_twenty_eight_days: Option<std::collections::HashMap<String, BotDetectionData>>,
+    #[serde(rename = "totalLoggedRequests", skip_serializing_if = "Option::is_none")]
     pub total_logged_requests: Option<i32>,
-    #[serde(
-        rename = "totalChallengedRequests",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "totalChallengedRequests", skip_serializing_if = "Option::is_none")]
     pub total_challenged_requests: Option<i32>,
 }
 
@@ -3016,65 +2159,33 @@ pub struct ShieldZoneMetrics {
     pub overview: Option<ShieldOverview>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub waf: Option<Waf>,
-    #[serde(
-        rename = "overviewPastTwentyEightDays",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "overviewPastTwentyEightDays", skip_serializing_if = "Option::is_none")]
     pub overview_past_twenty_eight_days: Option<std::collections::HashMap<String, ShieldOverview>>,
     #[serde(rename = "dDoS", skip_serializing_if = "Option::is_none")]
     pub d_do_s: Option<DDoS>,
-    #[serde(
-        rename = "dDoSOverviewPastTwentyEightDays",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "dDoSOverviewPastTwentyEightDays", skip_serializing_if = "Option::is_none")]
     pub d_do_s_overview_past_twenty_eight_days: Option<std::collections::HashMap<String, DDoS>>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub ratelimit: Option<Ratelimit>,
-    #[serde(
-        rename = "ratelimitOverviewPastTwentyEightDays",
-        skip_serializing_if = "Option::is_none"
-    )]
-    pub ratelimit_overview_past_twenty_eight_days:
-        Option<std::collections::HashMap<String, Ratelimit>>,
+    #[serde(rename = "ratelimitOverviewPastTwentyEightDays", skip_serializing_if = "Option::is_none")]
+    pub ratelimit_overview_past_twenty_eight_days: Option<std::collections::HashMap<String, Ratelimit>>,
     #[serde(rename = "botDetection", skip_serializing_if = "Option::is_none")]
     pub bot_detection: Option<BotDetectionData>,
-    #[serde(
-        rename = "botDetectionOverviewPastTwentyEightDays",
-        skip_serializing_if = "Option::is_none"
-    )]
-    pub bot_detection_overview_past_twenty_eight_days:
-        Option<std::collections::HashMap<String, BotDetectionData>>,
+    #[serde(rename = "botDetectionOverviewPastTwentyEightDays", skip_serializing_if = "Option::is_none")]
+    pub bot_detection_overview_past_twenty_eight_days: Option<std::collections::HashMap<String, BotDetectionData>>,
     #[serde(rename = "accessList", skip_serializing_if = "Option::is_none")]
     pub access_list: Option<AccessList>,
-    #[serde(
-        rename = "accessListOverviewPastTwentyEightDays",
-        skip_serializing_if = "Option::is_none"
-    )]
-    pub access_list_overview_past_twenty_eight_days:
-        Option<std::collections::HashMap<String, AccessList>>,
-    #[serde(
-        rename = "uploadScanningOverviewPastTwentyEightDays",
-        skip_serializing_if = "Option::is_none"
-    )]
-    pub upload_scanning_overview_past_twenty_eight_days:
-        Option<std::collections::HashMap<String, UploadScanning>>,
+    #[serde(rename = "accessListOverviewPastTwentyEightDays", skip_serializing_if = "Option::is_none")]
+    pub access_list_overview_past_twenty_eight_days: Option<std::collections::HashMap<String, AccessList>>,
+    #[serde(rename = "uploadScanningOverviewPastTwentyEightDays", skip_serializing_if = "Option::is_none")]
+    pub upload_scanning_overview_past_twenty_eight_days: Option<std::collections::HashMap<String, UploadScanning>>,
     #[serde(rename = "apiGuardian", skip_serializing_if = "Option::is_none")]
     pub api_guardian: Option<ApiGuardianEndpointActivity>,
-    #[serde(
-        rename = "apiGuardianOverviewPastTwentyEightDays",
-        skip_serializing_if = "Option::is_none"
-    )]
-    pub api_guardian_overview_past_twenty_eight_days:
-        Option<std::collections::HashMap<String, ApiGuardianEndpointActivity>>,
-    #[serde(
-        rename = "totalCleanRequestsLimit",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "apiGuardianOverviewPastTwentyEightDays", skip_serializing_if = "Option::is_none")]
+    pub api_guardian_overview_past_twenty_eight_days: Option<std::collections::HashMap<String, ApiGuardianEndpointActivity>>,
+    #[serde(rename = "totalCleanRequestsLimit", skip_serializing_if = "Option::is_none")]
     pub total_clean_requests_limit: Option<i64>,
-    #[serde(
-        rename = "totalBillableRequests",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "totalBillableRequests", skip_serializing_if = "Option::is_none")]
     pub total_billable_requests: Option<i64>,
     #[serde(rename = "uploadScanning", skip_serializing_if = "Option::is_none")]
     pub upload_scanning: Option<UploadScanning>,
@@ -3128,12 +2239,8 @@ pub struct ShieldZoneRatelimitMetrics {
     pub ratelimit_id: Option<i64>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub overview: Option<ShieldZoneRatelimit>,
-    #[serde(
-        rename = "ratelimitOverviewPastTwentyEightDays",
-        skip_serializing_if = "Option::is_none"
-    )]
-    pub ratelimit_overview_past_twenty_eight_days:
-        Option<std::collections::HashMap<String, ShieldZoneRatelimit>>,
+    #[serde(rename = "ratelimitOverviewPastTwentyEightDays", skip_serializing_if = "Option::is_none")]
+    pub ratelimit_overview_past_twenty_eight_days: Option<std::collections::HashMap<String, ShieldZoneRatelimit>>,
 }
 
 #[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
@@ -3159,54 +2266,27 @@ pub struct ShieldZoneRequest {
     pub waf_log_only_rules: Option<Vec<String>>,
     #[serde(rename = "wafCustomRuleOrder", skip_serializing_if = "Option::is_none")]
     pub waf_custom_rule_order: Option<Vec<i64>>,
-    #[serde(
-        rename = "wafRequestHeaderLoggingEnabled",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "wafRequestHeaderLoggingEnabled", skip_serializing_if = "Option::is_none")]
     pub waf_request_header_logging_enabled: Option<bool>,
-    #[serde(
-        rename = "requestBodyLoggingEnabled",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "requestBodyLoggingEnabled", skip_serializing_if = "Option::is_none")]
     pub request_body_logging_enabled: Option<bool>,
-    #[serde(
-        rename = "wafRequestIgnoredHeaders",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "wafRequestIgnoredHeaders", skip_serializing_if = "Option::is_none")]
     pub waf_request_ignored_headers: Option<Vec<String>>,
-    #[serde(
-        rename = "wafRealtimeThreatIntelligenceEnabled",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "wafRealtimeThreatIntelligenceEnabled", skip_serializing_if = "Option::is_none")]
     pub waf_realtime_threat_intelligence_enabled: Option<bool>,
     #[serde(rename = "wafProfileId", skip_serializing_if = "Option::is_none")]
     pub waf_profile_id: Option<i32>,
     #[serde(rename = "wafEngineConfig", skip_serializing_if = "Option::is_none")]
     pub waf_engine_config: Option<Vec<PullZoneWafConfigVariableModel>>,
-    #[serde(
-        rename = "wafRequestBodyLimitAction",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "wafRequestBodyLimitAction", skip_serializing_if = "Option::is_none")]
     pub waf_request_body_limit_action: Option<WafPayloadLimitAction>,
-    #[serde(
-        rename = "wafResponseBodyLimitAction",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "wafResponseBodyLimitAction", skip_serializing_if = "Option::is_none")]
     pub waf_response_body_limit_action: Option<WafPayloadLimitAction>,
-    #[serde(
-        rename = "dDoSShieldSensitivity",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "dDoSShieldSensitivity", skip_serializing_if = "Option::is_none")]
     pub d_do_s_shield_sensitivity: Option<DDoSShieldSensitivity>,
-    #[serde(
-        rename = "dDoSChallengeWindow",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "dDoSChallengeWindow", skip_serializing_if = "Option::is_none")]
     pub d_do_s_challenge_window: Option<i32>,
-    #[serde(
-        rename = "whitelabelResponsePages",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "whitelabelResponsePages", skip_serializing_if = "Option::is_none")]
     pub whitelabel_response_pages: Option<bool>,
 }
 
@@ -3231,88 +2311,46 @@ pub struct ShieldZoneResponse {
     pub waf_log_only_rules: Option<Vec<String>>,
     #[serde(rename = "wafCustomRuleOrder", skip_serializing_if = "Option::is_none")]
     pub waf_custom_rule_order: Option<Vec<i64>>,
-    #[serde(
-        rename = "wafRequestHeaderLoggingEnabled",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "wafRequestHeaderLoggingEnabled", skip_serializing_if = "Option::is_none")]
     pub waf_request_header_logging_enabled: Option<bool>,
-    #[serde(
-        rename = "requestBodyLoggingEnabled",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "requestBodyLoggingEnabled", skip_serializing_if = "Option::is_none")]
     pub request_body_logging_enabled: Option<bool>,
-    #[serde(
-        rename = "wafRequestIgnoredHeaders",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "wafRequestIgnoredHeaders", skip_serializing_if = "Option::is_none")]
     pub waf_request_ignored_headers: Option<Vec<String>>,
-    #[serde(
-        rename = "wafRealtimeThreatIntelligenceEnabled",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "wafRealtimeThreatIntelligenceEnabled", skip_serializing_if = "Option::is_none")]
     pub waf_realtime_threat_intelligence_enabled: Option<bool>,
     #[serde(rename = "wafProfileId", skip_serializing_if = "Option::is_none")]
     pub waf_profile_id: Option<i32>,
     #[serde(rename = "wafEngineConfig", skip_serializing_if = "Option::is_none")]
     pub waf_engine_config: Option<Vec<PullZoneWafConfigVariableModel>>,
-    #[serde(
-        rename = "wafRequestBodyLimitAction",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "wafRequestBodyLimitAction", skip_serializing_if = "Option::is_none")]
     pub waf_request_body_limit_action: Option<WafPayloadLimitAction>,
-    #[serde(
-        rename = "wafResponseBodyLimitAction",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "wafResponseBodyLimitAction", skip_serializing_if = "Option::is_none")]
     pub waf_response_body_limit_action: Option<WafPayloadLimitAction>,
-    #[serde(
-        rename = "rateLimitRulesLimit",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "rateLimitRulesLimit", skip_serializing_if = "Option::is_none")]
     pub rate_limit_rules_limit: Option<i32>,
-    #[serde(
-        rename = "customWafRulesLimit",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "customWafRulesLimit", skip_serializing_if = "Option::is_none")]
     pub custom_waf_rules_limit: Option<i32>,
     #[serde(rename = "planType", skip_serializing_if = "Option::is_none")]
     pub plan_type: Option<ShieldPlanType>,
-    #[serde(
-        rename = "dDoSShieldSensitivity",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "dDoSShieldSensitivity", skip_serializing_if = "Option::is_none")]
     pub d_do_s_shield_sensitivity: Option<DDoSShieldSensitivity>,
     #[serde(rename = "dDoSExecutionMode", skip_serializing_if = "Option::is_none")]
     pub d_do_s_execution_mode: Option<DDoSExecutionMode>,
-    #[serde(
-        rename = "dDoSChallengeWindow",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "dDoSChallengeWindow", skip_serializing_if = "Option::is_none")]
     pub d_do_s_challenge_window: Option<i32>,
-    #[serde(
-        rename = "whitelabelResponsePages",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "whitelabelResponsePages", skip_serializing_if = "Option::is_none")]
     pub whitelabel_response_pages: Option<bool>,
 }
 
 #[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
 #[serde(default)]
 pub struct ShieldZoneUploadScanningMetrics {
-    #[serde(
-        rename = "overviewPastTwentyEightDays",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "overviewPastTwentyEightDays", skip_serializing_if = "Option::is_none")]
     pub overview_past_twenty_eight_days: Option<std::collections::HashMap<String, UploadScanning>>,
-    #[serde(
-        rename = "totalLoggedRequests",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "totalLoggedRequests", skip_serializing_if = "Option::is_none")]
     pub total_logged_requests: Option<i32>,
-    #[serde(
-        rename = "totalBlockedRequests",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "totalBlockedRequests", skip_serializing_if = "Option::is_none")]
     pub total_blocked_requests: Option<i32>,
     #[serde(rename = "totalFilesScanned", skip_serializing_if = "Option::is_none")]
     pub total_files_scanned: Option<i32>,
@@ -3341,10 +2379,7 @@ pub struct TriggeredRuleItem {
     pub rule_description: Option<String>,
     #[serde(rename = "topTargetedUrls", skip_serializing_if = "Option::is_none")]
     pub top_targeted_urls: Option<std::collections::HashMap<String, i32>>,
-    #[serde(
-        rename = "totalTriggeredRequests",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "totalTriggeredRequests", skip_serializing_if = "Option::is_none")]
     pub total_triggered_requests: Option<i32>,
     #[serde(rename = "ruleLogs", skip_serializing_if = "Option::is_none")]
     pub rule_logs: Option<Vec<Log>>,
@@ -3383,18 +2418,15 @@ int_enum! {
     }
 }
 
-/// Request model for updating an access list configuration.
 #[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
 #[serde(default)]
 pub struct UpdateAccessListConfigurationRequest {
-    /// Whether the access list should be enabled or disabled. If null, the current state is preserved.
     #[serde(rename = "isEnabled", skip_serializing_if = "Option::is_none")]
     pub is_enabled: Option<bool>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub action: Option<AccessListAction>,
 }
 
-/// Response containing the updated access list configuration data or error information.
 #[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
 #[serde(default)]
 pub struct UpdateAccessListConfigurationResponse {
@@ -3404,26 +2436,19 @@ pub struct UpdateAccessListConfigurationResponse {
     pub error: Option<GenericRequestResponse>,
 }
 
-/// Patch request for updating the global API Guardian configuration.
-/// All fields are optional — only provided fields are applied.
 #[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
 #[serde(default)]
 pub struct UpdateApiGuardianConfigurationRequest {
-    /// Enable or disable API Guardian entirely for this shield zone.
     #[serde(rename = "isEnabled", skip_serializing_if = "Option::is_none")]
     pub is_enabled: Option<bool>,
     #[serde(rename = "executionMode", skip_serializing_if = "Option::is_none")]
     pub execution_mode: Option<WafExecutionMode>,
     #[serde(rename = "bodyLimitAction", skip_serializing_if = "Option::is_none")]
     pub body_limit_action: Option<WafPayloadLimitAction>,
-    #[serde(
-        rename = "unmatchedPathAction",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "unmatchedPathAction", skip_serializing_if = "Option::is_none")]
     pub unmatched_path_action: Option<UnmatchedPathAction>,
 }
 
-/// Response for the PATCH /configuration endpoint.
 #[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
 #[serde(default)]
 pub struct UpdateApiGuardianConfigurationResponse {
@@ -3433,8 +2458,6 @@ pub struct UpdateApiGuardianConfigurationResponse {
     pub data: Option<ApiGuardianConfigurationDetails>,
 }
 
-/// Parameters to run injection detection on, grouped by location (path, query, header, cookie).
-/// Must be a subset of the endpoint's available parameters.
 #[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
 #[serde(default)]
 pub struct UpdateApiGuardianEndpointRequestInjectionDetectionParameters {
@@ -3448,74 +2471,33 @@ pub struct UpdateApiGuardianEndpointRequestInjectionDetectionParameters {
     pub cookie: Option<Vec<String>>,
 }
 
-/// Patch request for updating an individual API Guardian endpoint.
-/// All fields are optional — only provided fields are applied.
 #[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
 #[serde(default)]
 pub struct UpdateApiGuardianEndpointRequest {
-    /// Enable or disable this endpoint. Disabled endpoints are not enforced.
     #[serde(rename = "isEnabled", skip_serializing_if = "Option::is_none")]
     pub is_enabled: Option<bool>,
-    /// Enable or disable request body schema validation.
-    /// Only effective if the endpoint's OAS operation defines a request body schema.
-    #[serde(
-        rename = "validateRequestBodySchema",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "validateRequestBodySchema", skip_serializing_if = "Option::is_none")]
     pub validate_request_body_schema: Option<bool>,
-    /// Enable or disable response body schema validation.
-    /// Only effective if the endpoint's OAS operation defines response schemas.
-    #[serde(
-        rename = "validateResponseBodySchema",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "validateResponseBodySchema", skip_serializing_if = "Option::is_none")]
     pub validate_response_body_schema: Option<bool>,
-    /// Enable or disable enforcement of authentication requirements
-    /// as defined in the OAS security schemes.
-    #[serde(
-        rename = "validateAuthorization",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "validateAuthorization", skip_serializing_if = "Option::is_none")]
     pub validate_authorization: Option<bool>,
-    /// Parameters to run injection detection on, grouped by location (path, query, header, cookie).
-    /// Must be a subset of the endpoint's available parameters.
-    #[serde(
-        rename = "injectionDetectionParameters",
-        skip_serializing_if = "Option::is_none"
-    )]
-    pub injection_detection_parameters:
-        Option<UpdateApiGuardianEndpointRequestInjectionDetectionParameters>,
-    /// Enable XSS detection on the selected injection detection parameters.
+    #[serde(rename = "injectionDetectionParameters", skip_serializing_if = "Option::is_none")]
+    pub injection_detection_parameters: Option<UpdateApiGuardianEndpointRequestInjectionDetectionParameters>,
     #[serde(rename = "detectParameterXss", skip_serializing_if = "Option::is_none")]
     pub detect_parameter_xss: Option<bool>,
-    /// Enable SQL injection detection on the selected injection detection parameters.
-    #[serde(
-        rename = "detectParameterSqli",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "detectParameterSqli", skip_serializing_if = "Option::is_none")]
     pub detect_parameter_sqli: Option<bool>,
-    /// Enable or disable per-endpoint rate limiting.
-    #[serde(
-        rename = "rateLimitingEnabled",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "rateLimitingEnabled", skip_serializing_if = "Option::is_none")]
     pub rate_limiting_enabled: Option<bool>,
     #[serde(rename = "rateLimitingType", skip_serializing_if = "Option::is_none")]
     pub rate_limiting_type: Option<ApiGuardianRateLimitType>,
-    /// Maximum number of requests allowed within the timeframe before blocking. Must be greater than zero.
-    #[serde(
-        rename = "rateLimitingRequestCount",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "rateLimitingRequestCount", skip_serializing_if = "Option::is_none")]
     pub rate_limiting_request_count: Option<i32>,
-    #[serde(
-        rename = "rateLimitingTimeframe",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "rateLimitingTimeframe", skip_serializing_if = "Option::is_none")]
     pub rate_limiting_timeframe: Option<RateLimitTimeframe>,
 }
 
-/// Response for the PATCH /endpoint/{endpointId} endpoint.
 #[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
 #[serde(default)]
 pub struct UpdateApiGuardianEndpointResponse {
@@ -3540,9 +2522,6 @@ pub struct UpdateBotCategorizationConfigurationResponse {
     pub error: Option<GenericRequestResponse>,
 }
 
-/// Request body for setting a category-level action. Uses BunnyNet.Shield.Database.Enums.BotCategoryAction rather
-/// than BunnyNet.Shield.Database.Enums.BotCategorizationAction so the contract can only express actions valid for a
-/// category (no Ignore).
 #[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
 #[serde(default)]
 pub struct UpdateBotCategoryConfigurationRequest {
@@ -3582,17 +2561,13 @@ pub struct UpdateBotDetectionResponse {
     pub data: Option<BotDetectionConfigurationState>,
 }
 
-/// Request model for updating a custom access list.
 #[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
 #[serde(default)]
 pub struct UpdateCustomAccessListRequest {
-    /// The new display name for the access list. If null, the current name is preserved.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub name: Option<String>,
-    /// The new content for the access list with entries separated by newlines. If null, the current content is preserved.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub content: Option<String>,
-    /// SHA-256 checksum of the new content for integrity verification. If null, it will be automatically calculated.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub checksum: Option<String>,
 }
@@ -3653,10 +2628,7 @@ pub struct UpdateUploadScanningConfigurationRequest {
     pub is_enabled: Option<bool>,
     #[serde(rename = "csamScanningMode", skip_serializing_if = "Option::is_none")]
     pub csam_scanning_mode: Option<UploadScanningScannerMode>,
-    #[serde(
-        rename = "antivirusScanningMode",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "antivirusScanningMode", skip_serializing_if = "Option::is_none")]
     pub antivirus_scanning_mode: Option<UploadScanningScannerMode>,
 }
 
@@ -3695,9 +2667,9 @@ pub struct UploadScanning {
 #[serde(default)]
 pub struct UploadScanningConfigurationResponse {
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub error: Option<GenericRequestResponse>,
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub data: Option<UploadScanningConfigurationState>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub error: Option<GenericRequestResponse>,
 }
 
 #[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
@@ -3709,10 +2681,7 @@ pub struct UploadScanningConfigurationState {
     pub is_enabled: Option<bool>,
     #[serde(rename = "csamScanningMode", skip_serializing_if = "Option::is_none")]
     pub csam_scanning_mode: Option<UploadScanningScannerMode>,
-    #[serde(
-        rename = "antivirusScanningMode",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "antivirusScanningMode", skip_serializing_if = "Option::is_none")]
     pub antivirus_scanning_mode: Option<UploadScanningScannerMode>,
 }
 
@@ -3727,24 +2696,15 @@ int_enum! {
     }
 }
 
-/// Represents the request for uploading or updating an OpenAPI specification in API Guardian.
 #[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
 #[serde(default)]
 pub struct UpsertOpenApiSpecificationRequest {
-    /// The file contents of the OpenAPI specification.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub content: Option<String>,
-    /// Whether to enforce authentication requirements for endpoints.
-    /// On upload, defaults to true if not specified.
-    /// On update, existing endpoint auth settings are preserved if not specified.
-    #[serde(
-        rename = "enforceAuthorizationValidation",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "enforceAuthorizationValidation", skip_serializing_if = "Option::is_none")]
     pub enforce_authorization_validation: Option<bool>,
 }
 
-/// Represents the response for uploading or updating an OpenAPI specification in API Guardian.
 #[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
 #[serde(default)]
 pub struct UpsertOpenApiSpecificationResponse {
@@ -3777,10 +2737,7 @@ int_enum! {
 #[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
 #[serde(default)]
 pub struct Waf {
-    #[serde(
-        rename = "totalTriggeredRules",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "totalTriggeredRules", skip_serializing_if = "Option::is_none")]
     pub total_triggered_rules: Option<i32>,
     #[serde(rename = "blockedRequests", skip_serializing_if = "Option::is_none")]
     pub blocked_requests: Option<i32>,
@@ -3821,19 +2778,13 @@ pub struct WafChainedRuleConditionItemVariableTypes {
     pub request_basename: Option<String>,
     #[serde(rename = "REQUEST_BODY", skip_serializing_if = "Option::is_none")]
     pub request_body: Option<String>,
-    #[serde(
-        rename = "REQUEST_COOKIES_NAMES",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "REQUEST_COOKIES_NAMES", skip_serializing_if = "Option::is_none")]
     pub request_cookies_names: Option<String>,
     #[serde(rename = "REQUEST_COOKIES", skip_serializing_if = "Option::is_none")]
     pub request_cookies: Option<String>,
     #[serde(rename = "REQUEST_FILENAME", skip_serializing_if = "Option::is_none")]
     pub request_filename: Option<String>,
-    #[serde(
-        rename = "REQUEST_HEADERS_NAMES",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "REQUEST_HEADERS_NAMES", skip_serializing_if = "Option::is_none")]
     pub request_headers_names: Option<String>,
     #[serde(rename = "REQUEST_HEADERS", skip_serializing_if = "Option::is_none")]
     pub request_headers: Option<String>,
@@ -3851,10 +2802,7 @@ pub struct WafChainedRuleConditionItemVariableTypes {
     pub response_status: Option<String>,
     #[serde(rename = "FINGERPRINT", skip_serializing_if = "Option::is_none")]
     pub fingerprint: Option<String>,
-    #[serde(
-        rename = "VERIFIED_BOT_CATEGORY",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "VERIFIED_BOT_CATEGORY", skip_serializing_if = "Option::is_none")]
     pub verified_bot_category: Option<String>,
 }
 
@@ -3901,10 +2849,7 @@ pub struct WafMappedEnum {
     pub value: Option<i32>,
     #[serde(rename = "supportedValues", skip_serializing_if = "Option::is_none")]
     pub supported_values: Option<WafSupportedValues>,
-    #[serde(
-        rename = "recommendedOperator",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "recommendedOperator", skip_serializing_if = "Option::is_none")]
     pub recommended_operator: Option<WafRecommendedOperator>,
     #[serde(rename = "valueConstraint", skip_serializing_if = "Option::is_none")]
     pub value_constraint: Option<WafValueConstraint>,
@@ -4073,10 +3018,7 @@ pub struct WafRuleMetrics {
     pub logged_requests: Option<i32>,
     #[serde(rename = "challengedRequests", skip_serializing_if = "Option::is_none")]
     pub challenged_requests: Option<i32>,
-    #[serde(
-        rename = "overviewPastTwentyEightDays",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "overviewPastTwentyEightDays", skip_serializing_if = "Option::is_none")]
     pub overview_past_twenty_eight_days: Option<std::collections::HashMap<String, WafRule>>,
 }
 
@@ -4222,6 +3164,8 @@ pub struct WafValueConstraint {
 }
 
 str_enum! {
+    /// Mirrors BunnyNet.Backend.CDS.Services.Shield.Domain.Waf.WafValueKind. The API owns this copy for the same reason as
+    /// BunnyNet.Backend.CDS.Services.Shield.Api.Waf.Models.WafRuleOperatorType. Staging writes the value as a name, so the enum has the string converter.
     WafValueKind {
         Text = "Text",
         Number = "Number",
@@ -4291,3 +3235,5 @@ pub struct GetCustomWafRulesQuery {
     #[serde(rename = "perPage", skip_serializing_if = "Option::is_none")]
     pub per_page: Option<i32>,
 }
+
+

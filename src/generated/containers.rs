@@ -4,12 +4,12 @@
 //! Do not edit by hand.
 
 #![allow(
-    deprecated,
-    clippy::all,
-    rustdoc::bare_urls,
-    rustdoc::broken_intra_doc_links,
-    rustdoc::invalid_html_tags,
-    rustdoc::invalid_rust_codeblocks
+deprecated,
+clippy::all,
+rustdoc::bare_urls,
+rustdoc::broken_intra_doc_links,
+rustdoc::invalid_html_tags,
+rustdoc::invalid_rust_codeblocks
 )]
 
 use serde::{Deserialize, Serialize};
@@ -22,21 +22,19 @@ pub const BASE_URL: &str = "https://api.bunny.net/mc";
 /// Authenticates with your account API key. Cheap to clone; clones share the connection pool.
 #[derive(Debug, Clone)]
 pub struct ContainersClient {
-    pub(crate) transport: crate::transport::Transport,
+pub(crate) transport: crate::transport::Transport,
 }
 
 impl ContainersClient {
-    /// Creates a client authenticated with your account API key.
-    pub fn new(api_key: &str) -> crate::Result<Self> {
-        Self::with_config(api_key, crate::Config::default())
-    }
+/// Creates a client authenticated with your account API key.
+pub fn new(api_key: &str) -> crate::Result<Self> {
+Self::with_config(api_key, crate::Config::default())
+}
 
-    /// Like [`ContainersClient::new`], with custom settings.
-    pub fn with_config(api_key: &str, config: crate::Config) -> crate::Result<Self> {
-        Ok(Self {
-            transport: crate::transport::Transport::new(api_key, BASE_URL, config)?,
-        })
-    }
+/// Like [`ContainersClient::new`], with custom settings.
+pub fn with_config(api_key: &str, config: crate::Config) -> crate::Result<Self> {
+Ok(Self { transport: crate::transport::Transport::new(api_key, BASE_URL, config)? })
+}
 
     /// Deploy Application
     ///
@@ -44,12 +42,9 @@ impl ContainersClient {
     ///
     /// `POST /apps/{appId}/deploy`
     pub async fn deploy_application(&self, app_id: &str) -> crate::Result<()> {
-        let request = self.transport.request(
-            reqwest::Method::POST,
-            &format!("/apps/{}/deploy", crate::transport::segment(app_id)),
-        );
-        self.transport.empty(request).await
-    }
+let request = self.transport.request(reqwest::Method::POST, &format!("/apps/{}/deploy", crate::transport::segment(app_id)));
+self.transport.empty(request).await
+}
 
     /// Undeploy Application
     ///
@@ -57,12 +52,9 @@ impl ContainersClient {
     ///
     /// `POST /apps/{appId}/undeploy`
     pub async fn undeploy_application(&self, app_id: &str) -> crate::Result<()> {
-        let request = self.transport.request(
-            reqwest::Method::POST,
-            &format!("/apps/{}/undeploy", crate::transport::segment(app_id)),
-        );
-        self.transport.empty(request).await
-    }
+let request = self.transport.request(reqwest::Method::POST, &format!("/apps/{}/undeploy", crate::transport::segment(app_id)));
+self.transport.empty(request).await
+}
 
     /// Get Application Statistics
     ///
@@ -72,18 +64,10 @@ impl ContainersClient {
     ///
     /// `GET /apps/{appId}/statistics`
     #[deprecated(note = "deprecated by bunny.net")]
-    pub async fn get_application_statistics(
-        &self,
-        app_id: &str,
-        query: &GetApplicationStatisticsQuery,
-    ) -> crate::Result<Statistics> {
-        let request = self.transport.request_with_query(
-            reqwest::Method::GET,
-            &format!("/apps/{}/statistics", crate::transport::segment(app_id)),
-            query,
-        )?;
-        self.transport.json(request).await
-    }
+    pub async fn get_application_statistics(&self, app_id: &str, query: &GetApplicationStatisticsQuery) -> crate::Result<Statistics> {
+let request = self.transport.request_with_query(reqwest::Method::GET, &format!("/apps/{}/statistics", crate::transport::segment(app_id)), query)?;
+self.transport.json(request).await
+}
 
     /// Get Application Statistics Charts
     ///
@@ -92,21 +76,10 @@ impl ContainersClient {
     /// Returns: Application statistics charts were successfully retrieved.
     ///
     /// `GET /apps/{appId}/statistics/charts`
-    pub async fn get_application_statistics_charts(
-        &self,
-        app_id: &str,
-        query: &GetApplicationStatisticsChartsQuery,
-    ) -> crate::Result<StatisticsCharts> {
-        let request = self.transport.request_with_query(
-            reqwest::Method::GET,
-            &format!(
-                "/apps/{}/statistics/charts",
-                crate::transport::segment(app_id)
-            ),
-            query,
-        )?;
-        self.transport.json(request).await
-    }
+    pub async fn get_application_statistics_charts(&self, app_id: &str, query: &GetApplicationStatisticsChartsQuery) -> crate::Result<StatisticsCharts> {
+let request = self.transport.request_with_query(reqwest::Method::GET, &format!("/apps/{}/statistics/charts", crate::transport::segment(app_id)), query)?;
+self.transport.json(request).await
+}
 
     /// Get Application Usage Summary
     ///
@@ -116,12 +89,9 @@ impl ContainersClient {
     ///
     /// `GET /apps/{appId}/summary`
     pub async fn get_application_usage_summary(&self, app_id: &str) -> crate::Result<UsageSummary> {
-        let request = self.transport.request(
-            reqwest::Method::GET,
-            &format!("/apps/{}/summary", crate::transport::segment(app_id)),
-        );
-        self.transport.json(request).await
-    }
+let request = self.transport.request(reqwest::Method::GET, &format!("/apps/{}/summary", crate::transport::segment(app_id)));
+self.transport.json(request).await
+}
 
     /// Get Application Overview
     ///
@@ -131,12 +101,9 @@ impl ContainersClient {
     ///
     /// `GET /apps/{appId}/overview`
     pub async fn get_application_overview(&self, app_id: &str) -> crate::Result<Overview> {
-        let request = self.transport.request(
-            reqwest::Method::GET,
-            &format!("/apps/{}/overview", crate::transport::segment(app_id)),
-        );
-        self.transport.json(request).await
-    }
+let request = self.transport.request(reqwest::Method::GET, &format!("/apps/{}/overview", crate::transport::segment(app_id)));
+self.transport.json(request).await
+}
 
     /// List Applications
     ///
@@ -145,15 +112,10 @@ impl ContainersClient {
     /// Returns: Applications list retrieved successfully.
     ///
     /// `GET /apps`
-    pub async fn list_applications(
-        &self,
-        query: &ListApplicationsQuery,
-    ) -> crate::Result<ListApplicationsResponse> {
-        let request = self
-            .transport
-            .request_with_query(reqwest::Method::GET, "/apps", query)?;
-        self.transport.json(request).await
-    }
+    pub async fn list_applications(&self, query: &ListApplicationsQuery) -> crate::Result<ListApplicationsResponse> {
+let request = self.transport.request_with_query(reqwest::Method::GET, "/apps", query)?;
+self.transport.json(request).await
+}
 
     /// Add Application
     ///
@@ -162,27 +124,18 @@ impl ContainersClient {
     /// Returns: Application was successfully created.
     ///
     /// `POST /apps`
-    pub async fn add_application(
-        &self,
-        body: &AddApplicationRequest,
-    ) -> crate::Result<AddApplicationResponse> {
-        let request = self
-            .transport
-            .request(reqwest::Method::POST, "/apps")
-            .json(body);
-        self.transport.json(request).await
-    }
+    pub async fn add_application(&self, body: &AddApplicationRequest) -> crate::Result<AddApplicationResponse> {
+let request = self.transport.request(reqwest::Method::POST, "/apps").json(body);
+self.transport.json(request).await
+}
 
     /// Get application
     ///
     /// `GET /apps/{appId}`
     pub async fn get_application(&self, app_id: &str) -> crate::Result<Application> {
-        let request = self.transport.request(
-            reqwest::Method::GET,
-            &format!("/apps/{}", crate::transport::segment(app_id)),
-        );
-        self.transport.json(request).await
-    }
+let request = self.transport.request(reqwest::Method::GET, &format!("/apps/{}", crate::transport::segment(app_id)));
+self.transport.json(request).await
+}
 
     /// Update Application
     ///
@@ -191,20 +144,10 @@ impl ContainersClient {
     /// Returns: Application was successfully updated.
     ///
     /// `PUT /apps/{appId}`
-    pub async fn update_application(
-        &self,
-        app_id: &str,
-        body: &AddApplicationRequest,
-    ) -> crate::Result<AddApplicationResponse> {
-        let request = self
-            .transport
-            .request(
-                reqwest::Method::PUT,
-                &format!("/apps/{}", crate::transport::segment(app_id)),
-            )
-            .json(body);
-        self.transport.json(request).await
-    }
+    pub async fn update_application(&self, app_id: &str, body: &AddApplicationRequest) -> crate::Result<AddApplicationResponse> {
+let request = self.transport.request(reqwest::Method::PUT, &format!("/apps/{}", crate::transport::segment(app_id))).json(body);
+self.transport.json(request).await
+}
 
     /// Delete Application
     ///
@@ -212,12 +155,9 @@ impl ContainersClient {
     ///
     /// `DELETE /apps/{appId}`
     pub async fn delete_application(&self, app_id: &str) -> crate::Result<()> {
-        let request = self.transport.request(
-            reqwest::Method::DELETE,
-            &format!("/apps/{}", crate::transport::segment(app_id)),
-        );
-        self.transport.empty(request).await
-    }
+let request = self.transport.request(reqwest::Method::DELETE, &format!("/apps/{}", crate::transport::segment(app_id)));
+self.transport.empty(request).await
+}
 
     /// Patch Application
     ///
@@ -226,20 +166,10 @@ impl ContainersClient {
     /// Returns: Application was successfully updated.
     ///
     /// `PATCH /apps/{appId}`
-    pub async fn patch_application(
-        &self,
-        app_id: &str,
-        body: &PatchApplicationRequest,
-    ) -> crate::Result<AddApplicationResponse> {
-        let request = self
-            .transport
-            .request(
-                reqwest::Method::PATCH,
-                &format!("/apps/{}", crate::transport::segment(app_id)),
-            )
-            .json(body);
-        self.transport.json(request).await
-    }
+    pub async fn patch_application(&self, app_id: &str, body: &PatchApplicationRequest) -> crate::Result<AddApplicationResponse> {
+let request = self.transport.request(reqwest::Method::PATCH, &format!("/apps/{}", crate::transport::segment(app_id))).json(body);
+self.transport.json(request).await
+}
 
     /// Restart Application
     ///
@@ -247,12 +177,9 @@ impl ContainersClient {
     ///
     /// `POST /apps/{appId}/restart`
     pub async fn restart_application(&self, app_id: &str) -> crate::Result<()> {
-        let request = self.transport.request(
-            reqwest::Method::POST,
-            &format!("/apps/{}/restart", crate::transport::segment(app_id)),
-        );
-        self.transport.empty(request).await
-    }
+let request = self.transport.request(reqwest::Method::POST, &format!("/apps/{}/restart", crate::transport::segment(app_id)));
+self.transport.empty(request).await
+}
 
     /// Get Application Autoscaling
     ///
@@ -261,36 +188,20 @@ impl ContainersClient {
     /// Returns: Autoscaling settings retrieved successfully.
     ///
     /// `GET /apps/{appId}/autoscaling`
-    pub async fn get_application_autoscaling(
-        &self,
-        app_id: &str,
-    ) -> crate::Result<AutoscalingSettings> {
-        let request = self.transport.request(
-            reqwest::Method::GET,
-            &format!("/apps/{}/autoscaling", crate::transport::segment(app_id)),
-        );
-        self.transport.json(request).await
-    }
+    pub async fn get_application_autoscaling(&self, app_id: &str) -> crate::Result<AutoscalingSettings> {
+let request = self.transport.request(reqwest::Method::GET, &format!("/apps/{}/autoscaling", crate::transport::segment(app_id)));
+self.transport.json(request).await
+}
 
     /// Update Application Autoscaling
     ///
     /// Updates the autoscaling settings for an application, including minimum and maximum replica counts.
     ///
     /// `PUT /apps/{appId}/autoscaling`
-    pub async fn update_application_autoscaling(
-        &self,
-        app_id: &str,
-        body: &AutoscalingSettings,
-    ) -> crate::Result<()> {
-        let request = self
-            .transport
-            .request(
-                reqwest::Method::PUT,
-                &format!("/apps/{}/autoscaling", crate::transport::segment(app_id)),
-            )
-            .json(body);
-        self.transport.empty(request).await
-    }
+    pub async fn update_application_autoscaling(&self, app_id: &str, body: &AutoscalingSettings) -> crate::Result<()> {
+let request = self.transport.request(reqwest::Method::PUT, &format!("/apps/{}/autoscaling", crate::transport::segment(app_id))).json(body);
+self.transport.empty(request).await
+}
 
     /// List Container Registries
     ///
@@ -299,12 +210,10 @@ impl ContainersClient {
     /// Returns: Container registries were successfully retrieved.
     ///
     /// `GET /registries`
-    pub async fn list_container_registries(
-        &self,
-    ) -> crate::Result<ListContainerRegistriesResponse> {
-        let request = self.transport.request(reqwest::Method::GET, "/registries");
-        self.transport.json(request).await
-    }
+    pub async fn list_container_registries(&self) -> crate::Result<ListContainerRegistriesResponse> {
+let request = self.transport.request(reqwest::Method::GET, "/registries");
+self.transport.json(request).await
+}
 
     /// Add container registry
     ///
@@ -313,16 +222,10 @@ impl ContainersClient {
     /// Returns: Container registry was successfully added.
     ///
     /// `POST /registries`
-    pub async fn add_container_registry(
-        &self,
-        body: &ContainerRegistryRequest,
-    ) -> crate::Result<SaveContainerRegistryResult> {
-        let request = self
-            .transport
-            .request(reqwest::Method::POST, "/registries")
-            .json(body);
-        self.transport.json(request).await
-    }
+    pub async fn add_container_registry(&self, body: &ContainerRegistryRequest) -> crate::Result<SaveContainerRegistryResult> {
+let request = self.transport.request(reqwest::Method::POST, "/registries").json(body);
+self.transport.json(request).await
+}
 
     /// Search Public Container Images
     ///
@@ -331,16 +234,10 @@ impl ContainersClient {
     /// Returns: Public images were successfully retrieved.
     ///
     /// `POST /registries/public-images/search`
-    pub async fn search_for_public_container_images(
-        &self,
-        body: &SearchPublicContainerImagesRequest,
-    ) -> crate::Result<Vec<ContainerImage>> {
-        let request = self
-            .transport
-            .request(reqwest::Method::POST, "/registries/public-images/search")
-            .json(body);
-        self.transport.json(request).await
-    }
+    pub async fn search_for_public_container_images(&self, body: &SearchPublicContainerImagesRequest) -> crate::Result<Vec<ContainerImage>> {
+let request = self.transport.request(reqwest::Method::POST, "/registries/public-images/search").json(body);
+self.transport.json(request).await
+}
 
     /// List Container Images
     ///
@@ -349,16 +246,10 @@ impl ContainersClient {
     /// Returns: Container images were successfully retrieved.
     ///
     /// `POST /registries/images`
-    pub async fn list_container_images(
-        &self,
-        body: &ListContainerImagesRequest,
-    ) -> crate::Result<Vec<ContainerImage>> {
-        let request = self
-            .transport
-            .request(reqwest::Method::POST, "/registries/images")
-            .json(body);
-        self.transport.json(request).await
-    }
+    pub async fn list_container_images(&self, body: &ListContainerImagesRequest) -> crate::Result<Vec<ContainerImage>> {
+let request = self.transport.request(reqwest::Method::POST, "/registries/images").json(body);
+self.transport.json(request).await
+}
 
     /// Get Container Registry
     ///
@@ -367,16 +258,10 @@ impl ContainersClient {
     /// Returns: Container registry was successfully retrieved.
     ///
     /// `GET /registries/{registryId}`
-    pub async fn get_container_registry(
-        &self,
-        registry_id: i64,
-    ) -> crate::Result<ContainerRegistry> {
-        let request = self.transport.request(
-            reqwest::Method::GET,
-            &format!("/registries/{}", crate::transport::segment(registry_id)),
-        );
-        self.transport.json(request).await
-    }
+    pub async fn get_container_registry(&self, registry_id: i64) -> crate::Result<ContainerRegistry> {
+let request = self.transport.request(reqwest::Method::GET, &format!("/registries/{}", crate::transport::segment(registry_id)));
+self.transport.json(request).await
+}
 
     /// Update Container Registry
     ///
@@ -385,20 +270,10 @@ impl ContainersClient {
     /// Returns: Container registry was successfully updated.
     ///
     /// `PUT /registries/{registryId}`
-    pub async fn update_container_registry(
-        &self,
-        registry_id: i64,
-        body: &ContainerRegistryRequest,
-    ) -> crate::Result<SaveContainerRegistryResult> {
-        let request = self
-            .transport
-            .request(
-                reqwest::Method::PUT,
-                &format!("/registries/{}", crate::transport::segment(registry_id)),
-            )
-            .json(body);
-        self.transport.json(request).await
-    }
+    pub async fn update_container_registry(&self, registry_id: i64, body: &ContainerRegistryRequest) -> crate::Result<SaveContainerRegistryResult> {
+let request = self.transport.request(reqwest::Method::PUT, &format!("/registries/{}", crate::transport::segment(registry_id))).json(body);
+self.transport.json(request).await
+}
 
     /// Delete Container Registry
     ///
@@ -407,16 +282,10 @@ impl ContainersClient {
     /// Returns: Container registry was deleted or conflict returned.
     ///
     /// `DELETE /registries/{registryId}`
-    pub async fn delete_container_registry(
-        &self,
-        registry_id: i64,
-    ) -> crate::Result<RemoveContainerRegistryResult> {
-        let request = self.transport.request(
-            reqwest::Method::DELETE,
-            &format!("/registries/{}", crate::transport::segment(registry_id)),
-        );
-        self.transport.json(request).await
-    }
+    pub async fn delete_container_registry(&self, registry_id: i64) -> crate::Result<RemoveContainerRegistryResult> {
+let request = self.transport.request(reqwest::Method::DELETE, &format!("/registries/{}", crate::transport::segment(registry_id)));
+self.transport.json(request).await
+}
 
     /// List Container Image Tags
     ///
@@ -425,16 +294,10 @@ impl ContainersClient {
     /// Returns: Container image tags were successfully retrieved.
     ///
     /// `POST /registries/tags`
-    pub async fn list_container_image_tags(
-        &self,
-        body: &ListContainerImageTagsRequest,
-    ) -> crate::Result<Vec<ContainerImageTag>> {
-        let request = self
-            .transport
-            .request(reqwest::Method::POST, "/registries/tags")
-            .json(body);
-        self.transport.json(request).await
-    }
+    pub async fn list_container_image_tags(&self, body: &ListContainerImageTagsRequest) -> crate::Result<Vec<ContainerImageTag>> {
+let request = self.transport.request(reqwest::Method::POST, "/registries/tags").json(body);
+self.transport.json(request).await
+}
 
     /// List Container Image Tags Page
     ///
@@ -443,16 +306,10 @@ impl ContainersClient {
     /// Returns: The page of container image tags was successfully retrieved.
     ///
     /// `POST /registries/tags/paged`
-    pub async fn list_container_image_tags_page(
-        &self,
-        body: &ListContainerImageTagsPageRequest,
-    ) -> crate::Result<ListContainerImageTagsPageResponse> {
-        let request = self
-            .transport
-            .request(reqwest::Method::POST, "/registries/tags/paged")
-            .json(body);
-        self.transport.json(request).await
-    }
+    pub async fn list_container_image_tags_page(&self, body: &ListContainerImageTagsPageRequest) -> crate::Result<ListContainerImageTagsPageResponse> {
+let request = self.transport.request(reqwest::Method::POST, "/registries/tags/paged").json(body);
+self.transport.json(request).await
+}
 
     /// Get Image Config
     ///
@@ -461,16 +318,10 @@ impl ContainersClient {
     /// Returns: Image configuration was successfully retrieved.
     ///
     /// `POST /registries/image-config`
-    pub async fn get_image_config(
-        &self,
-        body: &ListContainerImageExposedPortsRequest,
-    ) -> crate::Result<ImageConfig> {
-        let request = self
-            .transport
-            .request(reqwest::Method::POST, "/registries/image-config")
-            .json(body);
-        self.transport.json(request).await
-    }
+    pub async fn get_image_config(&self, body: &ListContainerImageExposedPortsRequest) -> crate::Result<ImageConfig> {
+let request = self.transport.request(reqwest::Method::POST, "/registries/image-config").json(body);
+self.transport.json(request).await
+}
 
     /// Get Container Image Digest
     ///
@@ -479,16 +330,10 @@ impl ContainersClient {
     /// Returns: Container image tag digest was successfully retrieved.
     ///
     /// `POST /registries/digest`
-    pub async fn get_container_image_tag_digest(
-        &self,
-        body: &GetContainerImageDigestByTagRequest,
-    ) -> crate::Result<ImageTagInfo> {
-        let request = self
-            .transport
-            .request(reqwest::Method::POST, "/registries/digest")
-            .json(body);
-        self.transport.json(request).await
-    }
+    pub async fn get_container_image_tag_digest(&self, body: &GetContainerImageDigestByTagRequest) -> crate::Result<ImageTagInfo> {
+let request = self.transport.request(reqwest::Method::POST, "/registries/digest").json(body);
+self.transport.json(request).await
+}
 
     /// Get Container Config Suggestions
     ///
@@ -497,16 +342,10 @@ impl ContainersClient {
     /// Returns: Configuration suggestions were successfully retrieved.
     ///
     /// `POST /registries/config-suggestions`
-    pub async fn get_container_config_suggestions(
-        &self,
-        body: &GetContainerConfigSuggestionsRequest,
-    ) -> crate::Result<ContainerConfigSuggestions> {
-        let request = self
-            .transport
-            .request(reqwest::Method::POST, "/registries/config-suggestions")
-            .json(body);
-        self.transport.json(request).await
-    }
+    pub async fn get_container_config_suggestions(&self, body: &GetContainerConfigSuggestionsRequest) -> crate::Result<ContainerConfigSuggestions> {
+let request = self.transport.request(reqwest::Method::POST, "/registries/config-suggestions").json(body);
+self.transport.json(request).await
+}
 
     /// Find Container Image
     ///
@@ -515,16 +354,10 @@ impl ContainersClient {
     /// Returns: The registries were searched: every one that has the image tag is listed (none when it was found nowhere), with how each searched registry answered.
     ///
     /// `POST /registries/images/find`
-    pub async fn find_container_image(
-        &self,
-        body: &FindContainerImageRequest,
-    ) -> crate::Result<FindContainerImageResponse> {
-        let request = self
-            .transport
-            .request(reqwest::Method::POST, "/registries/images/find")
-            .json(body);
-        self.transport.json(request).await
-    }
+    pub async fn find_container_image(&self, body: &FindContainerImageRequest) -> crate::Result<FindContainerImageResponse> {
+let request = self.transport.request(reqwest::Method::POST, "/registries/images/find").json(body);
+self.transport.json(request).await
+}
 
     /// Set Container Environment Variables
     ///
@@ -533,25 +366,10 @@ impl ContainersClient {
     /// Returns: Environment variables were successfully replaced.
     ///
     /// `PUT /apps/{appId}/containers/{containerId}/env`
-    pub async fn set_container_environment_variables(
-        &self,
-        app_id: &str,
-        container_id: &str,
-        body: &std::collections::HashMap<String, String>,
-    ) -> crate::Result<ContainerTemplate> {
-        let request = self
-            .transport
-            .request(
-                reqwest::Method::PUT,
-                &format!(
-                    "/apps/{}/containers/{}/env",
-                    crate::transport::segment(app_id),
-                    crate::transport::segment(container_id)
-                ),
-            )
-            .json(body);
-        self.transport.json(request).await
-    }
+    pub async fn set_container_environment_variables(&self, app_id: &str, container_id: &str, body: &std::collections::HashMap<String, String>) -> crate::Result<ContainerTemplate> {
+let request = self.transport.request(reqwest::Method::PUT, &format!("/apps/{}/containers/{}/env", crate::transport::segment(app_id), crate::transport::segment(container_id))).json(body);
+self.transport.json(request).await
+}
 
     /// Get Container Template
     ///
@@ -560,42 +378,20 @@ impl ContainersClient {
     /// Returns: Container template retrieved successfully.
     ///
     /// `GET /apps/{appId}/containers/{containerId}`
-    pub async fn get_application_container_template(
-        &self,
-        app_id: &str,
-        container_id: &str,
-    ) -> crate::Result<ContainerTemplate> {
-        let request = self.transport.request(
-            reqwest::Method::GET,
-            &format!(
-                "/apps/{}/containers/{}",
-                crate::transport::segment(app_id),
-                crate::transport::segment(container_id)
-            ),
-        );
-        self.transport.json(request).await
-    }
+    pub async fn get_application_container_template(&self, app_id: &str, container_id: &str) -> crate::Result<ContainerTemplate> {
+let request = self.transport.request(reqwest::Method::GET, &format!("/apps/{}/containers/{}", crate::transport::segment(app_id), crate::transport::segment(container_id)));
+self.transport.json(request).await
+}
 
     /// Delete Container Template
     ///
     /// Deletes a container template from an application.
     ///
     /// `DELETE /apps/{appId}/containers/{containerId}`
-    pub async fn delete_application_container_template(
-        &self,
-        app_id: &str,
-        container_id: &str,
-    ) -> crate::Result<()> {
-        let request = self.transport.request(
-            reqwest::Method::DELETE,
-            &format!(
-                "/apps/{}/containers/{}",
-                crate::transport::segment(app_id),
-                crate::transport::segment(container_id)
-            ),
-        );
-        self.transport.empty(request).await
-    }
+    pub async fn delete_application_container_template(&self, app_id: &str, container_id: &str) -> crate::Result<()> {
+let request = self.transport.request(reqwest::Method::DELETE, &format!("/apps/{}/containers/{}", crate::transport::segment(app_id), crate::transport::segment(container_id)));
+self.transport.empty(request).await
+}
 
     /// Patch Container Template
     ///
@@ -604,25 +400,10 @@ impl ContainersClient {
     /// Returns: Container template was successfully updated.
     ///
     /// `PATCH /apps/{appId}/containers/{containerId}`
-    pub async fn patch_application_container_template(
-        &self,
-        app_id: &str,
-        container_id: &str,
-        body: &PatchContainerRequest,
-    ) -> crate::Result<ContainerTemplate> {
-        let request = self
-            .transport
-            .request(
-                reqwest::Method::PATCH,
-                &format!(
-                    "/apps/{}/containers/{}",
-                    crate::transport::segment(app_id),
-                    crate::transport::segment(container_id)
-                ),
-            )
-            .json(body);
-        self.transport.json(request).await
-    }
+    pub async fn patch_application_container_template(&self, app_id: &str, container_id: &str, body: &PatchContainerRequest) -> crate::Result<ContainerTemplate> {
+let request = self.transport.request(reqwest::Method::PATCH, &format!("/apps/{}/containers/{}", crate::transport::segment(app_id), crate::transport::segment(container_id))).json(body);
+self.transport.json(request).await
+}
 
     /// Add Container Template
     ///
@@ -631,66 +412,30 @@ impl ContainersClient {
     /// Returns: Container template was successfully added.
     ///
     /// `POST /apps/{appId}/containers`
-    pub async fn add_application_container_template(
-        &self,
-        app_id: &str,
-        body: &AddContainerRequest,
-    ) -> crate::Result<ContainerTemplate> {
-        let request = self
-            .transport
-            .request(
-                reqwest::Method::POST,
-                &format!("/apps/{}/containers", crate::transport::segment(app_id)),
-            )
-            .json(body);
-        self.transport.json(request).await
-    }
+    pub async fn add_application_container_template(&self, app_id: &str, body: &AddContainerRequest) -> crate::Result<ContainerTemplate> {
+let request = self.transport.request(reqwest::Method::POST, &format!("/apps/{}/containers", crate::transport::segment(app_id))).json(body);
+self.transport.json(request).await
+}
 
     /// Update Application Endpoint
     ///
     /// Update an existing endpoint for given application
     ///
     /// `PUT /apps/{appId}/endpoints/{endpointId}`
-    pub async fn update_application_endpoint(
-        &self,
-        app_id: &str,
-        endpoint_id: &str,
-        body: &EndpointRequest,
-    ) -> crate::Result<()> {
-        let request = self
-            .transport
-            .request(
-                reqwest::Method::PUT,
-                &format!(
-                    "/apps/{}/endpoints/{}",
-                    crate::transport::segment(app_id),
-                    crate::transport::segment(endpoint_id)
-                ),
-            )
-            .json(body);
-        self.transport.empty(request).await
-    }
+    pub async fn update_application_endpoint(&self, app_id: &str, endpoint_id: &str, body: &EndpointRequest) -> crate::Result<()> {
+let request = self.transport.request(reqwest::Method::PUT, &format!("/apps/{}/endpoints/{}", crate::transport::segment(app_id), crate::transport::segment(endpoint_id))).json(body);
+self.transport.empty(request).await
+}
 
     /// Delete application endpoint
     ///
     /// Delete endpoint of a container for given application.
     ///
     /// `DELETE /apps/{appId}/endpoints/{endpointId}`
-    pub async fn delete_application_endpoint(
-        &self,
-        app_id: &str,
-        endpoint_id: &str,
-    ) -> crate::Result<()> {
-        let request = self.transport.request(
-            reqwest::Method::DELETE,
-            &format!(
-                "/apps/{}/endpoints/{}",
-                crate::transport::segment(app_id),
-                crate::transport::segment(endpoint_id)
-            ),
-        );
-        self.transport.empty(request).await
-    }
+    pub async fn delete_application_endpoint(&self, app_id: &str, endpoint_id: &str) -> crate::Result<()> {
+let request = self.transport.request(reqwest::Method::DELETE, &format!("/apps/{}/endpoints/{}", crate::transport::segment(app_id), crate::transport::segment(endpoint_id)));
+self.transport.empty(request).await
+}
 
     /// List application endpoints
     ///
@@ -699,16 +444,10 @@ impl ContainersClient {
     /// Returns: Endpoints were successfully retrieved.
     ///
     /// `GET /apps/{appId}/endpoints`
-    pub async fn list_application_endpoints(
-        &self,
-        app_id: &str,
-    ) -> crate::Result<ListEndpointsResponse> {
-        let request = self.transport.request(
-            reqwest::Method::GET,
-            &format!("/apps/{}/endpoints", crate::transport::segment(app_id)),
-        );
-        self.transport.json(request).await
-    }
+    pub async fn list_application_endpoints(&self, app_id: &str) -> crate::Result<ListEndpointsResponse> {
+let request = self.transport.request(reqwest::Method::GET, &format!("/apps/{}/endpoints", crate::transport::segment(app_id)));
+self.transport.json(request).await
+}
 
     /// Add application endpoint
     ///
@@ -717,25 +456,10 @@ impl ContainersClient {
     /// Returns: Endpoint was successfully created.
     ///
     /// `POST /apps/{appId}/containers/{containerId}/endpoints`
-    pub async fn add_application_endpoint(
-        &self,
-        app_id: &str,
-        container_id: &str,
-        body: &EndpointRequest,
-    ) -> crate::Result<SaveEndpointResponse> {
-        let request = self
-            .transport
-            .request(
-                reqwest::Method::POST,
-                &format!(
-                    "/apps/{}/containers/{}/endpoints",
-                    crate::transport::segment(app_id),
-                    crate::transport::segment(container_id)
-                ),
-            )
-            .json(body);
-        self.transport.json(request).await
-    }
+    pub async fn add_application_endpoint(&self, app_id: &str, container_id: &str, body: &EndpointRequest) -> crate::Result<SaveEndpointResponse> {
+let request = self.transport.request(reqwest::Method::POST, &format!("/apps/{}/containers/{}/endpoints", crate::transport::segment(app_id), crate::transport::segment(container_id))).json(body);
+self.transport.json(request).await
+}
 
     /// Get User Limits
     ///
@@ -745,9 +469,9 @@ impl ContainersClient {
     ///
     /// `GET /limits`
     pub async fn get_limits(&self) -> crate::Result<UserLimits> {
-        let request = self.transport.request(reqwest::Method::GET, "/limits");
-        self.transport.json(request).await
-    }
+let request = self.transport.request(reqwest::Method::GET, "/limits");
+self.transport.json(request).await
+}
 
     /// List Nodes
     ///
@@ -757,11 +481,9 @@ impl ContainersClient {
     ///
     /// `GET /nodes`
     pub async fn list_nodes(&self, query: &ListNodesQuery) -> crate::Result<ListNodesResponse> {
-        let request = self
-            .transport
-            .request_with_query(reqwest::Method::GET, "/nodes", query)?;
-        self.transport.json(request).await
-    }
+let request = self.transport.request_with_query(reqwest::Method::GET, "/nodes", query)?;
+self.transport.json(request).await
+}
 
     /// List Node IPs (Plain)
     ///
@@ -771,9 +493,9 @@ impl ContainersClient {
     ///
     /// `GET /nodes/plain`
     pub async fn list_nodes_plain(&self) -> crate::Result<Vec<String>> {
-        let request = self.transport.request(reqwest::Method::GET, "/nodes/plain");
-        self.transport.json(request).await
-    }
+let request = self.transport.request(reqwest::Method::GET, "/nodes/plain");
+self.transport.json(request).await
+}
 
     /// Recreate Pod
     ///
@@ -781,16 +503,9 @@ impl ContainersClient {
     ///
     /// `POST /apps/{appId}/pods/{podId}/recreate`
     pub async fn recreate_pod(&self, app_id: &str, pod_id: &str) -> crate::Result<()> {
-        let request = self.transport.request(
-            reqwest::Method::POST,
-            &format!(
-                "/apps/{}/pods/{}/recreate",
-                crate::transport::segment(app_id),
-                crate::transport::segment(pod_id)
-            ),
-        );
-        self.transport.empty(request).await
-    }
+let request = self.transport.request(reqwest::Method::POST, &format!("/apps/{}/pods/{}/recreate", crate::transport::segment(app_id), crate::transport::segment(pod_id)));
+self.transport.empty(request).await
+}
 
     /// List Regions
     ///
@@ -799,15 +514,10 @@ impl ContainersClient {
     /// Returns: Regions were successfully retrieved.
     ///
     /// `GET /regions`
-    pub async fn list_regions(
-        &self,
-        query: &ListRegionsQuery,
-    ) -> crate::Result<ListRegionsResponse> {
-        let request = self
-            .transport
-            .request_with_query(reqwest::Method::GET, "/regions", query)?;
-        self.transport.json(request).await
-    }
+    pub async fn list_regions(&self, query: &ListRegionsQuery) -> crate::Result<ListRegionsResponse> {
+let request = self.transport.request_with_query(reqwest::Method::GET, "/regions", query)?;
+self.transport.json(request).await
+}
 
     /// Get Optimal Base Region
     ///
@@ -816,15 +526,10 @@ impl ContainersClient {
     /// Returns: Optimal base region was successfully retrieved.
     ///
     /// `GET /regions/optimal`
-    pub async fn get_optimal_base_region(
-        &self,
-        query: &GetOptimalBaseRegionQuery,
-    ) -> crate::Result<OptimalBaseRegionResponse> {
-        let request =
-            self.transport
-                .request_with_query(reqwest::Method::GET, "/regions/optimal", query)?;
-        self.transport.json(request).await
-    }
+    pub async fn get_optimal_base_region(&self, query: &GetOptimalBaseRegionQuery) -> crate::Result<OptimalBaseRegionResponse> {
+let request = self.transport.request_with_query(reqwest::Method::GET, "/regions/optimal", query)?;
+self.transport.json(request).await
+}
 
     /// Get Application Region Settings
     ///
@@ -833,65 +538,32 @@ impl ContainersClient {
     /// Returns: Region settings retrieved successfully.
     ///
     /// `GET /apps/{appId}/region-settings`
-    pub async fn get_application_region_settings(
-        &self,
-        app_id: &str,
-    ) -> crate::Result<RegionSettings> {
-        let request = self.transport.request(
-            reqwest::Method::GET,
-            &format!(
-                "/apps/{}/region-settings",
-                crate::transport::segment(app_id)
-            ),
-        );
-        self.transport.json(request).await
-    }
+    pub async fn get_application_region_settings(&self, app_id: &str) -> crate::Result<RegionSettings> {
+let request = self.transport.request(reqwest::Method::GET, &format!("/apps/{}/region-settings", crate::transport::segment(app_id)));
+self.transport.json(request).await
+}
 
     /// Update Application Region Settings
     ///
     /// Updates the region settings for an application, including allowed regions, required regions, and maximum allowed regions.
     ///
     /// `PUT /apps/{appId}/region-settings`
-    pub async fn update_application_region_settings(
-        &self,
-        app_id: &str,
-        body: &UpdateRegionSettingsRequest,
-    ) -> crate::Result<()> {
-        let request = self
-            .transport
-            .request(
-                reqwest::Method::PUT,
-                &format!(
-                    "/apps/{}/region-settings",
-                    crate::transport::segment(app_id)
-                ),
-            )
-            .json(body);
-        self.transport.empty(request).await
-    }
+    pub async fn update_application_region_settings(&self, app_id: &str, body: &UpdateRegionSettingsRequest) -> crate::Result<()> {
+let request = self.transport.request(reqwest::Method::PUT, &format!("/apps/{}/region-settings", crate::transport::segment(app_id))).json(body);
+self.transport.empty(request).await
+}
 
     /// Delete All Volume Instances
     ///
-    /// Deletes all volume instances for a volume template. All instances must be detached before deletion.
+    /// Deletes a volume template and all its instances. The volume must be detached from the application and all instances must be detached before deletion.
     ///
     /// Returns: Volume instances were deleted.
     ///
     /// `DELETE /apps/{appId}/volumes/{volumeId}`
-    pub async fn delete_all_volume_instances(
-        &self,
-        app_id: &str,
-        volume_id: &str,
-    ) -> crate::Result<DeleteAllVolumeInstancesResponse> {
-        let request = self.transport.request(
-            reqwest::Method::DELETE,
-            &format!(
-                "/apps/{}/volumes/{}",
-                crate::transport::segment(app_id),
-                crate::transport::segment(volume_id)
-            ),
-        );
-        self.transport.json(request).await
-    }
+    pub async fn delete_all_volume_instances(&self, app_id: &str, volume_id: &str) -> crate::Result<DeleteAllVolumeInstancesResponse> {
+let request = self.transport.request(reqwest::Method::DELETE, &format!("/apps/{}/volumes/{}", crate::transport::segment(app_id), crate::transport::segment(volume_id)));
+self.transport.json(request).await
+}
 
     /// Update Volume
     ///
@@ -900,25 +572,22 @@ impl ContainersClient {
     /// Returns: Volume was successfully updated.
     ///
     /// `PATCH /apps/{appId}/volumes/{volumeId}`
-    pub async fn update_volume(
-        &self,
-        app_id: &str,
-        volume_id: &str,
-        body: &PatchVolumeRequest,
-    ) -> crate::Result<UpdateVolumeResponse> {
-        let request = self
-            .transport
-            .request(
-                reqwest::Method::PATCH,
-                &format!(
-                    "/apps/{}/volumes/{}",
-                    crate::transport::segment(app_id),
-                    crate::transport::segment(volume_id)
-                ),
-            )
-            .json(body);
-        self.transport.json(request).await
-    }
+    pub async fn update_volume(&self, app_id: &str, volume_id: &str, body: &PatchVolumeRequest) -> crate::Result<UpdateVolumeResponse> {
+let request = self.transport.request(reqwest::Method::PATCH, &format!("/apps/{}/volumes/{}", crate::transport::segment(app_id), crate::transport::segment(volume_id))).json(body);
+self.transport.json(request).await
+}
+
+    /// Set Volume Mounts
+    ///
+    /// Sets every application container that mounts the volume and the path it is mounted at, in a single application update. Containers left out of the list stop mounting the volume; an empty list detaches it from the application.
+    ///
+    /// Returns: Mounts were set; when they changed, the pods restart once with the new mounts.
+    ///
+    /// `PUT /apps/{appId}/volumes/{volumeId}/mounts`
+    pub async fn set_volume_mounts(&self, app_id: &str, volume_id: &str, body: &SetVolumeMountsRequest) -> crate::Result<SetVolumeMountsResponse> {
+let request = self.transport.request(reqwest::Method::PUT, &format!("/apps/{}/volumes/{}/mounts", crate::transport::segment(app_id), crate::transport::segment(volume_id))).json(body);
+self.transport.json(request).await
+}
 
     /// List Volumes
     ///
@@ -928,12 +597,9 @@ impl ContainersClient {
     ///
     /// `GET /apps/{appId}/volumes`
     pub async fn list_volumes(&self, app_id: &str) -> crate::Result<ListVolumesResponse> {
-        let request = self.transport.request(
-            reqwest::Method::GET,
-            &format!("/apps/{}/volumes", crate::transport::segment(app_id)),
-        );
-        self.transport.json(request).await
-    }
+let request = self.transport.request(reqwest::Method::GET, &format!("/apps/{}/volumes", crate::transport::segment(app_id)));
+self.transport.json(request).await
+}
 
     /// Detach Volume
     ///
@@ -942,21 +608,10 @@ impl ContainersClient {
     /// Returns: Volume was detached from the application.
     ///
     /// `POST /apps/{appId}/volumes/{volumeId}/detach`
-    pub async fn detach_volume(
-        &self,
-        app_id: &str,
-        volume_id: &str,
-    ) -> crate::Result<DetachVolumeResponse> {
-        let request = self.transport.request(
-            reqwest::Method::POST,
-            &format!(
-                "/apps/{}/volumes/{}/detach",
-                crate::transport::segment(app_id),
-                crate::transport::segment(volume_id)
-            ),
-        );
-        self.transport.json(request).await
-    }
+    pub async fn detach_volume(&self, app_id: &str, volume_id: &str) -> crate::Result<DetachVolumeResponse> {
+let request = self.transport.request(reqwest::Method::POST, &format!("/apps/{}/volumes/{}/detach", crate::transport::segment(app_id), crate::transport::segment(volume_id)));
+self.transport.json(request).await
+}
 
     /// Delete Volume Instance
     ///
@@ -965,23 +620,10 @@ impl ContainersClient {
     /// Returns: Volume instance was deleted.
     ///
     /// `DELETE /apps/{appId}/volumes/{volumeId}/instances/{instanceId}`
-    pub async fn delete_volume_instance(
-        &self,
-        app_id: &str,
-        volume_id: &str,
-        instance_id: &str,
-    ) -> crate::Result<DeleteVolumeInstanceResponse> {
-        let request = self.transport.request(
-            reqwest::Method::DELETE,
-            &format!(
-                "/apps/{}/volumes/{}/instances/{}",
-                crate::transport::segment(app_id),
-                crate::transport::segment(volume_id),
-                crate::transport::segment(instance_id)
-            ),
-        );
-        self.transport.json(request).await
-    }
+    pub async fn delete_volume_instance(&self, app_id: &str, volume_id: &str, instance_id: &str) -> crate::Result<DeleteVolumeInstanceResponse> {
+let request = self.transport.request(reqwest::Method::DELETE, &format!("/apps/{}/volumes/{}/instances/{}", crate::transport::segment(app_id), crate::transport::segment(volume_id), crate::transport::segment(instance_id)));
+self.transport.json(request).await
+}
 
     /// List log-forwarding configurations
     ///
@@ -990,14 +632,10 @@ impl ContainersClient {
     /// Returns: List of log-forwarding configurations retrieved successfully.
     ///
     /// `GET /log/forwarding`
-    pub async fn list_log_forwarding_configurations(
-        &self,
-    ) -> crate::Result<ListLogForwardingResponse> {
-        let request = self
-            .transport
-            .request(reqwest::Method::GET, "/log/forwarding");
-        self.transport.json(request).await
-    }
+    pub async fn list_log_forwarding_configurations(&self) -> crate::Result<ListLogForwardingResponse> {
+let request = self.transport.request(reqwest::Method::GET, "/log/forwarding");
+self.transport.json(request).await
+}
 
     /// Create log forwarding configuration
     ///
@@ -1006,16 +644,10 @@ impl ContainersClient {
     /// Returns: Log-forwarding configuration created successfully.
     ///
     /// `POST /log/forwarding`
-    pub async fn create_log_forwarding_configuration(
-        &self,
-        body: &CreateLogForwardingRequest,
-    ) -> crate::Result<LogForwardingConfiguration> {
-        let request = self
-            .transport
-            .request(reqwest::Method::POST, "/log/forwarding")
-            .json(body);
-        self.transport.json(request).await
-    }
+    pub async fn create_log_forwarding_configuration(&self, body: &CreateLogForwardingRequest) -> crate::Result<LogForwardingConfiguration> {
+let request = self.transport.request(reqwest::Method::POST, "/log/forwarding").json(body);
+self.transport.json(request).await
+}
 
     /// Get log-forwarding configuration
     ///
@@ -1024,16 +656,10 @@ impl ContainersClient {
     /// Returns: Log-forwarding configuration retrieved successfully.
     ///
     /// `GET /log/forwarding/{appId}`
-    pub async fn get_log_forwarding_configuration(
-        &self,
-        app_id: &str,
-    ) -> crate::Result<LogForwardingConfiguration> {
-        let request = self.transport.request(
-            reqwest::Method::GET,
-            &format!("/log/forwarding/{}", crate::transport::segment(app_id)),
-        );
-        self.transport.json(request).await
-    }
+    pub async fn get_log_forwarding_configuration(&self, app_id: &str) -> crate::Result<LogForwardingConfiguration> {
+let request = self.transport.request(reqwest::Method::GET, &format!("/log/forwarding/{}", crate::transport::segment(app_id)));
+self.transport.json(request).await
+}
 
     /// Update log-forwarding configuration
     ///
@@ -1042,20 +668,10 @@ impl ContainersClient {
     /// Returns: Log-forwarding configuration updated successfully.
     ///
     /// `PUT /log/forwarding/{appId}`
-    pub async fn update_log_forwarding_configuration(
-        &self,
-        app_id: &str,
-        body: &CreateLogForwardingRequest,
-    ) -> crate::Result<LogForwardingConfiguration> {
-        let request = self
-            .transport
-            .request(
-                reqwest::Method::PUT,
-                &format!("/log/forwarding/{}", crate::transport::segment(app_id)),
-            )
-            .json(body);
-        self.transport.json(request).await
-    }
+    pub async fn update_log_forwarding_configuration(&self, app_id: &str, body: &CreateLogForwardingRequest) -> crate::Result<LogForwardingConfiguration> {
+let request = self.transport.request(reqwest::Method::PUT, &format!("/log/forwarding/{}", crate::transport::segment(app_id))).json(body);
+self.transport.json(request).await
+}
 
     /// Delete log-forwarding configuration
     ///
@@ -1063,12 +679,10 @@ impl ContainersClient {
     ///
     /// `DELETE /log/forwarding/{appId}`
     pub async fn delete_log_forwarding_configuration(&self, app_id: &str) -> crate::Result<()> {
-        let request = self.transport.request(
-            reqwest::Method::DELETE,
-            &format!("/log/forwarding/{}", crate::transport::segment(app_id)),
-        );
-        self.transport.empty(request).await
-    }
+let request = self.transport.request(reqwest::Method::DELETE, &format!("/log/forwarding/{}", crate::transport::segment(app_id)));
+self.transport.empty(request).await
+}
+
 }
 
 #[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
@@ -1077,10 +691,7 @@ pub struct AddApplicationRequest {
     pub name: String,
     #[serde(rename = "runtimeType")]
     pub runtime_type: ApplicationRuntimeType,
-    #[serde(
-        rename = "terminationGracePeriodSeconds",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "terminationGracePeriodSeconds", skip_serializing_if = "Option::is_none")]
     pub termination_grace_period_seconds: Option<i64>,
     #[serde(rename = "repositorySettings", skip_serializing_if = "Option::is_none")]
     pub repository_settings: Option<RepositorySettings>,
@@ -1125,10 +736,7 @@ pub struct AddContainerRequest {
     pub entry_point: Option<ContainerEntryPoint>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub probes: Option<ContainerProbes>,
-    #[serde(
-        rename = "environmentVariables",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "environmentVariables", skip_serializing_if = "Option::is_none")]
     pub environment_variables: Option<Vec<EnvironmentVariable>>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub endpoints: Option<Vec<EndpointRequest>>,
@@ -1190,6 +798,8 @@ pub struct Application {
     pub network_settings: Option<NetworkLimits>,
     #[serde(rename = "repositorySettings", skip_serializing_if = "Option::is_none")]
     pub repository_settings: Option<RepositorySettings>,
+    #[serde(rename = "terminationGracePeriodSeconds", skip_serializing_if = "Option::is_none")]
+    pub termination_grace_period_seconds: Option<i64>,
 }
 
 str_enum! {
@@ -1233,15 +843,9 @@ pub struct CdnEndpointRequest {
 #[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
 #[serde(default)]
 pub struct ContainerConfigSuggestions {
-    #[serde(
-        rename = "endpointSuggestions",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "endpointSuggestions", skip_serializing_if = "Option::is_none")]
     pub endpoint_suggestions: Option<Vec<EndpointRequest>>,
-    #[serde(
-        rename = "environmentVariablesSuggestions",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "environmentVariablesSuggestions", skip_serializing_if = "Option::is_none")]
     pub environment_variables_suggestions: Option<Vec<EnvironmentVariableSuggestion>>,
     #[serde(rename = "volumeSuggestions", skip_serializing_if = "Option::is_none")]
     pub volume_suggestions: Option<Vec<VolumeSuggestion>>,
@@ -1258,10 +862,7 @@ pub struct ContainerConfigSuggestions {
     pub instructions: Option<String>,
     /// The image's documentation (AppName, Description, Instructions, documented variables) is still being generated:
     /// ask again in a few seconds for it.
-    #[serde(
-        rename = "documentationPending",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "documentationPending", skip_serializing_if = "Option::is_none")]
     pub documentation_pending: Option<bool>,
     #[serde(rename = "registryUrl", skip_serializing_if = "Option::is_none")]
     pub registry_url: Option<String>,
@@ -1292,10 +893,7 @@ pub struct ContainerEndpoint {
     pub port_mappings: Vec<EndpointPortMapping>,
     #[serde(rename = "stickySessions", skip_serializing_if = "Option::is_none")]
     pub sticky_sessions: Option<EndpointStickySession>,
-    #[serde(
-        rename = "internalIpAddresses",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "internalIpAddresses", skip_serializing_if = "Option::is_none")]
     pub internal_ip_addresses: Option<Vec<EndpointInternalIp>>,
     #[serde(rename = "publicIpAddresses", skip_serializing_if = "Option::is_none")]
     pub public_ip_addresses: Option<Vec<EndpointInternalIp>>,
@@ -1358,10 +956,7 @@ pub struct ContainerPortMappingRequest {
 #[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
 #[serde(default)]
 pub struct ContainerProbe {
-    #[serde(
-        rename = "initialDelaySeconds",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "initialDelaySeconds", skip_serializing_if = "Option::is_none")]
     pub initial_delay_seconds: Option<i32>,
     #[serde(rename = "periodSeconds", skip_serializing_if = "Option::is_none")]
     pub period_seconds: Option<i32>,
@@ -1407,15 +1002,9 @@ pub struct ContainerRegistry {
     pub host_name: Option<String>,
     #[serde(rename = "userName", skip_serializing_if = "Option::is_none")]
     pub user_name: Option<String>,
-    #[serde(
-        rename = "firstPasswordSymbols",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "firstPasswordSymbols", skip_serializing_if = "Option::is_none")]
     pub first_password_symbols: Option<String>,
-    #[serde(
-        rename = "lastPasswordSymbols",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "lastPasswordSymbols", skip_serializing_if = "Option::is_none")]
     pub last_password_symbols: Option<String>,
     #[serde(rename = "createdAt", skip_serializing_if = "Option::is_none")]
     pub created_at: Option<String>,
@@ -1440,10 +1029,7 @@ pub struct ContainerRegistryRequest {
     /// Required for the Oci type and ignored for the others.
     #[serde(rename = "hostName", skip_serializing_if = "Option::is_none")]
     pub host_name: Option<String>,
-    #[serde(
-        rename = "passwordCredentials",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "passwordCredentials", skip_serializing_if = "Option::is_none")]
     pub password_credentials: Option<Credentials>,
 }
 
@@ -1472,10 +1058,7 @@ pub struct ContainerRequest {
     pub entry_point: Option<ContainerEntryPoint>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub probes: Option<ContainerProbes>,
-    #[serde(
-        rename = "environmentVariables",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "environmentVariables", skip_serializing_if = "Option::is_none")]
     pub environment_variables: Option<Vec<EnvironmentVariable>>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub endpoints: Option<Vec<EndpointRequest>>,
@@ -1664,10 +1247,7 @@ pub struct EndpointListItem {
     pub container_id: String,
     #[serde(rename = "stickySessions", skip_serializing_if = "Option::is_none")]
     pub sticky_sessions: Option<EndpointStickySession>,
-    #[serde(
-        rename = "internalIpAddresses",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "internalIpAddresses", skip_serializing_if = "Option::is_none")]
     pub internal_ip_addresses: Option<Vec<EndpointInternalIp>>,
     #[serde(rename = "publicIpAddresses", skip_serializing_if = "Option::is_none")]
     pub public_ip_addresses: Option<Vec<EndpointInternalIp>>,
@@ -2002,10 +1582,7 @@ str_enum! {
 #[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
 #[serde(default)]
 pub struct ImageConfig {
-    #[serde(
-        rename = "endpointSuggestions",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "endpointSuggestions", skip_serializing_if = "Option::is_none")]
     pub endpoint_suggestions: Option<Vec<EndpointRequest>>,
     #[serde(rename = "volumeSuggestions", skip_serializing_if = "Option::is_none")]
     pub volume_suggestions: Option<Vec<VolumeSuggestion>>,
@@ -2253,15 +1830,9 @@ pub struct LogForwardingConfiguration {
 #[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
 #[serde(default)]
 pub struct NetworkLimits {
-    #[serde(
-        rename = "ingressBandwidthLimit",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "ingressBandwidthLimit", skip_serializing_if = "Option::is_none")]
     pub ingress_bandwidth_limit: Option<i64>,
-    #[serde(
-        rename = "egressBandwidthLimit",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "egressBandwidthLimit", skip_serializing_if = "Option::is_none")]
     pub egress_bandwidth_limit: Option<i64>,
 }
 
@@ -2292,19 +1863,13 @@ pub struct Overview {
     pub average_cpu: Option<DoubleStatusIndicator>,
     #[serde(rename = "averageRAM", skip_serializing_if = "Option::is_none")]
     pub average_ram: Option<DoubleStatusIndicator>,
-    #[serde(
-        rename = "averageVolumesUsage",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "averageVolumesUsage", skip_serializing_if = "Option::is_none")]
     pub average_volumes_usage: Option<DoubleStatusIndicator>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub regions: Option<Vec<OverviewRegion>>,
     #[serde(rename = "averageLatency", skip_serializing_if = "Option::is_none")]
     pub average_latency: Option<f64>,
-    #[serde(
-        rename = "totalVolumeSizeInGb",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "totalVolumeSizeInGb", skip_serializing_if = "Option::is_none")]
     pub total_volume_size_in_gb: Option<f64>,
     #[serde(rename = "monthlyCost", skip_serializing_if = "Option::is_none")]
     pub monthly_cost: Option<f64>,
@@ -2350,10 +1915,7 @@ pub struct OverviewLimits {
     pub cpu_cores: Option<f64>,
     #[serde(rename = "ramBytes", skip_serializing_if = "Option::is_none")]
     pub ram_bytes: Option<f64>,
-    #[serde(
-        rename = "outboundBandwidthBytesPerSecond",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "outboundBandwidthBytesPerSecond", skip_serializing_if = "Option::is_none")]
     pub outbound_bandwidth_bytes_per_second: Option<f64>,
 }
 
@@ -2367,10 +1929,7 @@ pub struct OverviewPod {
     pub status: Option<PodStatus>,
     #[serde(rename = "lastHeartBeat", skip_serializing_if = "Option::is_none")]
     pub last_heart_beat: Option<String>,
-    #[serde(
-        rename = "outboundTrafficChart",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "outboundTrafficChart", skip_serializing_if = "Option::is_none")]
     pub outbound_traffic_chart: Option<std::collections::HashMap<String, i64>>,
     #[serde(rename = "cpuUsage", skip_serializing_if = "Option::is_none")]
     pub cpu_usage: Option<f64>,
@@ -2380,44 +1939,23 @@ pub struct OverviewPod {
     pub containers: Option<Vec<OverviewContainer>>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub message: Option<String>,
-    #[serde(
-        rename = "volumesUtilizationPercentage",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "volumesUtilizationPercentage", skip_serializing_if = "Option::is_none")]
     pub volumes_utilization_percentage: Option<std::collections::HashMap<String, f64>>,
-    #[serde(
-        rename = "ephemeralStorageUsageBytes",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "ephemeralStorageUsageBytes", skip_serializing_if = "Option::is_none")]
     pub ephemeral_storage_usage_bytes: Option<i64>,
-    #[serde(
-        rename = "ephemeralStorageLimitBytes",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "ephemeralStorageLimitBytes", skip_serializing_if = "Option::is_none")]
     pub ephemeral_storage_limit_bytes: Option<i64>,
-    #[serde(
-        rename = "ephemeralStorageUsageRatio",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "ephemeralStorageUsageRatio", skip_serializing_if = "Option::is_none")]
     pub ephemeral_storage_usage_ratio: Option<f64>,
-    #[serde(
-        rename = "outboundConnectionsLimit",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "outboundConnectionsLimit", skip_serializing_if = "Option::is_none")]
     pub outbound_connections_limit: Option<i32>,
-    #[serde(
-        rename = "outboundConnectionsRejectedDiff",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "outboundConnectionsRejectedDiff", skip_serializing_if = "Option::is_none")]
     pub outbound_connections_rejected_diff: Option<i64>,
     #[serde(rename = "cpuUsageCores", skip_serializing_if = "Option::is_none")]
     pub cpu_usage_cores: Option<f64>,
     #[serde(rename = "ramUsageBytes", skip_serializing_if = "Option::is_none")]
     pub ram_usage_bytes: Option<f64>,
-    #[serde(
-        rename = "outboundBandwidthBytesPerSecond",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "outboundBandwidthBytesPerSecond", skip_serializing_if = "Option::is_none")]
     pub outbound_bandwidth_bytes_per_second: Option<f64>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub volumes: Option<Vec<OverviewPodVolume>>,
@@ -2451,10 +1989,7 @@ pub struct OverviewRegion {
     pub average_cpu: Option<f64>,
     #[serde(rename = "averageRAM", skip_serializing_if = "Option::is_none")]
     pub average_ram: Option<f64>,
-    #[serde(
-        rename = "averageVolumesUsagePercentage",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "averageVolumesUsagePercentage", skip_serializing_if = "Option::is_none")]
     pub average_volumes_usage_percentage: Option<f64>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub requests: Option<f64>,
@@ -2506,10 +2041,7 @@ pub struct PatchContainerRequest {
     pub entry_point: Option<ContainerEntryPoint>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub probes: Option<ContainerProbes>,
-    #[serde(
-        rename = "environmentVariables",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "environmentVariables", skip_serializing_if = "Option::is_none")]
     pub environment_variables: Option<Vec<EnvironmentVariable>>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub endpoints: Option<Vec<EndpointRequest>>,
@@ -2683,6 +2215,38 @@ pub struct SearchPublicContainerImagesRequest {
     pub page: Option<i32>,
 }
 
+/// One container that mounts the volume
+#[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
+#[serde(default)]
+pub struct SetVolumeMountRequest {
+    /// Id of the container template that mounts the volume.
+    #[serde(rename = "containerId")]
+    pub container_id: String,
+    /// Absolute path inside the container where the volume is mounted.
+    #[serde(rename = "mountPath")]
+    pub mount_path: String,
+}
+
+/// Set volume mounts request
+#[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
+#[serde(default)]
+pub struct SetVolumeMountsRequest {
+    /// Every container that mounts the volume, each at its own path. A container left out does not mount it
+    /// any more, so an empty list detaches the volume from the application. The whole list is applied in one
+    /// application update, or nothing is when any mount is invalid.
+    pub mounts: Vec<SetVolumeMountRequest>,
+}
+
+/// Set volume mounts response
+#[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
+#[serde(default)]
+pub struct SetVolumeMountsResponse {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub name: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub mounts: Option<Vec<VolumeMountInList>>,
+}
+
 #[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
 #[serde(default)]
 pub struct Statistics {
@@ -2700,24 +2264,13 @@ pub struct Statistics {
     pub ram_usage_chart: Option<std::collections::HashMap<String, f64>>,
     #[serde(rename = "trafficChart", skip_serializing_if = "Option::is_none")]
     pub traffic_chart: Option<std::collections::HashMap<String, f64>>,
-    #[serde(
-        rename = "volumesSplitUsageChart",
-        skip_serializing_if = "Option::is_none"
-    )]
-    pub volumes_split_usage_chart:
-        Option<std::collections::HashMap<String, std::collections::HashMap<String, f64>>>,
-    #[serde(
-        rename = "volumesSplitCapacityChart",
-        skip_serializing_if = "Option::is_none"
-    )]
-    pub volumes_split_capacity_chart:
-        Option<std::collections::HashMap<String, std::collections::HashMap<String, f64>>>,
+    #[serde(rename = "volumesSplitUsageChart", skip_serializing_if = "Option::is_none")]
+    pub volumes_split_usage_chart: Option<std::collections::HashMap<String, std::collections::HashMap<String, f64>>>,
+    #[serde(rename = "volumesSplitCapacityChart", skip_serializing_if = "Option::is_none")]
+    pub volumes_split_capacity_chart: Option<std::collections::HashMap<String, std::collections::HashMap<String, f64>>>,
     #[serde(rename = "volumesUsageChart", skip_serializing_if = "Option::is_none")]
     pub volumes_usage_chart: Option<std::collections::HashMap<String, f64>>,
-    #[serde(
-        rename = "volumesCapacityChart",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "volumesCapacityChart", skip_serializing_if = "Option::is_none")]
     pub volumes_capacity_chart: Option<std::collections::HashMap<String, f64>>,
 }
 
@@ -2728,10 +2281,7 @@ pub struct StatisticsCharts {
     pub active_regions_chart: Option<std::collections::HashMap<String, i32>>,
     #[serde(rename = "instancesChart", skip_serializing_if = "Option::is_none")]
     pub instances_chart: Option<std::collections::HashMap<String, i32>>,
-    #[serde(
-        rename = "instancesSplitChart",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "instancesSplitChart", skip_serializing_if = "Option::is_none")]
     pub instances_split_chart: Option<std::collections::HashMap<String, StatisticsRegionalChart>>,
     #[serde(rename = "cpuUsageSplitChart", skip_serializing_if = "Option::is_none")]
     pub cpu_usage_split_chart: Option<std::collections::HashMap<String, StatisticsRegionalChart>>,
@@ -2739,29 +2289,14 @@ pub struct StatisticsCharts {
     pub ram_usage_split_chart: Option<std::collections::HashMap<String, StatisticsRegionalChart>>,
     #[serde(rename = "trafficSplitChart", skip_serializing_if = "Option::is_none")]
     pub traffic_split_chart: Option<std::collections::HashMap<String, StatisticsRegionalChart>>,
-    #[serde(
-        rename = "ephemeralStorageSplitUsageChart",
-        skip_serializing_if = "Option::is_none"
-    )]
-    pub ephemeral_storage_split_usage_chart:
-        Option<std::collections::HashMap<String, StatisticsRegionalChart>>,
-    #[serde(
-        rename = "ephemeralStorageSplitLimitChart",
-        skip_serializing_if = "Option::is_none"
-    )]
-    pub ephemeral_storage_split_limit_chart:
-        Option<std::collections::HashMap<String, StatisticsRegionalChart>>,
-    #[serde(
-        rename = "volumesSplitUsageChart",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "ephemeralStorageSplitUsageChart", skip_serializing_if = "Option::is_none")]
+    pub ephemeral_storage_split_usage_chart: Option<std::collections::HashMap<String, StatisticsRegionalChart>>,
+    #[serde(rename = "ephemeralStorageSplitLimitChart", skip_serializing_if = "Option::is_none")]
+    pub ephemeral_storage_split_limit_chart: Option<std::collections::HashMap<String, StatisticsRegionalChart>>,
+    #[serde(rename = "volumesSplitUsageChart", skip_serializing_if = "Option::is_none")]
     pub volumes_split_usage_chart: Option<std::collections::HashMap<String, StatisticsVolumeChart>>,
-    #[serde(
-        rename = "volumesSplitCapacityChart",
-        skip_serializing_if = "Option::is_none"
-    )]
-    pub volumes_split_capacity_chart:
-        Option<std::collections::HashMap<String, StatisticsVolumeChart>>,
+    #[serde(rename = "volumesSplitCapacityChart", skip_serializing_if = "Option::is_none")]
+    pub volumes_split_capacity_chart: Option<std::collections::HashMap<String, StatisticsVolumeChart>>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub releases: Option<Vec<StatisticsRelease>>,
 }
@@ -2908,10 +2443,7 @@ pub struct UsageSummary {
     pub average_latency: Option<f64>,
     #[serde(rename = "currentLatency", skip_serializing_if = "Option::is_none")]
     pub current_latency: Option<f64>,
-    #[serde(
-        rename = "totalVolumeSizeInGb",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "totalVolumeSizeInGb", skip_serializing_if = "Option::is_none")]
     pub total_volume_size_in_gb: Option<f64>,
     #[serde(rename = "monthlyCost", skip_serializing_if = "Option::is_none")]
     pub monthly_cost: Option<f64>,
@@ -2924,45 +2456,21 @@ pub struct UsageSummary {
 #[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
 #[serde(default)]
 pub struct UserLimits {
-    #[serde(
-        rename = "maxNumberOfApplications",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "maxNumberOfApplications", skip_serializing_if = "Option::is_none")]
     pub max_number_of_applications: Option<i32>,
-    #[serde(
-        rename = "existingNumberOfApplications",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "existingNumberOfApplications", skip_serializing_if = "Option::is_none")]
     pub existing_number_of_applications: Option<i32>,
-    #[serde(
-        rename = "maxNumberOfRegionsPerApplication",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "maxNumberOfRegionsPerApplication", skip_serializing_if = "Option::is_none")]
     pub max_number_of_regions_per_application: Option<i32>,
-    #[serde(
-        rename = "maxCpuMilliCoresPerPod",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "maxCpuMilliCoresPerPod", skip_serializing_if = "Option::is_none")]
     pub max_cpu_milli_cores_per_pod: Option<i32>,
-    #[serde(
-        rename = "maxMemoryBytesPerPod",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "maxMemoryBytesPerPod", skip_serializing_if = "Option::is_none")]
     pub max_memory_bytes_per_pod: Option<i64>,
-    #[serde(
-        rename = "maxNumberOfInstancesPerRegion",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "maxNumberOfInstancesPerRegion", skip_serializing_if = "Option::is_none")]
     pub max_number_of_instances_per_region: Option<i32>,
-    #[serde(
-        rename = "maxNumberOfInstancesPerApplication",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "maxNumberOfInstancesPerApplication", skip_serializing_if = "Option::is_none")]
     pub max_number_of_instances_per_application: Option<i32>,
-    #[serde(
-        rename = "maxNumberOfVolumesPerApplication",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "maxNumberOfVolumesPerApplication", skip_serializing_if = "Option::is_none")]
     pub max_number_of_volumes_per_application: Option<i32>,
     #[serde(rename = "maxVolumeSize", skip_serializing_if = "Option::is_none")]
     pub max_volume_size: Option<i32>,
@@ -2988,20 +2496,16 @@ pub struct VolumeInList {
     pub size: Option<f64>,
     #[serde(rename = "totalUsage", skip_serializing_if = "Option::is_none")]
     pub total_usage: Option<f64>,
-    #[serde(
-        rename = "totalInstancesCount",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "totalInstancesCount", skip_serializing_if = "Option::is_none")]
     pub total_instances_count: Option<i32>,
-    #[serde(
-        rename = "attachedInstancesCount",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "attachedInstancesCount", skip_serializing_if = "Option::is_none")]
     pub attached_instances_count: Option<i32>,
     #[serde(rename = "containersCount", skip_serializing_if = "Option::is_none")]
     pub containers_count: Option<i32>,
     #[serde(rename = "volumeInstances", skip_serializing_if = "Option::is_none")]
     pub volume_instances: Option<Vec<VolumeInstance>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub mounts: Option<Vec<VolumeMountInList>>,
 }
 
 /// Volume instance model
@@ -3024,6 +2528,19 @@ pub struct VolumeInstance {
     pub usage: Option<f64>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub set: Option<String>,
+}
+
+/// Where the application's container templates mount the volume (the desired state). Empty once the
+/// volume is detached, even while its instances are still attached to pods that have not rolled yet.
+#[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
+#[serde(default)]
+pub struct VolumeMountInList {
+    #[serde(rename = "containerId", skip_serializing_if = "Option::is_none")]
+    pub container_id: Option<String>,
+    #[serde(rename = "containerName", skip_serializing_if = "Option::is_none")]
+    pub container_name: Option<String>,
+    #[serde(rename = "mountPath", skip_serializing_if = "Option::is_none")]
+    pub mount_path: Option<String>,
 }
 
 #[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
@@ -3061,10 +2578,7 @@ str_enum! {
 pub struct VolumeSuggestion {
     #[serde(rename = "containerPath", skip_serializing_if = "Option::is_none")]
     pub container_path: Option<String>,
-    #[serde(
-        rename = "suggestedVolumeName",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "suggestedVolumeName", skip_serializing_if = "Option::is_none")]
     pub suggested_volume_name: Option<String>,
 }
 
@@ -3138,3 +2652,5 @@ pub struct GetOptimalBaseRegionQuery {
     #[serde(rename = "gpuCount", skip_serializing_if = "Option::is_none")]
     pub gpu_count: Option<i32>,
 }
+
+
